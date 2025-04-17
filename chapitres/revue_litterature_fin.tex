@@ -1,0 +1,43 @@
+\subsection{Interprétabilité des modèles et défis dans leur application en finance}
+
+Malgré leurs performances souvent supérieures, l'adoption des modèles de machine learning dans la gestion du risque de crédit se heurte à des défis significatifs, particulièrement en termes d'interprétabilité. Ce caractère de "boîte noire" constitue un obstacle majeur dans un domaine où la compréhension des facteurs de risque et la justification des décisions revêtent une importance cruciale, tant du point de vue réglementaire que de la gouvernance interne.
+
+Comme le souligne \citet{rudin2019} dans son article fondamental "Stop Explaining Black Box Models for High-Stakes Decisions and Use Interpretable Models Instead", l'utilisation de modèles opaques pour des décisions à fort impact comme l'octroi de crédit soulève des questions éthiques et pratiques majeures. Elle distingue deux approches de l'interprétabilité : l'utilisation de modèles intrinsèquement interprétables (comme les arbres de décision simples ou les modèles additifs généralisés), et l'application post-hoc de techniques d'explication à des modèles complexes.
+
+Dans la seconde catégorie, la méthode SHAP (SHapley Additive exPlanations), développée par \citet{lundberg2017}, a émergé comme l'une des techniques les plus robustes pour expliquer les prédictions des modèles de machine learning. Basée sur la théorie des jeux coopératifs, SHAP attribue à chaque variable une valeur d'importance qui représente sa contribution marginale à la prédiction, moyennée sur toutes les combinaisons possibles d'autres variables :
+
+\begin{equation}
+\phi_i(f, x) = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!(|N|-|S|-1)!}{|N|!} [f_x(S \cup \{i\}) - f_x(S)]
+\end{equation}
+
+où $\phi_i$ représente la valeur SHAP pour la caractéristique i, N l'ensemble de toutes les caractéristiques, S un sous-ensemble de caractéristiques, et $f_x$ la fonction de prédiction conditionnée sur les valeurs observées x.
+
+Dans le contexte spécifique du risque de crédit, \citet{bracke2019} ont appliqué cette méthode pour expliquer les prédictions de modèles XGBoost sur des portefeuilles de prêts hypothécaires. Leur étude a démontré comment SHAP permettait non seulement de quantifier l'importance relative des différentes variables (ratio prêt-valeur, scores de crédit, etc.), mais aussi d'analyser comment leur influence variait selon les segments d'emprunteurs, offrant ainsi des insights précieux pour la gestion différenciée du risque.
+
+Une approche alternative pour améliorer l'interprétabilité consiste à contraindre la structure même des modèles. Les modèles additifs généralisés (GAM), popularisés en finance par \citet{caruana2015}, décomposent la fonction de prédiction en une somme de fonctions univariées, facilitant ainsi la visualisation et l'interprétation de l'effet marginal de chaque variable :
+
+\begin{equation}
+g(E[y]) = \beta_0 + \sum_{j=1}^p f_j(x_j)
+\end{equation}
+
+où g est une fonction de lien, $f_j$ des fonctions non paramétriques estimées à partir des données, et $x_j$ les variables explicatives.
+
+Dans leur application à la modélisation du risque de crédit, \citet{dumitrescu2022} ont démontré que ces modèles pouvaient atteindre des performances comparables à celles des algorithmes de machine learning les plus avancés, tout en offrant une interprétabilité nettement supérieure. Leur étude a notamment mis en évidence comment les GAM permettaient d'identifier des relations non linéaires importantes entre certains ratios financiers et le risque de défaut, relations que les modèles logistiques traditionnels ne capturaient pas.
+
+Au-delà de l'interprétabilité, l'application des modèles de machine learning en finance soulève d'autres défis significatifs. La stabilité temporelle de ces modèles, notamment, constitue une préoccupation majeure dans un environnement caractérisé par des changements de régime et des crises sporadiques. \citet{moscatelli2020} ont étudié cette question en comparant la robustesse de différents algorithmes face à des perturbations structurelles simulées et réelles. Leurs résultats suggèrent que les modèles de gradient boosting, comme XGBoost, présentent généralement une meilleure stabilité que les réseaux de neurones profonds, mais restent néanmoins vulnérables aux changements de régime majeurs, soulignant l'importance des tests de stress et des analyses de sensibilité dans l'évaluation de ces modèles.
+
+Le problème du déséquilibre des classes, particulièrement prononcé dans les données de crédit où les défauts sont rares, constitue un autre défi méthodologique majeur. \citet{fernandez2018} ont réalisé une revue exhaustive des techniques pour traiter ce problème, incluant le rééchantillonnage (sur-échantillonnage de la classe minoritaire ou sous-échantillonnage de la classe majoritaire), la génération synthétique d'exemples minoritaires (SMOTE), et l'ajustement des fonctions de coût. Leur analyse suggère qu'aucune approche n'est universellement supérieure, et que la combinaison de plusieurs techniques, adaptées aux caractéristiques spécifiques du problème, offre généralement les meilleurs résultats.
+
+Du point de vue réglementaire, l'adoption des modèles de machine learning pour l'évaluation du risque de crédit soulève des questions importantes concernant leur validation et leur surveillance. Le \citet{comite2018} a publié des recommandations spécifiques à ce sujet, soulignant notamment l'importance d'une gouvernance appropriée des modèles, d'une validation rigoureuse intégrant des tests de robustesse, et d'une surveillance continue de leur performance. Ces exigences réglementaires peuvent constituer un frein à l'adoption de modèles trop complexes ou insuffisamment interprétables.
+
+Dans une perspective plus large, l'intégration des critères ESG dans les modèles de machine learning pour le risque de crédit soulève des défis méthodologiques spécifiques. \citet{bolton2021} ont mis en évidence la complexité de cette intégration, notamment en raison de la non-stationnarité des relations entre facteurs ESG et risque financier (due à l'évolution des réglementations et des attentes sociétales), de l'hétérogénéité sectorielle des impacts ESG, et des interactions complexes entre les différentes dimensions E, S et G. Leur étude suggère l'importance d'approches flexibles, spécifiques aux secteurs, et intégrant explicitement la dimension temporelle pour capturer ces relations dynamiques.
+
+\section{Conclusion et transition}
+
+Cette revue de littérature a permis d'explorer les trois piliers fondamentaux de notre recherche : les modèles traditionnels du risque de crédit, l'intégration des critères ESG dans l'évaluation financière, et l'application des techniques de machine learning à la modélisation du risque. Ces domaines, bien qu'ayant été largement étudiés séparément, présentent d'importantes synergies potentielles encore insuffisamment explorées dans la littérature académique et les pratiques professionnelles.
+
+Les modèles structurels et réduits, bien qu'offrant un cadre théorique rigoureux, peinent à intégrer de manière satisfaisante les facteurs extra-financiers comme les critères ESG. Les approches statistiques traditionnelles, quant à elles, se heurtent à des limitations en termes de capacité à capturer des relations non linéaires complexes. Parallèlement, les avancées en machine learning offrent des perspectives prometteuses pour surmonter ces limitations, mais soulèvent des défis importants en termes d'interprétabilité et de robustesse.
+
+L'influence croissante des critères ESG sur le risque de crédit est aujourd'hui largement reconnue, mais sa formalisation quantitative dans les modèles de risque reste insuffisamment développée. Cette lacune constitue à la fois un défi méthodologique et une opportunité de recherche significative, particulièrement pertinente dans le contexte actuel de transition écologique et de montée des préoccupations sociales et de gouvernance.
+
+Dans les chapitres suivants, nous nous appuierons sur cette base théorique pour développer et tester empiriquement une méthodologie intégrant les critères ESG dans la modélisation du risque de crédit d'un portefeuille obligataire, en exploitant le potentiel des techniques de machine learning tout en adressant leurs limitations. Cette approche vise à combler la lacune identifiée dans la littérature et à fournir un cadre analytique robuste pour les praticiens de la gestion des risques et de l'investissement responsable.
