@@ -1,0 +1,186 @@
+\chapter{Revue de littérature}
+
+\section{Modélisation traditionnelle du risque de crédit}
+
+\subsection{Modèles structurels}
+
+Les modèles structurels constituent l'une des approches fondamentales dans l'évaluation du risque de crédit. Ces modèles, initiés par les travaux pionniers de \citet{black1973} et développés par \citet{merton1974}, conceptualisent le défaut d'une entreprise comme un événement endogène découlant de l'évolution de la valeur de ses actifs par rapport à ses engagements financiers.
+
+Le modèle de Merton (1974) constitue la pierre angulaire de cette approche. Ce dernier considère que le défaut survient uniquement à l'échéance de la dette si la valeur des actifs de l'entreprise tombe en dessous de la valeur faciale de ses engagements. Dans ce cadre, la valeur des actions ($E$) peut être modélisée comme une option d'achat sur les actifs de l'entreprise ($V$) avec un prix d'exercice égal à la valeur faciale de la dette ($D$) :
+
+\begin{equation}
+E = V \cdot N(d_1) - D \cdot e^{-rT} \cdot N(d_2)
+\end{equation}
+
+où $N(\cdot)$ représente la fonction de répartition de la loi normale standard, et :
+
+\begin{equation}
+d_1 = \frac{\ln(\frac{V}{D}) + (r + \frac{\sigma_V^2}{2})T}{\sigma_V\sqrt{T}}
+\end{equation}
+
+\begin{equation}
+d_2 = d_1 - \sigma_V\sqrt{T}
+\end{equation}
+
+La probabilité de défaut (PD) est alors donnée par :
+
+\begin{equation}
+PD = N\left(-\frac{\ln(\frac{V}{D}) + (r - \frac{\sigma_V^2}{2})T}{\sigma_V\sqrt{T}}\right) = N(-d_2)
+\end{equation}
+
+Cette formulation a permis de fournir un cadre rigoureux pour l'évaluation quantitative du risque de crédit, établissant une relation directe entre les caractéristiques financières de l'entreprise (structure du capital, volatilité des actifs) et sa probabilité de défaut.
+
+\citet{black1976} ont étendu le modèle de Merton en introduisant la possibilité d'un défaut avant l'échéance, considérant que celui-ci survient lorsque la valeur des actifs atteint une barrière inférieure prédéfinie. Cette innovation a permis de rendre le modèle plus réaliste en reconnaissant que les créanciers peuvent intervenir avant l'échéance si la situation financière de l'entreprise se détériore significativement. Dans leur modèle, la probabilité de défaut s'exprime par une formule plus complexe intégrant cette barrière, généralement notée $K$ :
+
+\begin{equation}
+PD = N\left(-\frac{\ln(\frac{V}{K}) + (r - \frac{\sigma_V^2}{2})t}{\sigma_V\sqrt{t}}\right) + \left(\frac{K}{V}\right)^{2\lambda}N\left(-\frac{\ln(\frac{K^2}{VD}) + (r - \frac{\sigma_V^2}{2})t}{\sigma_V\sqrt{t}}\right)
+\end{equation}
+
+où $\lambda = \frac{r - \frac{\sigma_V^2}{2}}{\sigma_V^2}$
+
+Comme le souligne \citet{sundaresan2013} dans sa revue critique des modèles structurels, ces approches présentent l'avantage théorique d'établir un lien causal entre la structure financière de l'entreprise et son risque de défaut, offrant ainsi un cadre économiquement intuitif. Cependant, leur mise en œuvre pratique se heurte à plusieurs défis majeurs, notamment l'inobservabilité directe de la valeur des actifs et de leur volatilité, ainsi que la spécification souvent trop simpliste de la structure de capital.
+
+\citet{leland1996} ont affiné ces modèles en incorporant des structures de capital plus complexes et des considérations fiscales. Leur modèle optimise la structure du capital en équilibrant les avantages fiscaux de la dette et les coûts de détresse financière, tout en déterminant endogènement le seuil de défaut. Cette approche permet une modélisation plus réaliste de la décision de défaut comme un choix stratégique de l'entreprise.
+
+Malgré ces améliorations, \citet{duffie2001} ont mis en évidence une limitation fondamentale des modèles structurels : l'hypothèse d'information parfaite. En introduisant l'incertitude sur la valeur des actifs, ils ont établi un pont entre les modèles structurels et les modèles à forme réduite, ouvrant la voie à des approches hybrides plus flexibles.
+
+\subsection{Modèles réduits}
+
+Contrairement aux modèles structurels qui modélisent le défaut comme découlant de l'évolution de la valeur des actifs de l'entreprise, les modèles réduits (ou modèles à forme réduite) conceptualisent le défaut comme un événement exogène gouverné par un processus stochastique. Ces modèles se concentrent sur la modélisation directe de la probabilité de défaut sans chercher à expliquer ses causes économiques sous-jacentes.
+
+\citet{jarrow1995} ont développé l'un des premiers modèles à forme réduite, dans lequel le défaut est modélisé comme un processus de Poisson avec une intensité constante ou déterministe. Dans ce cadre, la probabilité de survie jusqu'à l'instant $T$ s'exprime par :
+
+\begin{equation}
+P(t,T) = e^{-\int_t^T \lambda(s)ds}
+\end{equation}
+
+où $\lambda(t)$ représente l'intensité de défaut instantanée à l'instant $t$.
+
+Cette approche a été généralisée par \citet{duffie1999}, qui ont proposé un modèle où l'intensité de défaut peut dépendre de variables d'état stochastiques. Leur contribution majeure réside dans la simplification du pricing des obligations risquées, qui peuvent être évaluées comme des obligations sans risque en remplaçant le taux d'intérêt sans risque par un taux d'intérêt ajusté du risque, communément appelé "taux d'actualisation ajusté du risque" (risk-adjusted discount rate) :
+
+\begin{equation}
+P(t,T) = E^Q\left[e^{-\int_t^T (r(s) + \lambda(s)L(s))ds}\right]
+\end{equation}
+
+où $r(t)$ est le taux d'intérêt sans risque instantané, $\lambda(t)$ l'intensité de défaut, et $L(t)$ le taux de perte en cas de défaut (loss given default).
+
+\citet{lando1998} a étendu ces travaux en introduisant des modèles d'intensité conditionnelle, où l'intensité de défaut dépend d'un ensemble de variables d'état, permettant ainsi de capturer une plus grande richesse de dynamiques de crédit. Dans son cadre, l'intensité de défaut peut être exprimée comme une fonction de facteurs macroéconomiques et de caractéristiques spécifiques à l'émetteur :
+
+\begin{equation}
+\lambda(t) = \lambda_0 + \sum_{i=1}^n \beta_i X_i(t)
+\end{equation}
+
+où $X_i(t)$ représentent les variables d'état et $\beta_i$ leurs coefficients respectifs.
+
+\citet{schonbucher2003}, dans son ouvrage de référence "Credit Derivatives Pricing Models", a développé cette approche en l'appliquant spécifiquement à la tarification des dérivés de crédit. Sa contribution a été particulièrement importante pour la modélisation des corrélations de défaut dans les portefeuilles de crédit, un aspect crucial pour l'évaluation des produits structurés de crédit comme les CDO (Collateralized Debt Obligations).
+
+Comme le notent \citet{mcneil2015} dans leur ouvrage "Quantitative Risk Management", les modèles réduits présentent l'avantage d'une plus grande tractabilité mathématique et d'une meilleure calibration aux prix de marché des instruments de crédit. Cependant, ils souffrent d'un manque d'interprétabilité économique et ne permettent pas d'établir un lien direct entre les fondamentaux financiers de l'entreprise et son risque de défaut, ce qui limite leur utilité pour l'analyse fondamentale du risque de crédit.
+
+\subsection{Approches statistiques}
+
+Les approches statistiques représentent une troisième voie dans la modélisation du risque de crédit, se distinguant tant des modèles structurels que des modèles réduits par leur caractère empirique et leur focalisation sur l'identification de variables prédictives du défaut à partir de données historiques.
+
+\citet{altman1968} a été l'un des pionniers de cette approche avec son modèle Z-score, une analyse discriminante multiple combinant cinq ratios financiers pour prédire la probabilité de faillite d'une entreprise :
+
+\begin{equation}
+Z = 1.2X_1 + 1.4X_2 + 3.3X_3 + 0.6X_4 + 0.999X_5
+\end{equation}
+
+où:
+\begin{itemize}
+    \item $X_1$ = Fonds de roulement / Total des actifs
+    \item $X_2$ = Bénéfices non répartis / Total des actifs
+    \item $X_3$ = EBIT / Total des actifs
+    \item $X_4$ = Capitalisation boursière / Valeur comptable du total des dettes
+    \item $X_5$ = Chiffre d'affaires / Total des actifs
+\end{itemize}
+
+Ce modèle, bien que simple, s'est révélé remarquablement efficace et continue d'être utilisé comme référence dans de nombreuses études comparatives.
+
+\citet{ohlson1980} a introduit l'utilisation des modèles logit pour la prédiction de faillite, offrant une approche plus flexible et statistiquement plus robuste que l'analyse discriminante. Dans un modèle logit, la probabilité de défaut est modélisée comme une fonction logistique d'une combinaison linéaire de variables explicatives :
+
+\begin{equation}
+P(\text{défaut}) = \frac{1}{1 + e^{-(\beta_0 + \beta_1X_1 + \beta_2X_2 + ... + \beta_nX_n)}}
+\end{equation}
+
+où $X_i$ représentent les variables explicatives (généralement des ratios financiers) et $\beta_i$ leurs coefficients respectifs.
+
+\citet{campbell2008} ont développé un modèle logit dynamique intégrant des variables de marché (notamment la volatilité des actions et le ratio market-to-book) en plus des variables comptables traditionnelles. Leur étude a démontré une amélioration significative de la performance prédictive par rapport aux modèles basés uniquement sur des données comptables, soulignant l'importance d'intégrer des informations de marché dans l'évaluation du risque de crédit.
+
+Parallèlement à ces développements académiques, les institutions financières ont largement adopté des systèmes de scoring de crédit basés sur des approches statistiques. Ces systèmes, comme le souligne \citet{thomas2000} dans sa revue exhaustive, attribuent un score à chaque emprunteur en fonction de ses caractéristiques observables, ce score étant ensuite utilisé pour estimer sa probabilité de défaut.
+
+Un développement important dans les modèles statistiques a été l'introduction des modèles probit, qui utilisent la fonction de répartition de la loi normale standard au lieu de la fonction logistique :
+
+\begin{equation}
+P(\text{défaut}) = \Phi(\beta_0 + \beta_1X_1 + \beta_2X_2 + ... + \beta_nX_n)
+\end{equation}
+
+où $\Phi(\cdot)$ est la fonction de répartition de la loi normale standard.
+
+Bien que conceptuellement similaires aux modèles logit, les modèles probit peuvent présenter des différences significatives dans leurs prédictions, particulièrement dans les queues de distribution, comme l'ont démontré \citet{zmijewski1984} dans leur étude comparative.
+
+\citet{shumway2001} a proposé une approche novatrice en introduisant les modèles de hasard discret pour la prédiction de faillite, arguant que ces modèles sont plus appropriés que les modèles logit ou probit statiques car ils prennent en compte la dimension temporelle du risque de défaut. Son modèle intègre à la fois des variables comptables et des variables de marché, et tient compte de la durée pendant laquelle l'entreprise a été à risque de faillite.
+
+Comme le notent \citet{demyanyk2010} dans leur revue des méthodes statistiques pour la prévision des crises bancaires, ces approches présentent l'avantage d'être relativement simples à mettre en œuvre et directement calibrées sur des données empiriques, ce qui peut les rendre plus robustes dans certains contextes. Cependant, elles souffrent de limitations importantes, notamment leur caractère statique (bien que les modèles de hasard tentent de remédier à ce problème), leur incapacité à capturer des relations non linéaires complexes, et leur dépendance excessive aux données historiques, qui peut limiter leur capacité prédictive lors de changements structurels de l'économie ou des marchés financiers.
+
+\section{L'impact des critères ESG sur le risque de crédit}
+
+\subsection{Définition et évolution des critères ESG dans la finance}
+
+Les critères Environnementaux, Sociaux et de Gouvernance (ESG) représentent un ensemble de standards utilisés par les investisseurs socialement responsables pour évaluer les entreprises au-delà des métriques financières traditionnelles. Ces critères ont connu une évolution significative au cours des dernières décennies, passant d'une approche marginale à un élément central de la finance moderne.
+
+Selon \citet{eccles2018}, les origines de l'investissement responsable remontent aux années 1960-1970, avec l'émergence de préoccupations sociales et environnementales dans les décisions d'investissement. Cependant, c'est véritablement à partir des années 2000 que les critères ESG se sont institutionnalisés dans le monde financier. Un jalon majeur a été le lancement des Principes pour l'Investissement Responsable (PRI) en 2006, sous l'égide des Nations Unies, qui a catalysé l'adoption des critères ESG par les grands investisseurs institutionnels.
+
+Les critères environnementaux se focalisent sur l'impact des activités d'une entreprise sur l'environnement. Ils incluent notamment les émissions de gaz à effet de serre, l'efficacité énergétique, la gestion des déchets, la préservation de la biodiversité, et l'adaptation au changement climatique. Selon le Task Force on Climate-related Financial Disclosures \citep{task2017}, les risques climatiques peuvent être classés en deux catégories : les risques de transition (liés aux politiques climatiques, aux évolutions technologiques et aux changements de préférences des consommateurs) et les risques physiques (liés aux événements climatiques extrêmes et aux changements graduels du climat).
+
+Les critères sociaux concernent les relations de l'entreprise avec ses parties prenantes humaines, incluant ses employés, clients, fournisseurs et communautés locales. Ils couvrent des aspects tels que les conditions de travail, la diversité et l'inclusion, la santé et la sécurité, le respect des droits humains, et l'impact social des produits et services. \citet{hopkins2016} souligne que ces critères sont devenus particulièrement saillants dans le contexte de la mondialisation, où les chaînes d'approvisionnement complexes peuvent dissimuler des pratiques sociales problématiques.
+
+Les critères de gouvernance portent sur la structure et les processus de direction et de contrôle de l'entreprise. Ils incluent la composition et l'indépendance du conseil d'administration, la rémunération des dirigeants, l'éthique des affaires, la transparence fiscale, et les droits des actionnaires. Comme le note \citet{gompers2003} dans leur étude pionnière, une bonne gouvernance d'entreprise est associée à une meilleure performance financière et une réduction des risques.
+
+La taxonomie européenne pour les activités durables, adoptée en 2020, représente une avancée significative dans la standardisation des critères environnementaux, en établissant une classification des activités économiques selon leur contribution à six objectifs environnementaux. Cette initiative témoigne de l'institutionnalisation croissante des critères ESG dans la réglementation financière \citep{commission2019}.
+
+L'évolution récente du domaine ESG est marquée par une transition de l'évaluation des risques vers l'identification des opportunités. Comme le souligne \citet{khan2016}, les entreprises performantes en matière d'ESG peuvent bénéficier d'avantages compétitifs substantiels, notamment une meilleure efficacité opérationnelle, une résilience accrue face aux risques émergents, et un accès privilégié à certains marchés et capitaux.
+
+\citet{berg2022} mettent en évidence la complexification croissante des évaluations ESG, avec l'intégration de données alternatives (données satellitaires, analyse de sentiment des médias sociaux, etc.) et le développement d'approches sectorielles spécifiques, reconnaissant que les enjeux ESG matériels varient considérablement selon les industries.
+
+\subsection{Relation entre performance ESG et risque de défaut}
+
+La relation entre les performances ESG des entreprises et leur risque de défaut a fait l'objet d'une attention croissante dans la littérature académique récente. Plusieurs études empiriques ont mis en évidence une corrélation négative entre la qualité des pratiques ESG et le risque de crédit, suggérant que les entreprises plus performantes en matière d'ESG présentent généralement un risque de défaut plus faible.
+
+\citet{friede2015} ont réalisé une méta-analyse de plus de 2000 études empiriques sur la relation entre les critères ESG et la performance financière des entreprises. Leur recherche a révélé que dans environ 90\% des études, une relation positive ou neutre était observée, suggérant que l'intégration des critères ESG est au minimum financièrement non pénalisante et souvent bénéfique. Cette méta-analyse constitue l'une des revues les plus exhaustives sur le sujet et fournit une base empirique solide pour l'argument selon lequel les pratiques ESG robustes contribuent à la résilience financière des entreprises.
+
+Dans une étude plus spécifiquement axée sur le risque de crédit, \citet{stellner2015} ont examiné la relation entre les scores ESG et les spreads de crédit sur le marché euro-obligataire. Leurs résultats indiquent que les entreprises ayant des scores ESG supérieurs bénéficient généralement de spreads de crédit plus faibles, après contrôle des facteurs financiers traditionnels. Cette relation est particulièrement prononcée dans les pays où le cadre ESG général est plus développé, suggérant un effet d'interaction entre les pratiques ESG au niveau de l'entreprise et l'environnement ESG national.
+
+\citet{capelle2019} ont approfondi cette analyse en étudiant spécifiquement l'impact des controverses ESG sur le coût de la dette des entreprises. En analysant un large échantillon d'obligations d'entreprises internationales sur la période 2007-2017, ils ont constaté que les controverses ESG significatives sont associées à une augmentation moyenne des spreads de crédit de 7 à 10 points de base. Cette pénalité de spread est plus prononcée pour les controverses environnementales et pour les entreprises opérant dans des secteurs sensibles sur le plan environnemental.
+
+\begin{equation}
+Spread_{i,t} = \alpha + \beta_1 ESG_{i,t-1} + \beta_2 Controverse_{i,t} + \gamma X_{i,t-1} + \delta_i + \theta_t + \epsilon_{i,t}
+\end{equation}
+
+où $Spread_{i,t}$ représente le spread de crédit de l'obligation i au temps t, $ESG_{i,t-1}$ le score ESG de l'émetteur, $Controverse_{i,t}$ une variable indicatrice des controverses ESG, $X_{i,t-1}$ un vecteur de variables de contrôle, $\delta_i$ et $\theta_t$ des effets fixes émetteur et temps, et $\epsilon_{i,t}$ le terme d'erreur.
+
+Du point de vue des mécanismes sous-jacents, \citet{goss2011} proposent que les pratiques ESG robustes peuvent réduire le risque de crédit par plusieurs canaux : (1) une diminution des risques opérationnels et de réputation, (2) une meilleure gestion des ressources naturelles et humaines, (3) une anticipation plus efficace des évolutions réglementaires, et (4) une gouvernance d'entreprise plus saine limitant les comportements opportunistes des dirigeants. Leur étude empirique sur les prêts bancaires aux entreprises américaines révèle que les entreprises présentant des préoccupations ESG significatives paient en moyenne 7 à 18 points de base de plus sur leurs prêts que les entreprises similaires sans ces préoccupations.
+
+Dans une perspective plus granulaire, \citet{dorfleitner2020} ont décomposé l'impact des différentes dimensions ESG sur le risque de crédit. Leurs résultats suggèrent que la gouvernance est la dimension la plus significativement associée à une réduction du risque de défaut, suivie par les aspects environnementaux, tandis que l'impact des facteurs sociaux apparaît plus ambigu. Cette hiérarchisation des effets souligne l'importance d'une approche différenciée dans l'intégration des critères ESG dans les modèles de risque de crédit.
+
+\begin{equation}
+PD_{i,t} = \alpha + \beta_E E_{i,t-1} + \beta_S S_{i,t-1} + \beta_G G_{i,t-1} + \gamma X_{i,t-1} + \epsilon_{i,t}
+\end{equation}
+
+où $PD_{i,t}$ représente la probabilité de défaut de l'entreprise i au temps t, $E_{i,t-1}$, $S_{i,t-1}$ et $G_{i,t-1}$ ses scores environnementaux, sociaux et de gouvernance respectivement, et $X_{i,t-1}$ un vecteur de variables de contrôle financières traditionnelles.
+
+Plus récemment, \citet{nemoto2022} ont étudié l'impact des critères ESG sur les notations de crédit des entreprises, utilisant une approche de machine learning pour isoler l'effet spécifique des facteurs ESG. Leur recherche indique que l'intégration des variables ESG améliore significativement la précision des modèles de prédiction des notations de crédit, particulièrement pour les secteurs à haute intensité d'émissions de carbone. Ces résultats suggèrent que les agences de notation incorporent déjà implicitement certains facteurs ESG dans leurs évaluations, même si cette intégration n'est pas toujours explicitement formalisée.
+
+La thèse de doctorat de \citet{weber2018} apporte une perspective supplémentaire en examinant comment l'intégration des critères ESG affecte la stabilité du système financier dans son ensemble. En développant un modèle d'équilibre général stochastique dynamique (DSGE) intégrant des facteurs ESG, Weber démontre que la prise en compte systématique des risques ESG peut réduire la probabilité et la sévérité des crises financières systémiques, principalement en limitant l'accumulation de risques non reconnus dans les bilans des institutions financières.
+
+\subsection{Notation ESG : méthodologies et limites}
+
+La notation ESG constitue un élément central dans l'évaluation de la performance extra-financière des entreprises. Cependant, les méthodologies employées par les différents fournisseurs de données ESG présentent une hétérogénéité considérable, soulevant des questions importantes quant à leur fiabilité et leur comparabilité.
+
+\citet{berg2020} ont mené une étude comparative approfondie des notations ESG provenant de six fournisseurs majeurs (MSCI, Sustainalytics, Thomson Reuters, Vigeo Eiris, KLD, et Bloomberg). Leur analyse révèle une corrélation moyenne entre les notations de seulement 0,61, significativement inférieure à celle observée entre les notations de crédit traditionnelles (supérieure à 0,95). Cette divergence peut être décomposée en trois sources principales : (1) les différences de portée (scope), reflétant les attributs ESG distincts mesurés par chaque fournisseur; (2) les différences de pondération, indiquant l'importance relative accordée à chaque attribut; et (3) les différences de mesure, résultant de méthodologies d'évaluation distinctes pour les mêmes attributs.
+
+\begin{equation}
+\rho_{ij} = f(Scope_{ij}, Pondération_{ij}, Mesure_{ij})
+\end{equation}
+
+où $\rho_{ij}$ représente la corrélation entre les notations des fournisseurs i et j.
