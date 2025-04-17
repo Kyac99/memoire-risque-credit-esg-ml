@@ -1,0 +1,129 @@
+\cetet{chatterji2016} ont approfondi cette analyse en examinant la validité convergente et prédictive des notations ESG. Leur étude démontre que malgré des divergences significatives entre les notations, celles-ci présentent néanmoins une certaine capacité prédictive concernant les controverses futures et les performances financières des entreprises. Cependant, cette capacité varie considérablement selon les dimensions ESG et les méthodologies des fournisseurs, soulignant l'importance d'une approche critique dans l'utilisation de ces données.
+
+En ce qui concerne les méthodologies spécifiques, MSCI emploie une approche sectorielle dans son processus de notation ESG, identifiant pour chaque industrie les enjeux ESG les plus matériels et pondérant les indicateurs en conséquence. Leur méthodologie intègre à la fois des évaluations d'exposition aux risques et des évaluations de gestion des risques, combinées pour produire un score final normalisé \citep{comstock2017}.
+
+Sustainalytics, en revanche, structure sa méthodologie autour de trois piliers : la préparation (politiques et engagements), la divulgation (transparence et reporting), et la performance (résultats quantifiables). Ces piliers sont évalués à travers une série d'indicateurs génériques et sectoriels, puis agrégés en un score global \citep{vanderlugt2019}.
+
+Comme le souligne \citet{kotsantonis2019}, ces différences méthodologiques conduisent à des écarts significatifs dans l'évaluation des mêmes entreprises, posant des défis importants pour les investisseurs et les chercheurs. Ils identifient plusieurs facteurs contribuant à ces divergences, notamment : (1) l'absence de standards universels pour la divulgation ESG, (2) les différences dans la matérialité perçue des divers indicateurs ESG, (3) les biais culturels et géographiques dans l'évaluation de certaines pratiques, et (4) les limitations des données disponibles, particulièrement pour les petites entreprises et les marchés émergents.
+
+Un aspect particulièrement problématique, mis en évidence par \citet{dimson2020}, est le phénomène de "ESG rating shopping", où les entreprises peuvent exploiter les divergences entre les méthodologies pour obtenir des notations favorables auprès de certains fournisseurs, sans nécessairement améliorer leurs pratiques ESG substantielles. Ce comportement stratégique peut compromettre l'intégrité du système de notation ESG et réduire son utilité pour l'évaluation du risque de crédit.
+
+Dans une perspective réglementaire, l'Union Européenne a initié des efforts pour standardiser et améliorer la qualité des notations ESG. Le règlement sur la publication d'informations en matière de durabilité dans le secteur des services financiers (SFDR), entré en vigueur en mars 2021, impose des exigences de transparence aux acteurs financiers concernant l'intégration des risques de durabilité et la prise en compte des incidences négatives sur la durabilité dans leurs processus \citep{commission2019}. Cette initiative vise à réduire l'asymétrie d'information et à faciliter la comparabilité des produits financiers durables.
+
+Malgré ces limitations, \citet{gibson2021} soutiennent que l'agrégation de notations ESG provenant de multiples fournisseurs peut améliorer significativement leur pouvoir prédictif concernant les performances financières et le risque. Leur recherche suggère que les divergences entre les notations peuvent refléter des perspectives complémentaires plutôt que contradictoires sur les pratiques ESG des entreprises, justifiant une approche intégrative plutôt qu'exclusive dans l'utilisation de ces données.
+
+Dans le contexte spécifique de l'analyse du risque de crédit, \citet{khan2021} proposent un cadre méthodologique pour identifier les facteurs ESG matériels pour chaque secteur, basé sur les standards du Sustainability Accounting Standards Board (SASB). Leur recherche démontre que la concentration sur les facteurs ESG matériels peut considérablement améliorer la pertinence des notations ESG pour l'évaluation du risque de crédit, suggérant une voie prometteuse pour surmonter certaines des limitations actuelles des notations ESG génériques.
+
+\section{L'essor du Machine Learning dans la gestion du risque de crédit}
+
+\subsection{Modèles supervisés : Random Forest, XGBoost, réseaux de neurones}
+
+L'application des techniques de machine learning à la modélisation du risque de crédit a connu un essor considérable ces dernières années, offrant des alternatives aux approches statistiques traditionnelles. Les modèles supervisés, en particulier, ont démontré une capacité remarquable à capturer des relations complexes et non linéaires entre les variables explicatives et le risque de défaut.
+
+Les algorithmes de Random Forest, introduits par \citet{breiman2001}, constituent l'une des approches les plus utilisées dans ce domaine. Ces modèles d'ensemble combinent de multiples arbres de décision entraînés sur des sous-échantillons aléatoires des données et des sous-ensembles aléatoires de variables, réduisant ainsi le risque de surapprentissage. Formellement, la prédiction d'un modèle Random Forest peut être exprimée comme :
+
+\begin{equation}
+\hat{y} = \frac{1}{B} \sum_{b=1}^{B} T_b(X)
+\end{equation}
+
+où B est le nombre d'arbres, $T_b$ représente le b-ième arbre, et X le vecteur de variables explicatives.
+
+\citet{brown2012} ont comparé les performances de différentes techniques de machine learning, dont Random Forest, pour la prédiction du risque de crédit sur des ensembles de données déséquilibrés, caractéristiques des portefeuilles de crédit où les défauts sont rares. Leur étude a démontré que Random Forest surpassait systématiquement les méthodes statistiques traditionnelles, notamment les modèles logit et probit, ainsi que d'autres algorithmes de machine learning comme les SVM (Support Vector Machines), particulièrement dans les cas d'asymétrie prononcée entre les classes.
+
+XGBoost (eXtreme Gradient Boosting), développé par \citet{chen2016}, représente une évolution majeure des algorithmes de boosting pour les arbres de décision. Contrairement à Random Forest qui construit des arbres indépendants en parallèle, XGBoost adopte une approche séquentielle où chaque nouvel arbre est optimisé pour corriger les erreurs des arbres précédents. La fonction objective de XGBoost combine un terme de perte et un terme de régularisation :
+
+\begin{equation}
+\mathcal{L} = \sum_{i=1}^n l(y_i, \hat{y}_i) + \sum_{k=1}^K \Omega(f_k)
+\end{equation}
+
+où $l$ est la fonction de perte, $\hat{y}_i$ la prédiction pour l'observation i, $\Omega$ le terme de régularisation, et $f_k$ représente le k-ième arbre du modèle.
+
+Dans une étude comparative extensive, \citet{xia2017} ont évalué la performance de XGBoost contre plusieurs autres techniques pour la prédiction du risque de crédit sur 10 ensembles de données de référence. Leurs résultats ont révélé que XGBoost surpassait systématiquement les autres approches en termes de précision et d'aire sous la courbe ROC (AUC), tout en offrant une meilleure stabilité face aux variations dans les données d'entraînement.
+
+Les réseaux de neurones artificiels (ANN) constituent une troisième catégorie majeure de modèles supervisés appliqués au risque de crédit. Dans leur forme la plus simple, les réseaux de neurones multicouches transforment un vecteur d'entrée X en une prédiction y à travers une série de transformations non linéaires :
+
+\begin{align}
+h^{(1)} &= \sigma(W^{(1)}X + b^{(1)}) \\
+h^{(2)} &= \sigma(W^{(2)}h^{(1)} + b^{(2)}) \\
+\vdots \\
+y &= \sigma(W^{(L)}h^{(L-1)} + b^{(L)})
+\end{align}
+
+où $h^{(l)}$ représente la l-ième couche cachée, $W^{(l)}$ et $b^{(l)}$ les paramètres associés, et $\sigma$ une fonction d'activation non linéaire comme la fonction ReLU (Rectified Linear Unit) : $\sigma(x) = max(0, x)$.
+
+\citet{kvamme2018} ont proposé une architecture de réseau neuronal profond spécifiquement conçue pour la modélisation du risque de crédit, intégrant non seulement la prédiction de la probabilité de défaut mais aussi l'estimation de la distribution temporelle des défauts. Leur modèle, basé sur des réseaux de neurones récurrents avec portes (LSTM - Long Short-Term Memory), a démontré une capacité supérieure à capturer les dépendances temporelles dans les données de crédit par rapport aux approches traditionnelles de modélisation de survie.
+
+\begin{align}
+h_t &= LSTM(x_t, h_{t-1})\\
+S(t) &= \sigma(W_s h_t + b_s)
+\end{align}
+
+où $S(t)$ représente la fonction de survie estimée, indiquant la probabilité de non-défaut jusqu'au temps t.
+
+Plus récemment, \citet{babaev2019} ont exploré l'utilisation de techniques d'apprentissage profond avancées, notamment les modèles d'attention, pour la prédiction du risque de crédit à partir de séquences d'événements transactionnels. Leur approche permet de pondérer dynamiquement l'importance de différentes transactions dans l'historique d'un client, offrant ainsi une capacité de modélisation plus fine des comportements risqués :
+
+\begin{align}
+\alpha_i &= \frac{\exp(e_i^T W_{\alpha} h)}{\sum_j \exp(e_j^T W_{\alpha} h)}\\
+c &= \sum_i \alpha_i e_i
+\end{align}
+
+où $\alpha_i$ représente le poids d'attention attribué à l'événement i, $e_i$ son encodage vectoriel, et c le vecteur de contexte résultant, utilisé pour la prédiction finale.
+
+Dans une perspective comparative globale, \citet{lessmann2015} ont conduit une analyse exhaustive des méthodes de machine learning pour le scoring de crédit, évaluant 41 classifieurs différents sur plusieurs ensembles de données de référence. Leurs résultats ont confirmé la supériorité des méthodes d'ensemble comme Random Forest et Gradient Boosting, tout en soulignant que la combinaison de plusieurs modèles hétérogènes (stacking) pouvait conduire à des performances encore supérieures. Ils ont également mis en évidence l'importance d'une évaluation appropriée des modèles, recommandant l'utilisation de métriques adaptées aux problématiques de crédit comme le H-measure et l'AUC ajustée aux coûts (Cost-AUC).
+
+\subsection{Modèles non supervisés : clustering et réduction de dimension}
+
+Les techniques d'apprentissage non supervisé, bien que moins directement appliquées à la prédiction du risque de crédit que les modèles supervisés, jouent néanmoins un rôle important dans la préparation des données, la détection d'anomalies et la segmentation des portefeuilles. Ces approches permettent d'extraire des structures et des patterns inhérents aux données sans nécessiter d'étiquettes préalables.
+
+Les algorithmes de clustering visent à regrouper les observations similaires, permettant ainsi d'identifier des segments homogènes au sein d'un portefeuille de crédit. Parmi ces techniques, l'algorithme K-means demeure l'un des plus utilisés. Il cherche à minimiser la variance intra-cluster en partitionnant les données en K groupes :
+
+\begin{equation}
+\min_{C} \sum_{k=1}^K \sum_{i \in C_k} ||x_i - \mu_k||^2
+\end{equation}
+
+où $C_k$ représente le k-ième cluster, $x_i$ les observations, et $\mu_k$ le centroïde du cluster k.
+
+\citet{harris2015} a appliqué cette approche à la segmentation des emprunteurs obligataires, démontrant que l'identification de segments homogènes permettait d'améliorer significativement la précision des modèles de risque spécifiques à chaque segment par rapport à un modèle global. Son étude a également souligné l'importance d'une sélection appropriée du nombre de clusters, suggérant l'utilisation de critères comme l'indice de silhouette ou la méthode du coude (elbow method).
+
+Des approches plus sophistiquées comme le clustering hiérarchique agglomératif offrent une flexibilité supplémentaire en construisant une hiérarchie de clusters sans nécessiter la spécification préalable de leur nombre. Comme le décrit \citet{aggarwal2014}, cette méthode procède par fusion successive des clusters les plus similaires, jusqu'à n'en former plus qu'un seul :
+
+\begin{align}
+d(C_i, C_j) &= \min_{x \in C_i, y \in C_j} d(x, y) \quad \text{(single linkage)}\\
+d(C_i, C_j) &= \max_{x \in C_i, y \in C_j} d(x, y) \quad \text{(complete linkage)}\\
+d(C_i, C_j) &= \frac{1}{|C_i||C_j|} \sum_{x \in C_i} \sum_{y \in C_j} d(x, y) \quad \text{(average linkage)}
+\end{align}
+
+où $d(C_i, C_j)$ représente la distance entre les clusters $C_i$ et $C_j$, calculée selon différentes définitions (single, complete ou average linkage).
+
+Dans le domaine spécifique du risque de crédit obligataire, \citet{poon2019} ont appliqué ces techniques à l'identification de groupes d'émetteurs présentant des profils de risque similaires. Leur approche, combinant clustering hiérarchique et analyse en composantes principales, a permis de révéler des structures de risque latentes non apparentes dans les classifications sectorielles traditionnelles, offrant ainsi des opportunités de diversification plus efficaces pour les gestionnaires de portefeuilles obligataires.
+
+Les méthodes de réduction de dimension constituent une autre catégorie importante d'approches non supervisées, particulièrement utiles pour traiter la haute dimensionnalité des données financières et ESG. L'Analyse en Composantes Principales (ACP), introduite par \citet{pearson1901} et développée par \citet{hotelling1933}, reste l'une des techniques les plus utilisées. Elle vise à projeter les données dans un espace de dimension réduite tout en maximisant la variance expliquée :
+
+\begin{equation}
+\max_{w} \frac{w^T X^T X w}{w^T w}
+\end{equation}
+
+sous contrainte $w^T w = 1$, où X représente la matrice de données centrées, et w les vecteurs propres de la matrice de covariance $X^T X$.
+
+Appliquée aux critères ESG, l'ACP permet de réduire la redondance entre les multiples indicateurs et d'identifier les dimensions latentes principales. \citet{dorfleitner2018} ont utilisé cette approche pour analyser la structure sous-jacente des notations ESG, démontrant que malgré la multiplicité des indicateurs, un nombre relativement restreint de composantes principales (généralement 3 à 5) capturait la majeure partie de la variance. Cette observation suggère une dimensionnalité intrinsèque relativement faible des données ESG, facilitant leur intégration dans les modèles de risque de crédit.
+
+Des méthodes non linéaires de réduction de dimension, comme t-SNE (t-distributed Stochastic Neighbor Embedding) développée par \citet{vandermaaten2008}, offrent des perspectives complémentaires en préservant les structures locales des données. Contrairement à l'ACP qui se concentre sur la variance globale, t-SNE minimise la divergence de Kullback-Leibler entre les distributions de probabilité dans l'espace original et l'espace réduit :
+
+\begin{equation}
+KL(P || Q) = \sum_i \sum_j p_{ij} \log \frac{p_{ij}}{q_{ij}}
+\end{equation}
+
+où $p_{ij}$ et $q_{ij}$ représentent respectivement les similitudes entre les points i et j dans l'espace original et l'espace réduit.
+
+Appliquée aux données de crédit, cette approche permet de visualiser des clusters d'émetteurs similaires qui pourraient ne pas être apparents avec des méthodes linéaires. Comme le démontrent \citet{greco2019}, cette visualisation peut être particulièrement utile pour identifier des anomalies ou des tendances émergentes dans les profils de risque, complétant ainsi les modèles prédictifs supervisés.
+
+Plus récemment, les autoencodeurs, une classe de réseaux de neurones conçus pour l'apprentissage de représentations efficientes, ont été appliqués avec succès à la réduction de dimension en finance. Un autoencodeur consiste en un encodeur qui compresse les données d'entrée en une représentation latente de dimension réduite, et un décodeur qui tente de reconstruire les données originales à partir de cette représentation :
+
+\begin{align}
+h &= f_{\theta}(x) \quad \text{(encodage)}\\
+\hat{x} &= g_{\phi}(h) \quad \text{(décodage)}
+\end{align}
+
+L'objectif est de minimiser l'erreur de reconstruction : $L(x, \hat{x}) = ||x - \hat{x}||^2$, tout en contraignant la dimension de h à être significativement inférieure à celle de x.
+
+Dans leur étude, \citet{petropoulos2019} ont appliqué des autoencodeurs variationnels à la modélisation du risque de crédit, démontrant leur capacité à extraire des représentations latentes informatives à partir de données financières et extra-financières hétérogènes. Ces représentations ont ensuite été utilisées comme entrées pour des modèles prédictifs supervisés, améliorant significativement leur performance par rapport à l'utilisation directe des variables brutes.
