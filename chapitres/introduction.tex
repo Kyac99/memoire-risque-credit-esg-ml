@@ -1,0 +1,91 @@
+\chapter{Introduction}
+
+\section{Contexte et enjeux}
+
+Le risque de crédit représente l'un des principaux risques financiers auxquels sont confrontés les investisseurs en obligations. Il se définit comme la probabilité qu'un émetteur ne puisse honorer ses engagements financiers, entraînant une perte pour le détenteur de la dette. La crise financière mondiale de 2008 a mis en lumière l'importance cruciale d'une évaluation rigoureuse de ce risque, notamment dans le cadre des portefeuilles obligataires où sa gestion constitue un facteur déterminant de performance et de stabilité à long terme.
+
+Parallèlement, l'intégration des critères Environnementaux, Sociaux et de Gouvernance (ESG) a profondément transformé le paysage de la gestion d'actifs ces dernières années. Les investisseurs incorporent désormais ces dimensions dans leur processus décisionnel pour évaluer non seulement la rentabilité financière d'un investissement, mais également son impact sur la société et l'environnement. Cette évolution répond à une prise de conscience croissante des enjeux de durabilité et à une demande accrue de responsabilité de la part des parties prenantes. Cependant, bien que les agences de notation et certains gestionnaires d'actifs prennent en compte ces critères, leur intégration systématique et quantifiable dans les modèles de risque de crédit demeure limitée et constitue un défi méthodologique majeur.
+
+Dans ce contexte en mutation, les avancées en intelligence artificielle et particulièrement en Machine Learning offrent de nouvelles perspectives pour la modélisation du risque de crédit. Contrairement aux modèles traditionnels qui reposent sur des hypothèses simplificatrices et des relations linéaires, les techniques d'apprentissage automatique permettent de capturer des interactions complexes et non linéaires entre de multiples variables, y compris les facteurs ESG. Elles présentent également l'avantage de s'adapter dynamiquement aux évolutions du marché et d'intégrer un volume considérable de données structurées et non structurées. Toutefois, l'efficacité réelle de ces approches par rapport aux modèles classiques reste à démontrer dans un cadre rigoureux, comparatif et appliqué spécifiquement aux portefeuilles obligataires.
+
+\section{Problématique}
+
+L'évaluation du risque de crédit s'appuie historiquement sur des modèles traditionnels, tels que les modèles structurels (Merton, 1974), les modèles réduits (Jarrow \& Turnbull, 1995) et les approches statistiques (logit, probit). Si ces modèles ont démontré leur pertinence, ils présentent néanmoins des limites significatives : leur dépendance à des hypothèses simplificatrices concernant la distribution des défauts, leur conception souvent statique de la dynamique des prix des actifs sous-jacents, et leur incapacité à intégrer efficacement des facteurs extra-financiers dont l'importance s'avère croissante.
+
+En parallèle, l'émergence des critères ESG dans l'univers financier incite investisseurs et régulateurs à intégrer ces dimensions dans l'analyse du risque. Des recherches récentes suggèrent que les entreprises adoptant de solides pratiques ESG affichent généralement un risque de défaut plus faible et bénéficient de coûts d'emprunt réduits. Cependant, la formalisation et la quantification précises de l'impact de ces critères sur le risque de crédit demeurent insuffisamment développées. Cette lacune s'explique notamment par l'hétérogénéité des méthodologies de notation ESG, l'absence de standardisation des métriques, et la complexité à isoler l'influence spécifique des facteurs ESG par rapport aux variables financières traditionnelles avec lesquelles ils peuvent être corrélés.
+
+Les avancées en Machine Learning ouvrent des perspectives prometteuses pour améliorer la modélisation du risque de crédit. Ces algorithmes permettent d'identifier des relations complexes entre une multitude de variables explicatives, incluant des données ESG, financières et macroéconomiques. Leur capacité à s'adapter aux évolutions du marché et à traiter des ensembles de données volumineux et hétérogènes constitue un atout majeur dans un environnement financier de plus en plus complexe et interconnecté. Toutefois, leur application à la gestion des portefeuilles obligataires soulève plusieurs questions fondamentales : ces modèles surpassent-ils véritablement les approches traditionnelles en termes de précision et de robustesse ? Comment garantir leur interprétabilité, critère essentiel pour les décideurs financiers ? Dans quelle mesure permettent-ils une intégration plus efficace et plus pertinente des critères ESG dans l'évaluation du risque de crédit ?
+
+Au regard de ces considérations, ce mémoire se propose d'examiner la question centrale suivante :
+
+\textbf{Comment intégrer efficacement les critères ESG dans la modélisation du risque de crédit d'un portefeuille obligataire, et dans quelle mesure les modèles de Machine Learning permettent-ils d'améliorer la précision des prévisions par rapport aux modèles traditionnels ?}
+
+Cette problématique soulève plusieurs enjeux méthodologiques et pratiques essentiels : (i) l'identification et la sélection des variables ESG pertinentes ainsi que leur interaction avec les facteurs financiers conventionnels, (ii) la comparaison rigoureuse et objective des performances prédictives des modèles traditionnels et des approches de Machine Learning, et (iii) l'évaluation de l'impact pratique de ces différentes approches sur la construction et la gestion des portefeuilles obligataires.
+
+\section{Objectifs du mémoire}
+
+Ce travail de recherche vise à répondre à cette problématique en poursuivant trois objectifs principaux :
+
+\begin{enumerate}
+    \item \textbf{Analyser l'impact des critères ESG sur le risque de crédit} : déterminer comment et dans quelle mesure les facteurs environnementaux, sociaux et de gouvernance influencent la probabilité de défaut des émetteurs obligataires, et identifier les métriques ESG les plus significatives pour l'évaluation du risque.
+
+    \item \textbf{Comparer les approches de modélisation du risque de crédit} : évaluer les performances relatives des modèles traditionnels (modèles structuraux, modèles réduits et approches statistiques) et des modèles de Machine Learning en termes de précision prédictive, de robustesse et d'interprétabilité.
+
+    \item \textbf{Développer une méthodologie intégrée} : proposer un cadre méthodologique combinant Machine Learning et critères ESG pour l'évaluation du risque de crédit des portefeuilles obligataires, et valider cette approche sur un jeu de données réel.
+\end{enumerate}
+
+\section{Méthodologie adoptée}
+
+Afin d'atteindre ces objectifs, notre démarche méthodologique s'articule autour de plusieurs étapes complémentaires :
+
+\begin{itemize}
+    \item \textbf{Revue approfondie de la littérature} : analyse critique des modèles traditionnels du risque de crédit, des travaux sur l'intégration des critères ESG dans l'évaluation financière, et des applications récentes du Machine Learning en finance de marché.
+
+    \item \textbf{Constitution d'un jeu de données complet} : collecte et traitement d'un ensemble de données combinant des informations financières (ratios de solvabilité, spreads de crédit, historiques de défaut), des données ESG provenant de fournisseurs reconnus (scores MSCI, Sustainalytics), et des variables macroéconomiques pertinentes.
+
+    \item \textbf{Implémentation des modèles} : mise en œuvre d'une sélection représentative de modèles traditionnels et d'algorithmes de Machine Learning (Random Forest, XGBoost, réseaux de neurones) pour la prédiction du risque de crédit, avec une attention particulière portée à l'intégration des critères ESG.
+
+    \item \textbf{Évaluation comparative rigoureuse} : analyse des performances des différents modèles selon des métriques objectives (précision, rappel, AUC-ROC), évaluation de leur robustesse par des tests de sensibilité, et appréciation de leur interprétabilité à l'aide de techniques d'explicabilité.
+
+    \item \textbf{Discussion critique des résultats} : interprétation des performances relatives des différentes approches, analyse de la contribution spécifique des critères ESG, et examen des implications pratiques pour la gestion des portefeuilles obligataires.
+\end{itemize}
+
+\section{Contribution et portée du mémoire}
+
+Ce travail de recherche vise à apporter une double contribution au domaine de la finance quantitative. Sur le plan académique, il enrichit la littérature existante sur l'intégration des critères ESG dans la modélisation du risque de crédit et propose une analyse comparative approfondie entre les approches traditionnelles et les techniques de Machine Learning, comblant ainsi une lacune dans la recherche actuelle.
+
+Sur le plan pratique, cette étude offre aux investisseurs et aux gestionnaires de portefeuilles obligataires un cadre méthodologique rigoureux pour intégrer efficacement les considérations ESG dans leur évaluation du risque de crédit, permettant une prise de décision plus éclairée et alignée avec les objectifs de durabilité. Elle contribue également à une meilleure compréhension des avantages et des limites des techniques de Machine Learning appliquées à la gestion des risques financiers.
+
+À travers cette approche intégrée, ce mémoire s'inscrit dans une perspective d'innovation financière responsable, où l'innovation technologique est mise au service d'une finance plus durable et d'une évaluation plus précise des risques.
+
+\section{Hypothèses de recherche}
+
+Sur la base de notre problématique et de la revue de littérature, nous formulons les hypothèses suivantes qui guideront notre travail empirique :
+
+\begin{enumerate}
+    \item \textbf{H1:} L'intégration des critères ESG dans les modèles de risque de crédit améliore significativement leur pouvoir prédictif par rapport aux modèles basés uniquement sur des variables financières traditionnelles.
+
+    \item \textbf{H2:} La dimension Gouvernance des critères ESG a un impact plus significatif sur le risque de crédit que les dimensions Environnementale et Sociale.
+
+    \item \textbf{H3:} Les modèles de Machine Learning surpassent significativement les modèles statistiques traditionnels en termes de précision prédictive du risque de crédit, particulièrement lorsqu'ils intègrent des variables ESG.
+
+    \item \textbf{H4:} L'avantage prédictif des modèles de Machine Learning est plus marqué dans la capture des relations non linéaires entre les critères ESG et le risque de crédit.
+
+    \item \textbf{H5:} La matérialité financière des critères ESG dans l'évaluation du risque de crédit varie significativement selon les secteurs d'activité, nécessitant une approche d'intégration différenciée.
+\end{enumerate}
+
+\section{Structure du mémoire}
+
+Ce mémoire est organisé en cinq chapitres, suivant une progression logique de l'analyse théorique à l'application empirique :
+
+Le \textbf{Chapitre 1} présente une revue de littérature approfondie, couvrant les modèles traditionnels du risque de crédit, l'impact des critères ESG sur le risque financier, et l'essor du Machine Learning dans la gestion du risque.
+
+Le \textbf{Chapitre 2} décrit le portefeuille obligataire étudié, incluant les critères de sélection des titres, la méthodologie de pondération et les caractéristiques du portefeuille.
+
+Le \textbf{Chapitre 3} aborde la modélisation du risque de crédit, définissant les mesures utilisées, l'intégration des critères ESG, et les modèles traditionnels employés.
+
+Le \textbf{Chapitre 4} se concentre sur l'application des modèles de Machine Learning, détaillant la constitution du jeu de données, l'implémentation des algorithmes, et l'évaluation des résultats.
+
+Le \textbf{Chapitre 5} propose une comparaison systématique entre les approches traditionnelles et les techniques de Machine Learning, analysant leurs performances relatives et leurs implications pour la gestion de portefeuille.
+
+Enfin, la \textbf{Conclusion} synthétise les résultats obtenus, discute leurs implications théoriques et pratiques, reconnaît les limites de l'étude, et suggère des pistes pour de futures recherches.
