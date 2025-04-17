@@ -1,0 +1,118 @@
+\documentclass[12pt,a4paper]{report}
+
+% Packages nécessaires
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{lipsum}
+\usepackage{appendix}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{tcolorbox}
+\pgfplotsset{compat=newest}
+
+% Configuration du document
+\geometry{margin=2.5cm}
+\setstretch{1.5}
+\setlength{\parindent}{1cm}
+\titleformat{\chapter}[display]{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+
+% En-têtes et pieds de page
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Modélisation du risque de crédit}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+
+% Configuration des listings de code
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  commentstyle=\color{green!50!black},
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=5pt,
+  frame=single,
+  framesep=5pt,
+  breakatwhitespace=true,
+  showstringspaces=false
+}
+
+% Configuration des liens hypertexte
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=magenta,
+  urlcolor=blue,
+  citecolor=blue
+}
+
+% Informations du document
+\title{\LARGE\textbf{Modélisation du risque de crédit d'un portefeuille obligataire intégrant les critères ESG et les modèles de machine learning}}
+\author{}
+\date{\today}
+
+\begin{document}
+
+% Page de titre
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\huge\bfseries Modélisation du risque de crédit d'un portefeuille obligataire intégrant les critères ESG et les modèles de machine learning \par}
+  \vspace{2cm}
+  {\Large Mémoire de recherche \par}
+  \vspace{1.5cm}
+  \vfill
+  {\large \today\par}
+\end{titlepage}
+
+% Résumé
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+Ce mémoire propose une analyse approfondie de l'intégration des critères Environnementaux, Sociaux et de Gouvernance (ESG) dans la modélisation du risque de crédit des portefeuilles obligataires, tout en explorant la valeur ajoutée des techniques de Machine Learning par rapport aux approches traditionnelles. À travers une méthodologie rigoureuse combinant analyse théorique et validation empirique, cette recherche démontre comment l'incorporation des facteurs extra-financiers peut améliorer significativement la précision des modèles de risque de crédit, particulièrement lorsqu'elle est associée à des algorithmes d'apprentissage automatique capables de capturer des relations non linéaires complexes. Les résultats soulignent l'importance croissante des critères ESG dans l'évaluation du risque financier et offrent aux gestionnaires de portefeuilles obligataires un cadre méthodologique actionnable pour intégrer ces dimensions dans leurs processus d'investissement.
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+% Inclure les chapitres
+\include{chapitres/introduction}
+\include{chapitres/revue_litterature}
+\include{chapitres/portefeuille_obligataire}
+\include{chapitres/modelisation_risque_credit}
+\include{chapitres/machine_learning}
+\include{chapitres/comparaison_modeles}
+\include{chapitres/conclusion}
+
+% Bibliographie
+\bibliographystyle{apalike}
+\bibliography{bibliographie}
+
+% Annexes
+\begin{appendix}
+\chapter{Annexes}
+\section{Données supplémentaires}
+\section{Code source des modèles}
+\end{appendix}
+
+\end{document}
