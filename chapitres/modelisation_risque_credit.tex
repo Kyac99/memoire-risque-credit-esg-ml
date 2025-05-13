@@ -1,0 +1,466 @@
+\chapter{Modélisation du risque de crédit dans un portefeuille obligataire}
+
+Ce chapitre aborde un aspect fondamental de la gestion d'un portefeuille obligataire : la modélisation du risque de crédit. Dans un contexte où les marchés financiers sont de plus en plus sensibles aux risques de défaut et où les exigences réglementaires se renforcent, la compréhension et la quantification précises du risque de crédit deviennent cruciales pour les investisseurs. Nous explorerons d'abord les concepts fondamentaux et les métriques traditionnelles du risque de crédit, pour ensuite analyser comment les critères ESG peuvent être intégrés dans cette évaluation, avant de conclure par une présentation des modèles classiques de prévision du risque de crédit et leurs limites face aux nouvelles dimensions de l'investissement responsable.
+
+\section{Définition et mesure du risque de crédit}
+
+Le risque de crédit constitue l'un des risques les plus significatifs auxquels sont exposés les investisseurs obligataires. Il représente la possibilité qu'un émetteur ne puisse pas honorer ses engagements financiers, notamment le paiement des intérêts et le remboursement du principal à l'échéance. Cette section détaille les différentes composantes et métriques utilisées pour quantifier ce risque.
+
+\subsection{Composantes fondamentales du risque de crédit}
+
+La modélisation moderne du risque de crédit s'articule autour de trois composantes essentielles qui permettent d'évaluer et de quantifier l'exposition potentielle aux pertes :
+
+\subsubsection{Probabilité de défaut (PD)}
+
+La probabilité de défaut (PD) représente la likelihood qu'un émetteur ne puisse pas respecter ses obligations contractuelles sur une période donnée, généralement un an. Cette probabilité peut être estimée à travers différentes approches :
+
+\begin{itemize}
+    \item \textbf{Approche historique} : Basée sur l'analyse statistique des taux de défaut historiques par catégorie de notation, secteur économique et zone géographique. Les agences de notation comme Moody's, S\&P et Fitch publient régulièrement des études sur les taux de défaut cumulés qui servent de référence.
+    
+    \item \textbf{Approche par les prix de marché} : Cette méthode déduit les probabilités de défaut implicites à partir des spreads obligataires ou des prix des Credit Default Swaps (CDS). Elle repose sur l'hypothèse que les marchés intègrent efficacement l'information disponible dans la tarification des instruments financiers.
+    
+    \item \textbf{Approche structurelle} : Inspirée du modèle de Merton (1974), cette approche considère le défaut comme un événement endogène qui survient lorsque la valeur des actifs d'une entreprise tombe en dessous d'un certain seuil, généralement lié à sa structure d'endettement.
+    
+    \item \textbf{Approche par les variables fondamentales} : Basée sur l'analyse de ratios financiers (levier, liquidité, rentabilité) et de variables macroéconomiques pour prédire la probabilité de défaut.
+\end{itemize}
+
+\subsubsection{Perte en cas de défaut (LGD)}
+
+La perte en cas de défaut (Loss Given Default - LGD) mesure la proportion de l'exposition qui sera effectivement perdue si un défaut survient. Cette métrique, généralement exprimée en pourcentage, dépend de plusieurs facteurs :
+
+\begin{itemize}
+    \item \textbf{Rang de subordination} : Les obligations senior sécurisées présentent typiquement des taux de recouvrement plus élevés que les obligations subordonnées ou junior.
+    
+    \item \textbf{Secteur d'activité} : Certains secteurs, disposant d'actifs tangibles importants comme l'immobilier ou l'énergie, offrent traditionnellement de meilleurs taux de recouvrement que les secteurs à forte intensité de services ou de propriété intellectuelle.
+    
+    \item \textbf{Cycle économique} : Les taux de recouvrement tendent à diminuer en période de récession profonde, créant une corrélation positive entre les taux de défaut et la sévérité des pertes.
+    
+    \item \textbf{Cadre juridique} : Les différences dans les régimes d'insolvabilité et les procédures de restructuration entre pays influencent significativement les taux de recouvrement.
+\end{itemize}
+
+Les études empiriques montrent que la distribution des LGD est souvent bimodale, avec des concentrations autour de valeurs très faibles (forte récupération) et très élevées (faible récupération), ce qui complique leur modélisation statistique.
+
+\subsubsection{Exposition en cas de défaut (EAD)}
+
+L'exposition en cas de défaut (Exposure At Default - EAD) représente le montant économique total exposé au risque au moment où surviendrait le défaut. Pour les obligations classiques, cette exposition correspond généralement à la valeur nominale de l'obligation plus les intérêts courus. Toutefois, pour des instruments plus complexes ou des expositions indirectes (via des dérivés par exemple), l'estimation de l'EAD peut nécessiter des modèles plus sophistiqués prenant en compte :
+
+\begin{itemize}
+    \item Les flux de trésorerie futurs attendus jusqu'à l'échéance
+    \item Les possibilités de tirage additionnel pour les lignes de crédit
+    \item L'évolution potentielle de la valeur de marché pour les dérivés
+\end{itemize}
+
+\subsection{Métriques de marché du risque de crédit}
+
+Au-delà des composantes fondamentales, le marché obligataire utilise plusieurs indicateurs qui reflètent la perception et la valorisation du risque de crédit.
+
+\subsubsection{Spreads de crédit}
+
+Le spread de crédit représente la différence de rendement entre une obligation et un titre considéré sans risque (typiquement une obligation souveraine de référence) de même duration. Il constitue la prime de risque exigée par les investisseurs pour compenser l'exposition au risque de crédit. Les spreads de crédit sont influencés par :
+
+\begin{itemize}
+    \item La qualité de crédit perçue de l'émetteur
+    \item Les conditions de liquidité du marché
+    \item L'aversion au risque générale des investisseurs
+    \item Les attentes concernant le cycle économique
+    \item Les caractéristiques spécifiques de l'obligation (callabilité, subordination, etc.)
+\end{itemize}
+
+L'évolution des spreads de crédit au cours du temps fournit des informations précieuses sur l'évolution de la perception du risque par les marchés. Un élargissement significatif des spreads peut signaler une détérioration de la qualité de crédit ou une augmentation de l'aversion au risque.
+
+\subsubsection{Credit Default Swaps (CDS)}
+
+Les Credit Default Swaps sont des contrats dérivés qui offrent une protection contre le risque de défaut d'un émetteur spécifique. La prime de CDS, exprimée en points de base annuels du montant notionnel, constitue une mesure directe du coût de la protection contre le défaut et, par extension, de la probabilité de défaut perçue par le marché.
+
+Les CDS présentent plusieurs avantages pour l'analyse du risque de crédit :
+
+\begin{itemize}
+    \item Ils sont généralement plus liquides que les obligations correspondantes
+    \item Ils isolent le risque de crédit des autres facteurs (risque de taux, prime de liquidité)
+    \item Ils permettent de construire des courbes de crédit par maturité
+    \item Ils peuvent exister même en l'absence d'obligations sur le marché
+\end{itemize}
+
+L'écart entre les spreads obligataires et les primes de CDS (la « basis ») peut également fournir des informations sur d'autres facteurs de risque comme la liquidité.
+
+\subsection{Notations des agences de crédit}
+
+Les agences de notation (principalement Moody's, Standard \& Poor's et Fitch) jouent un rôle central dans l'évaluation du risque de crédit en attribuant des notations qui reflètent leur opinion sur la capacité d'un émetteur à honorer ses engagements financiers.
+
+\subsubsection{Échelles de notation}
+
+Les principales agences utilisent des échelles de notation similaires mais avec des nomenclatures différentes :
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|l|}
+\hline
+\textbf{S\&P} & \textbf{Moody's} & \textbf{Fitch} & \textbf{Interprétation} \\
+\hline
+AAA & Aaa & AAA & Qualité maximale, risque minimal \\
+AA+ à AA- & Aa1 à Aa3 & AA+ à AA- & Qualité élevée \\
+A+ à A- & A1 à A3 & A+ à A- & Qualité moyenne supérieure \\
+BBB+ à BBB- & Baa1 à Baa3 & BBB+ à BBB- & Qualité moyenne inférieure \\
+\hline
+\multicolumn{4}{|c|}{Limite Investment Grade / High Yield (Speculative Grade)} \\
+\hline
+BB+ à BB- & Ba1 à Ba3 & BB+ à BB- & Spéculatif \\
+B+ à B- & B1 à B3 & B+ à B- & Hautement spéculatif \\
+CCC+ à C & Caa1 à Ca & CCC+ à C & Risque substantiel, proche du défaut \\
+D & C & D & Défaut \\
+\hline
+\end{tabular}
+\caption{Échelles de notation des principales agences de crédit}
+\end{table}
+
+\subsubsection{Méthodes d'évaluation des agences}
+
+Les méthodologies des agences de notation, bien que globalement similaires, présentent des différences qui peuvent conduire à des écarts de notation pour un même émetteur. Leur analyse combine généralement :
+
+\begin{itemize}
+    \item \textbf{Analyse financière quantitative} : Examen des ratios de levier, de couverture des intérêts, de liquidité, de rentabilité et d'autres métriques financières
+    
+    \item \textbf{Analyse qualitative} : Évaluation de la stratégie, de la gouvernance, de la position concurrentielle et du profil opérationnel
+    
+    \item \textbf{Analyse sectorielle} : Prise en compte des spécificités, tendances et risques propres au secteur d'activité
+    
+    \item \textbf{Analyse du contexte économique et réglementaire} : Évaluation des perspectives macroéconomiques et de l'environnement réglementaire affectant l'émetteur
+    
+    \item \textbf{Facteurs supplémentaires} : Support gouvernemental potentiel (pour les entités d'importance systémique), subordination structurelle, clauses contractuelles spécifiques
+\end{itemize}
+
+Il convient de noter que les agences de notation ont progressivement intégré des critères ESG dans leurs méthodologies, reconnaissant l'importance croissante de ces facteurs dans l'évaluation globale du risque de crédit.
+
+\subsubsection{Limites et critiques des notations d'agences}
+
+Malgré leur rôle central, les notations des agences font l'objet de plusieurs critiques significatives :
+
+\begin{itemize}
+    \item \textbf{Nature rétrospective} : Les modifications de notation interviennent souvent après que le marché a déjà intégré la détérioration de la qualité de crédit dans les prix
+    
+    \item \textbf{Conflits d'intérêts potentiels} : Le modèle « émetteur-payeur » dominant peut créer des incitations problématiques
+    
+    \item \textbf{Effets de seuil réglementaires} : La distinction binaire Investment Grade/High Yield peut entraîner des effets de falaise sur les marchés lors des déclassements
+    
+    \item \textbf{Homogénéité insuffisante} : Des notations identiques peuvent correspondre à des profils de risque très différents selon les secteurs ou les régions
+    
+    \item \textbf{Prise en compte limitée des corrélations} : Les notations individuelles capturent imparfaitement les dynamiques de contagion et les corrélations entre émetteurs en période de stress
+\end{itemize}
+
+Ces limitations ont conduit de nombreux investisseurs institutionnels à développer leurs propres méthodologies d'évaluation du risque de crédit, souvent en complément des notations externes.
+
+\subsection{Agrégation du risque de crédit au niveau du portefeuille}
+
+L'évaluation du risque de crédit à l'échelle d'un portefeuille obligataire diversifié ne peut se limiter à la simple somme des risques individuels, en raison des effets de corrélation et de concentration.
+
+\subsubsection{Métriques de risque agrégées}
+
+Plusieurs métriques permettent de quantifier le risque de crédit au niveau du portefeuille :
+
+\begin{itemize}
+    \item \textbf{Expected Loss (EL)} : La perte moyenne attendue, calculée comme $EL = \sum PD_i \times LGD_i \times EAD_i$ pour tous les instruments $i$ du portefeuille
+    
+    \item \textbf{Unexpected Loss (UL)} : La volatilité potentielle des pertes autour de la moyenne, généralement mesurée par l'écart-type de la distribution des pertes
+    
+    \item \textbf{Value at Risk (VaR)} : La perte maximale qui ne sera pas dépassée avec un certain niveau de confiance (typiquement 95\% ou 99\%) sur un horizon temporel défini
+    
+    \item \textbf{Expected Shortfall (ES) / Conditional VaR} : La perte moyenne attendue dans les scénarios dépassant le seuil de la VaR, offrant une meilleure vision des risques extrêmes
+    
+    \item \textbf{Credit VaR} : Adaptation de la VaR spécifiquement pour les risques de crédit, tenant compte de la nature non-normale des distributions de pertes de crédit
+\end{itemize}
+
+\subsubsection{Corrélations et concentration}
+
+La modélisation précise du risque de crédit au niveau du portefeuille nécessite de prendre en compte :
+
+\begin{itemize}
+    \item \textbf{Corrélations entre émetteurs} : Les défauts peuvent être corrélés en raison de facteurs systémiques (cycle économique) ou de relations commerciales directes entre entreprises
+    
+    \item \textbf{Risque de concentration} : L'exposition excessive à certains émetteurs, secteurs ou régions peut amplifier le risque global du portefeuille
+    
+    \item \textbf{Effets de contagion} : Le défaut d'entités importantes peut déclencher une série de défauts en cascade à travers le système financier ou économique
+    
+    \item \textbf{Wrong-way risk} : Risque que l'exposition à une contrepartie augmente précisément lorsque sa qualité de crédit se détériore
+\end{itemize}
+
+Les modèles avancés de risque de crédit de portefeuille, comme CreditMetrics, KMV Portfolio Manager ou CreditRisk+, utilisent différentes approches pour modéliser ces corrélations, depuis les corrélations d'actifs sous-jacentes jusqu'aux modèles à facteurs multiples.
+
+\section{Intégration des critères ESG dans l'évaluation du risque de crédit}
+
+L'intégration des critères Environnementaux, Sociaux et de Gouvernance (ESG) dans l'évaluation du risque de crédit représente une évolution majeure dans la gestion obligataire. Cette section examine comment ces facteurs extra-financiers peuvent être incorporés dans les modèles de risque traditionnels et leur impact sur l'analyse crédit.
+
+\subsection{Identification des variables ESG pertinentes pour le risque de crédit}
+
+La première étape consiste à identifier les facteurs ESG qui ont une influence significative sur le profil de risque des émetteurs obligataires. Ces facteurs varient considérablement selon les secteurs d'activité.
+
+\subsubsection{Facteurs environnementaux}
+
+Les facteurs environnementaux peuvent affecter le risque de crédit à travers plusieurs canaux :
+
+\begin{itemize}
+    \item \textbf{Risques physiques} : Exposition aux événements climatiques extrêmes (inondations, sécheresses, tempêtes) et aux changements climatiques progressifs qui peuvent endommager les actifs physiques, perturber les chaînes d'approvisionnement ou réduire la productivité
+    
+    \item \textbf{Risques de transition} : Impacts des politiques climatiques (taxation carbone, réglementations sur les émissions), des évolutions technologiques et des changements de préférences des consommateurs, qui peuvent entraîner des actifs échoués (stranded assets) ou nécessiter des investissements significatifs pour s'adapter
+    
+    \item \textbf{Efficience des ressources} : Capacité à optimiser l'utilisation de l'eau, de l'énergie et des matières premières, avec des implications sur les coûts opérationnels et la résilience face aux pénuries
+    
+    \item \textbf{Pollution et déchets} : Risques de litiges, d'amendes ou de coûts de remédiation liés aux émissions toxiques, aux déchets dangereux ou aux déversements accidentels
+\end{itemize}
+
+Pour les secteurs à forte intensité carbone comme l'énergie, les matériaux ou les transports, l'intensité carbone et les trajectoires de décarbonation constituent des indicateurs particulièrement significatifs pour évaluer l'exposition aux risques de transition.
+
+\subsubsection{Facteurs sociaux}
+
+Les facteurs sociaux touchent aux relations de l'entreprise avec ses parties prenantes humaines et peuvent influencer le risque crédit via :
+
+\begin{itemize}
+    \item \textbf{Capital humain} : Pratiques de gestion des ressources humaines, formation, diversité et inclusion, santé et sécurité au travail, qui affectent la productivité, l'innovation et les coûts opérationnels
+    
+    \item \textbf{Relations avec les communautés} : Acceptation sociale des activités (« licence sociale d'opérer »), particulièrement cruciale dans les industries extractives ou les projets d'infrastructure
+    
+    \item \textbf{Responsabilité produit} : Sécurité et qualité des produits, pratiques marketing responsables, protection des données clients, qui peuvent engendrer des risques de réputation et de litiges
+    
+    \item \textbf{Droits humains} : Respect des normes internationales du travail dans les opérations directes et la chaîne d'approvisionnement, avec des implications réputationnelles et réglementaires croissantes
+\end{itemize}
+
+Les controverses sociales majeures (accidents industriels, violations des droits humains, scandales sanitaires) peuvent entraîner des impacts financiers significatifs et rapides, soulignant l'importance de ces facteurs dans l'analyse de crédit.
+
+\subsubsection{Facteurs de gouvernance}
+
+La gouvernance constitue historiquement la dimension ESG la plus directement liée au risque de crédit :
+
+\begin{itemize}
+    \item \textbf{Structure et fonctionnement du conseil d'administration} : Indépendance, diversité, expertise et efficacité du conseil, séparation des fonctions de président et de directeur général
+    
+    \item \textbf{Rémunération des dirigeants} : Alignement avec la performance à long terme, transparence des critères, intégration d'objectifs de durabilité
+    
+    \item \textbf{Éthique des affaires} : Politiques et contrôles anti-corruption, conformité fiscale, pratiques concurrentielles
+    
+    \item \textbf{Transparence et reporting} : Qualité de la communication financière et extra-financière, fiabilité des audits
+    
+    \item \textbf{Droits des actionnaires} : Protection des actionnaires minoritaires, structure de l'actionnariat (concentration, droits de vote)
+\end{itemize}
+
+Les défaillances de gouvernance constituent des signaux d'alerte particulièrement pertinents pour anticiper les difficultés financières, comme l'ont illustré de nombreux cas emblématiques (Enron, Worldcom, Wirecard).
+
+\subsection{Corrélation entre scores ESG et métriques de crédit}
+
+L'analyse des relations statistiques entre les scores ESG et les indicateurs traditionnels de risque de crédit constitue une étape essentielle pour valider et quantifier l'apport de ces critères dans l'évaluation du risque.
+
+\subsubsection{Relations empiriques observées}
+
+De nombreuses études académiques et recherches empiriques ont exploré ces corrélations, avec des résultats généralement convergents :
+
+\begin{itemize}
+    \item \textbf{Spreads de crédit} : Plusieurs études documentent une relation négative entre la performance ESG globale et les spreads obligataires, après contrôle des facteurs traditionnels. Cette relation est particulièrement marquée pour la dimension gouvernance.
+    
+    \item \textbf{Volatilité des spreads} : Les émetteurs ayant des scores ESG élevés tendent à présenter une moindre volatilité des spreads, suggérant un effet stabilisateur en période de stress.
+    
+    \item \textbf{Notations de crédit} : Des corrélations positives entre scores ESG et notations sont observées, bien que l'ampleur varie selon les agences et les secteurs. L'intégration progressive des facteurs ESG dans les méthodologies des agences renforce cette relation.
+    
+    \item \textbf{Probabilités de défaut} : Les recherches indiquent que des scores ESG faibles, particulièrement en gouvernance, sont associés à des probabilités de défaut plus élevées, après contrôle des métriques financières traditionnelles.
+\end{itemize}
+
+\subsubsection{Variations sectorielles et temporelles}
+
+L'intensité de ces corrélations n'est pas uniforme et présente d'importantes variations :
+
+\begin{itemize}
+    \item \textbf{Différences sectorielles} : La matérialité financière des facteurs ESG varie considérablement selon les secteurs. Par exemple, les facteurs environnementaux ont un impact plus significatif dans les secteurs à forte intensité de ressources, tandis que les facteurs sociaux pèsent davantage dans les secteurs orientés vers les consommateurs.
+    
+    \item \textbf{Évolution temporelle} : Les recherches suggèrent un renforcement progressif de ces corrélations au cours du temps, reflétant une meilleure intégration des facteurs ESG par les marchés et une matérialité croissante de ces enjeux.
+    
+    \item \textbf{Asymétrie des effets} : L'impact négatif des controverses ESG sur les spreads et les notations apparaît souvent plus marqué que l'impact positif des bonnes performances, suggérant une prime de risque plutôt qu'une prime de vertu.
+    
+    \item \textbf{Non-linéarité} : Les relations observées ne sont pas nécessairement linéaires, avec parfois des effets de seuil ou des impacts plus prononcés aux extrêmes de la distribution des scores ESG.
+\end{itemize}
+
+Ces variations soulignent l'importance d'une approche nuancée et contextualisée de l'intégration ESG dans l'analyse crédit.
+
+\subsection{Méthodes de scoring ESG appliquées au portefeuille obligataire}
+
+Diverses approches méthodologiques permettent d'intégrer les critères ESG dans l'analyse et la construction de portefeuilles obligataires.
+
+\subsubsection{Sources de données ESG}
+
+Les données ESG utilisées dans l'analyse obligataire proviennent de multiples sources :
+
+\begin{itemize}
+    \item \textbf{Fournisseurs de données spécialisés} : MSCI ESG, Sustainalytics, Refinitiv, S\&P Global, Bloomberg ESG, qui proposent des scores, ratings et analyses ESG couvrant de larges univers d'émetteurs
+    
+    \item \textbf{Reporting des émetteurs} : Publications volontaires ou réglementaires (déclarations de performance extra-financière, rapports intégrés, réponses au CDP)
+    
+    \item \textbf{Bases de données spécialisées} : Inventaires d'émissions carbone, registres de controverses, bases de brevets verts
+    
+    \item \textbf{Analyses alternatives} : Données satellites, analyses de sentiments des médias et réseaux sociaux, intelligence artificielle appliquée aux rapports annuels et transcriptions
+\end{itemize}
+
+La qualité, la couverture et la comparabilité de ces données constituent des défis majeurs, particulièrement pour les émetteurs de taille moyenne ou des marchés émergents.
+
+\subsubsection{Approches méthodologiques}
+
+Plusieurs méthodes permettent d'incorporer les facteurs ESG dans l'analyse crédit obligataire :
+
+\begin{itemize}
+    \item \textbf{Scores ESG composites} : Agrégation de multiples indicateurs en un score unique ou par pilier (E, S et G), permettant un classement relatif des émetteurs
+    
+    \item \textbf{Analyse de matérialité} : Focalisation sur les facteurs ESG financièrement matériels pour chaque secteur, suivant des cadres comme le SASB (Sustainability Accounting Standards Board)
+    
+    \item \textbf{Analyse des controverses} : Identification et évaluation systématique des incidents ESG significatifs pouvant affecter la réputation et les performances financières
+    
+    \item \textbf{Mesures d'impact} : Évaluation des externalités positives et négatives des activités, comme l'empreinte carbone, la création d'emplois ou la contribution aux Objectifs de Développement Durable
+    
+    \item \textbf{Scénarios climatiques} : Analyse de l'exposition et de la résilience aux différents scénarios de transition énergétique et de risques physiques, conformément aux recommandations de la TCFD
+\end{itemize}
+
+Ces approches peuvent être utilisées individuellement ou de façon complémentaire selon les objectifs d'investissement.
+
+\subsubsection{Intégration dans la construction de portefeuille}
+
+L'application concrète des scores ESG dans la gestion obligataire peut prendre plusieurs formes :
+
+\begin{itemize}
+    \item \textbf{Filtrage négatif} : Exclusion des émetteurs impliqués dans certaines activités controversées (armement, tabac, charbon thermique) ou présentant des scores ESG très faibles
+    
+    \item \textbf{Sélection best-in-class} : Surpondération des émetteurs ayant les meilleurs scores ESG au sein de chaque secteur, tout en maintenant une allocation sectorielle similaire au benchmark
+    
+    \item \textbf{Intégration dans l'analyse crédit} : Ajustement systématique des spreads ou des probabilités de défaut en fonction des scores ESG
+    
+    \item \textbf{Tilting de portefeuille} : Modulation des pondérations en fonction des scores ESG, souvent via un processus d'optimisation sous contraintes
+    
+    \item \textbf{Investissement thématique} : Focalisation sur des obligations vertes, sociales ou durables, ou sur des secteurs clés de la transition
+\end{itemize}
+
+De nombreux investisseurs institutionnels utilisent une combinaison de ces approches, adaptée à leurs objectifs financiers et extra-financiers spécifiques.
+
+\section{Modèles traditionnels de prévision du risque de crédit}
+
+Avant l'émergence des techniques avancées de Machine Learning, plusieurs familles de modèles se sont développées pour évaluer et prévoir le risque de crédit. Cette section présente ces approches traditionnelles et leurs limites face aux nouvelles exigences d'intégration ESG.
+
+\subsection{Approches basées sur les spreads obligataires}
+
+L'utilisation des spreads de crédit observés sur les marchés constitue une approche fondamentale pour évaluer et prévoir le risque de crédit.
+
+\subsubsection{Modèles d'évaluation relative}
+
+Ces modèles visent à identifier les obligations sur ou sous-évaluées en comparant leurs spreads à ceux d'obligations similaires :
+
+\begin{itemize}
+    \item \textbf{Z-spread et OAS (Option-Adjusted Spread)} : Mesures du spread qui tiennent compte de la structure temporelle des taux d'intérêt et des options incorporées
+    
+    \item \textbf{Régression de spreads} : Modélisation des spreads en fonction de caractéristiques observables (notation, duration, secteur, levier) pour identifier les anomalies de valorisation
+    
+    \item \textbf{Courbes de crédit} : Construction et analyse des courbes de spread par émetteur ou par secteur pour détecter les opportunités sur différentes maturités
+\end{itemize}
+
+Ces approches reposent sur l'hypothèse que les marchés valorisent correctement le risque en moyenne, mais peuvent temporairement mal évaluer certaines obligations.
+
+\subsubsection{Modèles d'évaluation absolue}
+
+Ces modèles cherchent à déterminer le spread « juste » d'une obligation à partir de fondamentaux :
+
+\begin{itemize}
+    \item \textbf{Expected Loss Pricing} : Évaluation du spread théorique comme le produit de la probabilité de défaut et de la perte en cas de défaut, ajusté d'une prime de risque
+    
+    \item \textbf{Modèles structurels de crédit} : Application de modèles inspirés de Merton où le spread est dérivé de la distance au défaut, elle-même fonction de la valeur des actifs, de la volatilité et du niveau d'endettement
+    
+    \item \textbf{Modèles de forme réduite} : Modélisation du défaut comme un processus stochastique exogène, dont les paramètres sont calibrés sur les prix de marché
+\end{itemize}
+
+Ces modèles permettent d'évaluer si le marché sous-estime ou surestime le risque de crédit intrinsèque d'un émetteur.
+
+\subsection{Modèles économétriques et scoring classique}
+
+Parallèlement aux approches basées sur les marchés, des méthodologies statistiques plus traditionnelles ont été développées pour évaluer le risque de crédit.
+
+\subsubsection{Analyse discriminante et modèles de scoring}
+
+Ces modèles visent à classer les émetteurs selon leur profil de risque :
+
+\begin{itemize}
+    \item \textbf{Score Z d'Altman} : Combinaison linéaire de ratios financiers (rentabilité, liquidité, solvabilité, activité) permettant de discriminer les entreprises saines des entreprises en difficulté
+    
+    \item \textbf{Modèle ZETA} : Extension du modèle Z intégrant des variables supplémentaires et adaptée aux grandes entreprises et différents secteurs
+    
+    \item \textbf{Score de Conan et Holder} : Adaptation française du scoring financier, avec une pondération différente des ratios
+\end{itemize}
+
+Ces modèles, simples et transparents, restent largement utilisés comme première approche de screening ou outil de validation croisée.
+
+\subsubsection{Modèles de régression logistique}
+
+La régression logistique constitue une méthode statistique classique pour modéliser la probabilité de défaut :
+
+\begin{itemize}
+    \item \textbf{Équation générale} : $P(Défaut) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 X_1 + \beta_2 X_2 + ... + \beta_n X_n)}}$ où les $X_i$ sont des variables explicatives financières et les $\beta_i$ leurs coefficients
+    
+    \item \textbf{Variables typiques} : Ratios de levier, couverture des intérêts, liquidité, rentabilité, volatilité des bénéfices, croissance, taille, âge
+    
+    \item \textbf{Extensions} : Intégration de variables macroéconomiques, sectorielles et de marché pour capturer les effets systémiques et cycliques
+\end{itemize}
+
+La régression logistique offre l'avantage de produire directement des probabilités interprétables et d'identifier la contribution relative de chaque facteur.
+
+\subsubsection{Modèles de durée et analyses de survie}
+
+Ces modèles, empruntés à l'épidémiologie et à la fiabilité industrielle, s'intéressent au temps jusqu'au défaut :
+
+\begin{itemize}
+    \item \textbf{Modèle de Cox à risques proportionnels} : Modélisation du taux de hasard comme produit d'une fonction de base et d'un terme exponentiel des covariables
+    
+    \item \textbf{Modèles paramétriques} : Spécification d'une distribution particulière (Weibull, exponentielle, log-normale) pour le temps jusqu'au défaut
+    
+    \item \textbf{Modèles de transition} : Analyse des probabilités de migration entre différentes classes de notation au cours du temps
+\end{itemize}
+
+Ces approches permettent de modéliser l'évolution dynamique du risque de crédit et de produire des structures par terme de probabilités de défaut.
+
+\subsection{Limites des approches traditionnelles face aux exigences ESG}
+
+Les modèles classiques de risque de crédit présentent plusieurs limitations significatives dans le contexte actuel d'intégration des critères ESG.
+
+\subsubsection{Limites conceptuelles}
+
+Les approches traditionnelles se heurtent à des obstacles conceptuels pour intégrer pleinement la dimension ESG :
+
+\begin{itemize}
+    \item \textbf{Horizon temporel} : Les modèles standards se concentrent généralement sur un horizon court à moyen terme (1-5 ans), alors que de nombreux risques ESG, notamment climatiques, se matérialisent sur des horizons plus longs
+    
+    \item \textbf{Non-linéarités et effets de seuil} : Les impacts ESG peuvent suivre des dynamiques non linéaires ou comporter des points de basculement que les modèles linéaires traditionnels capturent mal
+    
+    \item \textbf{Événements rares et extrêmes} : Les catastrophes environnementales ou les crises sociales majeures représentent des événements à faible probabilité mais fort impact, difficilement modélisables avec les approches classiques
+    
+    \item \textbf{Interactions complexes} : Les facteurs ESG interagissent entre eux et avec les variables financières traditionnelles de façon complexe, dépassant les capacités des modèles additifs simples
+\end{itemize}
+
+\subsubsection{Limites empiriques et opérationnelles}
+
+En pratique, l'application des modèles traditionnels aux problématiques ESG se heurte à plusieurs difficultés :
+
+\begin{itemize}
+    \item \textbf{Historique de données limité} : Les données ESG systématiques sont relativement récentes, ce qui complique l'estimation et la validation des modèles sur des cycles économiques complets
+    
+    \item \textbf{Hétérogénéité et comparabilité} : Les métriques ESG manquent encore de standardisation, avec des méthodologies variables selon les fournisseurs et des enjeux de comparabilité intersectorielle
+    
+    \item \textbf{Matérialité variable} : L'importance relative des différents facteurs ESG varie considérablement selon les secteurs et évolue au fil du temps, compliquant l'utilisation de modèles statiques
+    
+    \item \textbf{Multicolinéarité} : Les variables ESG sont souvent fortement corrélées entre elles et avec certaines variables financières traditionnelles, posant des problèmes d'identification statistique
+\end{itemize}
+
+\subsubsection{Besoins d'innovation méthodologique}
+
+Ces limitations appellent à des approches plus sophistiquées et flexibles :
+
+\begin{itemize}
+    \item \textbf{Capacité à traiter des données hétérogènes} : Intégration de données structurées et non structurées, quantitatives et qualitatives, à différentes fréquences
+    
+    \item \textbf{Modélisation des interactions complexes} : Capture des effets croisés, des non-linéarités et des dynamiques temporelles complexes
+    
+    \item \textbf{Adaptabilité contextuelle} : Capacité à adapter l'importance relative des facteurs selon le contexte sectoriel, géographique et temporel
+    
+    \item \textbf{Robustesse aux données limitées} : Performance maintenue malgré des historiques courts ou des données partielles
+    
+    \item \textbf{Interprétabilité préservée} : Maintien d'un niveau d'explicabilité compatible avec les exigences de gouvernance et de communication
+\end{itemize}
+
+Ces défis méthodologiques préparent le terrain pour l'introduction des techniques avancées de Machine Learning, qui feront l'objet du chapitre suivant.
