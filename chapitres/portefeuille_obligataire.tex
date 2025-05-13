@@ -1,0 +1,275 @@
+\subsection{Approche retenue et implémentation}
+
+Pour notre portefeuille final, nous avons adopté une approche hybride combinant plusieurs des méthodologies précédemment décrites :
+
+\begin{itemize}
+    \item \textbf{Segmentation} du portefeuille en trois compartiments, correspondant aux trois types d'obligations (corporate, souveraine, verte)
+    
+    \item \textbf{Allocation stratégique} entre ces compartiments selon les proportions définies précédemment (60\%, 30\%, 10\%)
+    
+    \item Pour chaque compartiment :
+    \begin{itemize}
+        \item \textbf{Pré-sélection} des titres selon les critères financiers et ESG définis
+        \item \textbf{Optimisation sous contraintes ESG}, avec une fonction objectif hybride intégrant rendement, risque et score ESG
+        \item \textbf{Ajustement manuel} pour garantir la représentativité sectorielle et géographique
+    \end{itemize}
+    
+    \item \textbf{Rebalancement trimestriel} avec des seuils de tolérance pour limiter le turnover
+\end{itemize}
+
+En termes mathématiques, notre problème d'optimisation pour chaque compartiment peut être formulé comme suit :
+
+\begin{align}
+\max_w \quad & (1-\lambda) \times \left( \frac{w^T \mu - r_f}{\sqrt{w^T \Sigma w}} \right) + \lambda \times \left( \frac{\sum_{i=1}^n w_i \times \text{ESG}_i - \text{ESG}_{\text{min}}}{\text{ESG}_{\text{max}} - \text{ESG}_{\text{min}}} \right) \\
+\text{s.t.} \quad & \sum_{i=1}^n w_i = 1 \\
+& w_i \geq 0, \quad \forall i \in \{1,...,n\} \\
+& w_i \leq w_{\text{max}}, \quad \forall i \in \{1,...,n\} \\
+& \sum_{i \in S_j} w_i \leq s_{\text{max}}, \quad \forall j \in \{1,...,m\} \\
+& L_{\text{dur}} \leq \sum_{i=1}^n w_i \times D_i \leq U_{\text{dur}} \\
+& \sum_{i=1}^n w_i \times \text{ESG}_i \geq \text{ESG}_{\text{min}}
+\end{align}
+
+où :
+\begin{itemize}
+    \item $\lambda = 0.3$ est le paramètre de pondération entre objectifs financiers et ESG
+    \item $w_{\text{max}} = 3\%$ est la pondération maximale par émetteur
+    \item $S_j$ représente l'ensemble des titres appartenant au secteur $j$
+    \item $s_{\text{max}} = 15\%$ est la pondération sectorielle maximale
+    \item $L_{\text{dur}} = 3$ et $U_{\text{dur}} = 8$ sont les bornes inférieure et supérieure de duration
+    \item $\text{ESG}_{\text{min}} = 55$ est le score ESG minimal du portefeuille (sur une échelle de 0 à 100)
+\end{itemize}
+
+La résolution de ce problème d'optimisation a été réalisée à l'aide de l'algorithme Sequential Least Squares Programming (SLSQP), particulièrement adapté aux problèmes non linéaires sous contraintes, avec une validation croisée des résultats via la méthode du simplexe de Nelder-Mead pour éviter les optima locaux.
+
+\section{Présentation des caractéristiques du portefeuille étudié}
+
+À l'issue du processus de sélection et de pondération décrit précédemment, nous avons constitué un portefeuille obligataire diversifié intégrant la dimension ESG. Cette section présente les principales caractéristiques de ce portefeuille, qui servira de base à notre analyse du risque de crédit et à l'application des modèles de machine learning dans les chapitres suivants.
+
+\subsection{Composition générale du portefeuille}
+
+Le portefeuille final comprend 387 obligations émises par 215 émetteurs distincts, pour une valeur nominale totale de 450 millions d'euros. Sa composition reflète les allocations cibles définies précédemment, avec de légères variations dues aux contraintes d'optimisation et à la disponibilité des titres répondant à nos critères de sélection.
+
+\begin{table}[h]
+\centering
+\caption{Composition générale du portefeuille par type d'émetteur}
+\begin{tabular}{lccc}
+\hline
+\textbf{Type d'émetteur} & \textbf{Allocation (\%)} & \textbf{Nombre d'obligations} & \textbf{Nombre d'émetteurs} \\
+\hline
+Entreprises (Corporate) & 58.7\% & 278 & 162 \\
+Souverains & 31.2\% & 72 & 42 \\
+Obligations vertes/durables & 10.1\% & 37 & 21* \\
+\hline
+\textbf{Total} & \textbf{100\%} & \textbf{387} & \textbf{215} \\
+\hline
+\multicolumn{4}{l}{\small *Certains émetteurs apparaissent également dans les catégories Corporate ou Souverain} \\
+\end{tabular}
+\end{table}
+
+Les principales caractéristiques financières du portefeuille sont les suivantes :
+
+\begin{itemize}
+    \item \textbf{Rendement à maturité moyen} : 3.82\%
+    \item \textbf{Spread de crédit moyen} : 152 points de base
+    \item \textbf{Duration modifiée moyenne} : 5.34 ans
+    \item \textbf{Maturité moyenne pondérée} : 7.11 ans
+    \item \textbf{Notation moyenne pondérée} : A-/A3
+    \item \textbf{Score ESG moyen pondéré} : 68.3/100
+\end{itemize}
+
+\subsection{Répartition sectorielle, géographique et par notation de crédit}
+
+\subsubsection{Répartition sectorielle}
+
+La répartition sectorielle du portefeuille, présentée dans la Figure 2.1, reflète un équilibre entre diversification et représentativité du marché obligataire mondial. Le secteur financier (banques, assurances, services financiers diversifiés) représente la part la plus importante, conformément à sa prédominance sur le marché des obligations d'entreprises, suivi par les secteurs des technologies de l'information et de la santé.
+
+\begin{figure}[h]
+\centering
+% Insérer ici un graphique de la répartition sectorielle
+\caption{Répartition sectorielle du portefeuille obligataire}
+\end{figure}
+
+Par rapport aux indices obligataires conventionnels, notre portefeuille présente une sous-pondération volontaire des secteurs à forte intensité carbone (énergie, matériaux, utilities), conséquence directe de l'intégration des critères ESG. Cette caractéristique, qui pourrait constituer un biais en comparaison avec les benchmarks traditionnels, est cohérente avec notre objectif d'étudier un portefeuille aligné avec les considérations ESG actuelles.
+
+\subsubsection{Répartition géographique}
+
+La Figure 2.2 illustre la répartition géographique du portefeuille, organisée par région et par pays émetteur.
+
+\begin{figure}[h]
+\centering
+% Insérer ici un graphique de la répartition géographique
+\caption{Répartition géographique du portefeuille obligataire}
+\end{figure}
+
+Les principales observations concernant cette répartition sont les suivantes :
+
+\begin{itemize}
+    \item \textbf{Prédominance des marchés développés} (78\%), avec une forte représentation de l'Amérique du Nord (35\%) et de l'Europe (33\%)
+    
+    \item \textbf{Exposition sélective aux marchés émergents} (22\%), principalement l'Asie-Pacifique (12\%) et l'Amérique Latine (7\%)
+    
+    \item \textbf{Diversification par pays} avec une exposition maximale de 18\% pour les États-Unis, suivis par la France (8\%), l'Allemagne (7\%) et le Japon (6\%)
+    
+    \item \textbf{Surpondération notable des pays européens} par rapport aux indices globaux, justifiée par leurs scores ESG généralement plus élevés
+\end{itemize}
+
+Cette répartition géographique diversifiée nous permettra d'étudier l'impact des facteurs ESG sur le risque de crédit dans différents contextes réglementaires, culturels et macroéconomiques.
+
+\subsubsection{Répartition par notation de crédit}
+
+La distribution des notations de crédit au sein du portefeuille est présentée dans la Figure 2.3, reflétant l'équilibre recherché entre qualité de crédit et diversité des profils de risque.
+
+\begin{figure}[h]
+\centering
+% Insérer ici un graphique de la répartition par notation
+\caption{Répartition du portefeuille par notation de crédit}
+\end{figure}
+
+Les éléments notables concernant cette distribution sont :
+
+\begin{itemize}
+    \item \textbf{Prédominance de l'investment grade} (72.3\% du portefeuille), assurant une base de qualité de crédit solide
+    
+    \item \textbf{Représentation significative du high yield} (27.7\%), permettant d'étudier l'impact des facteurs ESG sur des émetteurs plus risqués
+    
+    \item \textbf{Distribution en forme de cloche} centrée sur la notation BBB, reflétant la structure du marché obligataire global
+    
+    \item \textbf{Corrélation positive observée} entre les notations de crédit traditionnelles et les scores ESG (coefficient de corrélation de 0.41), suggérant que les agences de notation intègrent déjà implicitement certains facteurs ESG
+\end{itemize}
+
+Cette diversité de profils de crédit constitue un atout majeur pour notre étude, permettant d'analyser l'interaction entre facteurs ESG et risque de crédit à travers différents niveaux de qualité de crédit.
+
+\subsection{Profil ESG du portefeuille}
+
+L'un des aspects distinctifs de notre portefeuille est son profil ESG, résultant de l'intégration explicite de ces critères dans le processus de sélection et de pondération.
+
+\subsubsection{Distribution des scores ESG}
+
+La Figure 2.4 présente la distribution des scores ESG au sein du portefeuille, comparée à celle de l'univers obligataire global avant application des filtres ESG.
+
+\begin{figure}[h]
+\centering
+% Insérer ici un graphique de la distribution des scores ESG
+\caption{Distribution des scores ESG dans le portefeuille vs. univers global}
+\end{figure}
+
+On observe un décalage significatif de la distribution vers les scores élevés, conséquence directe de notre approche de sélection best-in-class. Le score ESG moyen du portefeuille (68.3) est supérieur de 14.7 points à celui de l'univers global (53.6), témoignant de l'efficacité de notre méthodologie d'intégration ESG.
+
+\subsubsection{Analyse des sous-composantes ESG}
+
+Au-delà du score ESG agrégé, l'analyse des trois piliers E, S et G offre une vision plus granulaire du profil de durabilité du portefeuille, comme illustré dans la Figure 2.5.
+
+\begin{figure}[h]
+\centering
+% Insérer ici un graphique des scores par pilier ESG
+\caption{Scores moyens par pilier ESG (Environnement, Social, Gouvernance)}
+\end{figure}
+
+Les principales observations sont les suivantes :
+
+\begin{itemize}
+    \item \textbf{Score Environnement} : 67.8/100, reflétant une sélection rigoureuse sur les critères climatiques et la gestion des ressources
+    
+    \item \textbf{Score Social} : 65.4/100, légèrement inférieur au pilier environnemental, mais significativement supérieur à la moyenne de l'univers (51.2)
+    
+    \item \textbf{Score Gouvernance} : 72.1/100, constituant le pilier le plus performant, cohérent avec la prédominance des émetteurs des marchés développés ayant des standards de gouvernance élevés
+\end{itemize}
+
+Cette répartition équilibrée entre les trois piliers ESG permettra d'analyser l'impact spécifique de chaque dimension sur le risque de crédit, et potentiellement d'identifier lesquelles sont les plus significatives pour la prédiction des défauts ou des variations de spread.
+
+\subsubsection{Empreinte carbone du portefeuille}
+
+En complément des scores ESG généraux, nous avons calculé l'empreinte carbone du portefeuille, mesure particulièrement pertinente dans le contexte actuel de transition vers une économie bas-carbone.
+
+\begin{table}[h]
+\centering
+\caption{Indicateurs d'empreinte carbone du portefeuille}
+\begin{tabular}{lcc}
+\hline
+\textbf{Indicateur} & \textbf{Portefeuille} & \textbf{Benchmark*} \\
+\hline
+Intensité carbone moyenne pondérée (tCO$_2$e/M€ de CA) & 128.3 & 192.7 \\
+Émissions financées (tCO$_2$e/M€ investis) & 87.5 & 143.2 \\
+Alignement avec un scénario 2°C (% du portefeuille) & 63\% & 41\% \\
+\hline
+\multicolumn{3}{l}{\small *Benchmark composite : 60\% Bloomberg Global Aggregate Corporate, 30\% Bloomberg Global Aggregate} \\
+\multicolumn{3}{l}{\small Treasury, 10\% Bloomberg MSCI Global Green Bond Index} \\
+\end{tabular}
+\end{table}
+
+Ces indicateurs confirment le profil bas-carbone du portefeuille par rapport au benchmark, direct résultat de la sous-pondération des secteurs intensifs en carbone et de la sélection des émetteurs les plus performants au sein de ces secteurs.
+
+\subsection{Comparaison avec les indices de référence}
+
+Afin d'évaluer le positionnement de notre portefeuille dans le paysage obligataire global, nous l'avons comparé à plusieurs indices de référence, tant conventionnels qu'ESG.
+
+\subsubsection{Comparaison avec les indices obligataires conventionnels}
+
+Le Tableau 2.3 présente une comparaison des principales caractéristiques de notre portefeuille avec celles d'indices obligataires conventionnels.
+
+\begin{table}[h]
+\centering
+\caption{Comparaison avec les indices obligataires conventionnels}
+\begin{tabular}{lccc}
+\hline
+\textbf{Caractéristique} & \textbf{Notre portefeuille} & \textbf{Bloomberg Global} & \textbf{ICE BofA Global} \\
+& & \textbf{Aggregate} & \textbf{Corporate Index} \\
+\hline
+Rendement à maturité (\%) & 3.82\% & 3.45\% & 3.76\% \\
+Spread de crédit (pb) & 152 & 128 & 147 \\
+Duration modifiée (années) & 5.34 & 6.12 & 5.87 \\
+Notation moyenne & A-/A3 & A+/A1 & A/A2 \\
+Score ESG moyen & 68.3 & 53.2 & 54.8 \\
+\hline
+\end{tabular}
+\end{table}
+
+Par rapport aux indices conventionnels, notre portefeuille présente :
+
+\begin{itemize}
+    \item Un \textbf{rendement légèrement supérieur}, compensant sa duration plus courte
+    \item Des \textbf{spreads de crédit plus élevés}, reflétant une plus grande proportion d'obligations high yield
+    \item Une \textbf{notation moyenne légèrement inférieure} mais restant dans la catégorie A
+    \item Un \textbf{score ESG significativement supérieur} (différence de 13 à 15 points)
+\end{itemize}
+
+Ces différences sont cohérentes avec notre objectif de constituer un portefeuille financièrement compétitif tout en intégrant fortement la dimension ESG.
+
+\subsubsection{Comparaison avec les indices obligataires ESG}
+
+Le Tableau 2.4 compare notre portefeuille avec des indices obligataires intégrant déjà des critères ESG, afin d'évaluer la spécificité de notre approche.
+
+\begin{table}[h]
+\centering
+\caption{Comparaison avec les indices obligataires ESG}
+\begin{tabular}{lccc}
+\hline
+\textbf{Caractéristique} & \textbf{Notre portefeuille} & \textbf{MSCI Global} & \textbf{Bloomberg SASB} \\
+& & \textbf{SRI Bond Index} & \textbf{ESG Corporate} \\
+\hline
+Rendement à maturité (\%) & 3.82\% & 3.41\% & 3.65\% \\
+Spread de crédit (pb) & 152 & 132 & 138 \\
+Duration modifiée (années) & 5.34 & 5.95 & 5.76 \\
+Notation moyenne & A-/A3 & A/A2 & A/A2 \\
+Score ESG moyen & 68.3 & 64.7 & 62.1 \\
+Part green bonds (\%) & 10.1\% & 5.2\% & 4.8\% \\
+\hline
+\end{tabular}
+\end{table}
+
+Comparé aux indices obligataires ESG existants, notre portefeuille présente :
+
+\begin{itemize}
+    \item Un \textbf{profil rendement/risque comparable}, avec un léger avantage en termes de rendement
+    \item Un \textbf{score ESG supérieur de 3.6 à 6.2 points}, démontrant une intégration ESG plus poussée
+    \item Une \textbf{proportion plus importante d'obligations vertes} (10.1\% contre 4.8-5.2\%)
+    \item Une \textbf{diversification sectorielle plus équilibrée}, les indices ESG tendant à surpondérer certains secteurs comme les technologies et la finance
+\end{itemize}
+
+Ces comparaisons confirment que notre portefeuille présente un profil distinctif, combinant performances financières compétitives et intégration ESG ambitieuse, le positionnant favorablement pour notre étude sur l'interaction entre facteurs ESG et risque de crédit.
+
+\section*{Conclusion}
+
+Ce chapitre a présenté en détail la méthodologie de construction du portefeuille obligataire qui servira de base à notre analyse du risque de crédit intégrant les critères ESG et les modèles de machine learning. Nous avons décrit les critères de sélection des titres, incluant des considérations de liquidité, de notation de crédit et de maturité, ainsi que l'intégration structurée des facteurs ESG. Les différentes approches de pondération ont été exposées, depuis les méthodes traditionnelles jusqu'aux optimisations sous contraintes ESG, aboutissant à une méthodologie hybride adaptée à nos objectifs de recherche. Enfin, nous avons présenté les caractéristiques du portefeuille résultant, incluant sa composition sectorielle et géographique, sa distribution par notation de crédit, et son profil ESG, en le comparant aux principaux indices de référence.
+
+Le portefeuille ainsi constitué offre un terrain d'étude idéal pour notre analyse : il présente une diversité de profils de risque de crédit, une intégration significative mais réaliste des critères ESG, et des caractéristiques financières globalement alignées avec les indices de référence. Cette base solide nous permettra, dans les chapitres suivants, d'explorer la modélisation du risque de crédit traditionnelle et d'y intégrer les dimensions ESG, avant d'appliquer et d'évaluer l'apport des techniques de machine learning.
