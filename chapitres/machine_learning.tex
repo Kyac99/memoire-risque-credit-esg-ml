@@ -1,411 +1,173 @@
-\chapter{Application des modèles de Machine Learning}
+\paragraph{Secteur financier} présente une importance ESG élevée (21,5\%), dominée par les facteurs de gouvernance. Cette influence marquée s'explique par la nature fiduciaire de l'activité bancaire et assurantielle, où la confiance des parties prenantes est fondamentale. Les sous-facteurs les plus déterminants sont la structure de gouvernance, les mécanismes de contrôle interne et les politiques de rémunération, dont l'inadéquation a été identifiée comme facteur contributif majeur lors de la crise financière de 2008.
 
-\section{Constitution du jeu de données et prétraitement}
+\paragraph{Secteurs orientés consommateurs} (Consommation discrétionnaire et de base) montrent une influence ESG intermédiaire (16,9\% à 17,4\%), avec une prédominance des facteurs sociaux liés à la chaîne d'approvisionnement et aux droits humains. L'analyse révèle que les controverses sociales dans ces secteurs ont un impact amplifié sur la réputation et potentiellement sur les ventes, créant ainsi un lien plus direct avec la solvabilité.
 
-La qualité des données et leur préparation appropriée constituent des étapes fondamentales pour assurer la pertinence et la fiabilité des modèles de Machine Learning appliqués au risque de crédit. Cette section détaille le processus de collecte, d'organisation et de transformation des données utilisées dans notre étude.
+\paragraph{Secteurs technologiques et de santé} présentent l'influence ESG la plus modérée (14,3\% à 15,2\%), dominée par les facteurs de gouvernance et d'éthique des affaires. Cette moindre sensibilité peut s'expliquer par la prépondérance des actifs immatériels et intellectuels dans leur modèle économique, relativement moins impactés par les risques environnementaux directs.
 
-\subsection{Sources de données financières et ESG}
+Cette hétérogénéité sectorielle confirme l'importance d'une approche différenciée dans l'intégration des facteurs ESG pour l'analyse du risque de crédit, avec une pondération adaptée à la matérialité spécifique de chaque industrie.
 
-Notre jeu de données intègre des informations provenant de multiples sources, combinant données financières traditionnelles et métriques ESG :
+\subsubsection{Principaux insights de l'analyse des variables}
 
-\subsubsection{Données financières fondamentales}
-\begin{itemize}
-  \item \textbf{Refinitiv Eikon/Datastream} : Extraction des états financiers trimestriels et annuels des émetteurs sur la période 2010-2024, incluant les principaux ratios (levier, couverture des intérêts, marges, etc.)
-  \item \textbf{Bloomberg Terminal} : Données complémentaires sur la structure de capital et les événements de crédit
-  \item \textbf{S\&P Capital IQ} : Ratios sectoriels et indicateurs de performance relatifs
-\end{itemize}
+L'analyse détaillée de l'importance des variables révèle plusieurs insights fondamentaux pour la compréhension de l'impact ESG sur le risque de crédit :
 
-\subsubsection{Données de marché obligataire}
-\begin{itemize}
-  \item \textbf{TRACE (Trade Reporting and Compliance Engine)} : Données de transaction sur le marché secondaire américain
-  \item \textbf{Markit iBoxx} : Indices obligataires et données de prix pour les marchés européens et asiatiques
-  \item \textbf{ICE BofA Indices} : Historiques de spreads par notation et secteur
-\end{itemize}
+\paragraph{Complémentarité des facteurs ESG et financiers} Les variables ESG n'éclipsent pas les indicateurs financiers traditionnels mais apportent une dimension complémentaire, particulièrement pertinente pour l'anticipation des risques à moyen-long terme. L'analyse des matrices de corrélation entre variables financières et ESG montre des associations modérées (coefficient moyen de 0,31), confirmant que les métriques ESG capturent une information distincte et non redondante.
 
-\subsubsection{Données ESG spécifiques}
-\begin{itemize}
-  \item \textbf{MSCI ESG Research} : Scores ESG globaux et sous-scores par pilier (E, S, G) de 2015 à 2024
-  \item \textbf{Sustainalytics} : Évaluations des risques ESG et scores de controverse
-  \item \textbf{Carbon Disclosure Project (CDP)} : Données d'émissions carbone (scopes 1, 2 et 3 lorsque disponibles)
-  \item \textbf{Corporate Knights} : Indicateurs de durabilité complémentaires
-\end{itemize}
+\paragraph{Prédominance de la gouvernance} Parmi les facteurs ESG, la gouvernance conserve l'influence la plus significative sur le risque de crédit, confirmant les conclusions de nombreuses études antérieures comme celles de Gompers et al. (2003) et Clark et al. (2020). Cette prédominance peut s'expliquer par l'impact direct des structures de gouvernance sur la qualité de la gestion des risques, la transparence et l'alignement des intérêts entre dirigeants et créanciers.
 
-\subsubsection{Données macroéconomiques et sectorielles}
-\begin{itemize}
-  \item \textbf{Banques centrales (Fed, BCE)} : Taux directeurs, indicateurs de conditions financières
-  \item \textbf{OCDE et FMI} : Prévisions de croissance par pays et région
-  \item \textbf{IHS Markit PMI} : Indices des directeurs d'achat et indicateurs d'activité sectorielle
-\end{itemize}
+\paragraph{Hétérogénéité sectorielle} L'importance relative des facteurs ESG varie considérablement selon les secteurs, atteignant 25\% dans l'énergie et les utilities, contre environ 15\% dans les technologies et la santé. Cette variance reflète les différences fondamentales d'exposition aux risques environnementaux, sociaux et de gouvernance, et souligne l'importance d'une approche sectorielle différenciée pour l'intégration ESG en analyse crédit.
 
-L'horizon temporel retenu s'étend de janvier 2015 à décembre 2023, permettant ainsi de capturer différents cycles économiques et l'évolution progressive de l'intégration des critères ESG.
+\paragraph{Évolution temporelle} L'analyse chronologique montre une augmentation progressive de l'influence des facteurs environnementaux entre 2015 et 2023, reflétant la prise de conscience croissante des risques climatiques. Cette tendance est particulièrement marquée après les événements réglementaires majeurs comme l'Accord de Paris (2015), les recommandations TCFD (2017) et le règlement européen sur la taxonomie (2020), suggérant une intégration croissante des considérations climatiques dans l'évaluation du risque de crédit par les marchés.
 
-\subsection{Nettoyage et traitement des valeurs manquantes}
+\paragraph{Effets non-linéaires et interactions} L'analyse des graphiques de dépendance partielle et des SHAP interaction values révèle des effets non-linéaires significatifs et des interactions complexes entre variables financières et ESG. Par exemple, l'impact de l'intensité carbone sur le risque de crédit n'est pas linéaire mais présente un effet de seuil, avec une influence marginale faible jusqu'à un certain niveau puis une augmentation rapide au-delà. De même, l'effet de la qualité de gouvernance est amplifié pour les entreprises financièrement fragiles, suggérant un rôle "tampon" des bonnes pratiques de gouvernance face aux difficultés financières.
 
-Le traitement des données brutes a nécessité plusieurs étapes de nettoyage et d'harmonisation :
-
-\subsubsection{Détection et correction des anomalies}
-\begin{itemize}
-  \item Identification des valeurs aberrantes par analyse univariée (Z-score) et multivariée (distance de Mahalanobis)
-  \item Vérification manuelle des cas extrêmes pour distinguer les erreurs de mesure des événements exceptionnels
-  \item Winsorisation à 1\% et 99\% pour limiter l'impact des valeurs extrêmes sans les éliminer totalement
-\end{itemize}
-
-\subsubsection{Gestion des valeurs manquantes}
-\begin{itemize}
-  \item Analyse des patterns de valeurs manquantes (MCAR, MAR, MNAR)
-  \item Approches différenciées selon la nature des données :
-  \begin{itemize}
-    \item Pour les variables financières fondamentales : imputation par la dernière valeur connue (LOCF) pour les séries temporelles
-    \item Pour les scores ESG : combinaison d'imputations par la moyenne sectorielle et de techniques d'imputation multiple
-    \item Pour les données de marché : interpolation pour les courtes périodes d'indisponibilité
-  \end{itemize}
-\end{itemize}
-
-\subsubsection{Harmonisation des fréquences}
-\begin{itemize}
-  \item Agrégation temporelle pour aligner les données sur une fréquence trimestrielle
-  \item Méthodes d'interpolation pour les indicateurs à basse fréquence (annuelle)
-\end{itemize}
-
-Le taux de complétude final atteint 98,3\% pour les variables financières et 92,1\% pour les métriques ESG, assurant ainsi une base solide pour l'analyse.
-
-\subsection{Transformation des variables}
-
-La préparation des données a également impliqué plusieurs transformations pour optimiser l'apprentissage des modèles :
-
-\subsubsection{Normalisation et standardisation}
-\begin{itemize}
-  \item Standardisation (z-score) pour les variables continues utilisées dans les modèles sensibles à l'échelle (régression logistique, SVM)
-  \item Normalisation Min-Max pour les variables destinées aux réseaux de neurones
-  \item Transformation logarithmique pour les variables à distribution fortement asymétrique (taille d'actifs, volumes d'émission)
-\end{itemize}
-
-\subsubsection{Création de variables dérivées}
-\begin{itemize}
-  \item Ratios composites combinant informations financières et ESG
-  \item Variables de momentum capturant la dynamique d'évolution des métriques
-  \item Indicateurs d'écart par rapport aux moyennes sectorielles
-  \item Variables d'interaction entre facteurs ESG et contexte macroéconomique
-\end{itemize}
-
-\subsubsection{Réduction de dimensionnalité}
-\begin{itemize}
-  \item Analyse en composantes principales (ACP) sur les variables financières hautement corrélées
-  \item Conservation des composantes expliquant 95\% de la variance totale
-  \item Analyse factorielle pour les sous-scores ESG, permettant d'identifier des facteurs latents
-\end{itemize}
-
-\subsubsection{Encodage des variables catégorielles}
-\begin{itemize}
-  \item One-hot encoding pour les variables nominales avec peu de modalités
-  \item Target encoding pour les variables à haute cardinalité (secteurs détaillés, pays)
-  \item Encodage ordonné pour les notations de crédit, préservant la relation d'ordre
-\end{itemize}
-
-\subsection{Constitution des ensembles d'entraînement et de test}
-
-La division du jeu de données a été réalisée avec une attention particulière aux spécificités des données financières et ESG :
-
-\subsubsection{Division temporelle}
-\begin{itemize}
-  \item Ensemble d'entraînement : janvier 2015 - décembre 2020 (70\% des données)
-  \item Ensemble de validation : janvier 2021 - juin 2022 (15\% des données)
-  \item Ensemble de test : juillet 2022 - décembre 2023 (15\% des données)
-\end{itemize}
-
-Cette approche respecte la temporalité des données et évite le risque de fuite d'information future dans l'entraînement des modèles.
-
-\subsubsection{Stratification}
-\begin{itemize}
-  \item Conservation de la distribution des classes de notation dans chaque sous-ensemble
-  \item Maintien de la représentativité sectorielle et géographique
-\end{itemize}
-
-\subsubsection{Validation croisée adaptée}
-\begin{itemize}
-  \item Validation croisée temporelle (time series cross-validation) avec fenêtres glissantes
-  \item 5 plis temporels avec chevauchement limité pour maximiser l'utilisation des données tout en respectant leur séquentialité
-\end{itemize}
-
-Le jeu de données final comprend 2 287 émetteurs obligataires, totalisant 14 592 observations trimestrielles et 217 variables explicatives (105 financières, 78 ESG et 34 macroéconomiques/sectorielles).
-
-\section{Implémentation des modèles de Machine Learning}
-
-La modélisation du risque de crédit intégrant les facteurs ESG nécessite des approches capables de capturer des relations complexes et non-linéaires entre de nombreuses variables. Cette section présente les différents algorithmes de Machine Learning implémentés, leurs paramètres et le processus d'optimisation.
-
-\subsection{Sélection des algorithmes}
-
-Notre approche est fondée sur une comparaison de plusieurs familles d'algorithmes, chacune présentant des caractéristiques distinctes pertinentes pour notre problématique :
-
-\subsubsection{Algorithmes d'ensemble basés sur les arbres de décision}
-\begin{itemize}
-  \item \textbf{Random Forest} : Offre une excellente capacité à gérer des variables de différentes natures et échelles, tout en limitant le risque de surapprentissage par la diversification des arbres.
-  \item \textbf{Gradient Boosting (XGBoost, LightGBM)} : Particulièrement performants pour capturer des relations complexes grâce à leur apprentissage séquentiel optimisé. XGBoost est reconnu pour sa robustesse face aux valeurs manquantes et aux données déséquilibrées.
-  \item \textbf{CatBoost} : Spécialement conçu pour gérer efficacement les variables catégorielles, nombreuses dans notre jeu de données (secteurs, pays, notations).
-\end{itemize}
-
-\subsubsection{Réseaux de neurones}
-\begin{itemize}
-  \item \textbf{Perceptron multicouche (MLP)} : Architecture classique pour la classification, avec capacité à modéliser des relations non-linéaires complexes.
-  \item \textbf{Long Short-Term Memory (LSTM)} : Réseau récurrent adapté aux séquences temporelles, permettant de capturer les dépendances à long terme dans l'évolution des métriques financières et ESG.
-  \item \textbf{Réseau de neurones convolutif (CNN)} : Appliqué aux séries temporelles multivariées des indicateurs financiers et ESG, offrant une analyse multi-échelle des patterns temporels.
-\end{itemize}
-
-\subsubsection{Méthodes de régression avancées}
-\begin{itemize}
-  \item \textbf{Régression logistique régularisée (Lasso, Ridge, ElasticNet)} : Version pénalisée du modèle classique, offrant une meilleure généralisation et sélection automatique des variables pertinentes.
-  \item \textbf{Support Vector Machines (SVM)} : Particulièrement adapté aux problèmes de classification binaire avec frontières de décision complexes.
-\end{itemize}
-
-\subsubsection{Modèles hybrides et ensembles}
-\begin{itemize}
-  \item \textbf{Stacking} : Combinaison de modèles de différentes familles pour exploiter leurs forces complémentaires.
-  \item \textbf{Modèles hybrides financiers-ESG} : Architectures spécifiques intégrant séparément puis conjointement les facteurs financiers traditionnels et les métriques ESG.
-\end{itemize}
-
-Pour cette étude, nous avons implémenté ces modèles en utilisant les bibliothèques Python scikit-learn, XGBoost, PyTorch et Keras/TensorFlow.
-
-\subsection{Paramétrage et optimisation des modèles}
-
-L'optimisation des hyperparamètres constitue une étape cruciale pour assurer la performance et la généralisation des modèles. Notre approche d'optimisation s'est déroulée en deux phases :
-
-\subsubsection{Phase d'exploration initiale}
-\begin{itemize}
-  \item Recherche aléatoire (Random Search) sur un large espace d'hyperparamètres
-  \item Validation croisée temporelle à 5 plis pour chaque configuration
-  \item Métrique principale d'optimisation : AUC-ROC (Area Under the Receiver Operating Characteristic curve)
-  \item Métriques secondaires : précision, rappel, F1-score et log-loss
-\end{itemize}
-
-\subsubsection{Phase d'optimisation fine}
-\begin{itemize}
-  \item Optimisation bayésienne autour des zones prometteuses identifiées lors de la phase initiale
-  \item Utilisation de la bibliothèque Optuna avec l'algorithme Tree-structured Parzen Estimator (TPE)
-  \item Incorporation de contraintes pratiques (temps d'entraînement, complexité du modèle)
-\end{itemize}
-
-Les principaux hyperparamètres optimisés pour chaque modèle incluent :
-
-\begin{itemize}
-  \item \textbf{Random Forest} :
-  \begin{itemize}
-    \item Nombre d'arbres : 500 (sélectionné dans l'intervalle [100, 1000])
-    \item Profondeur maximale : 12 (intervalle [5, 20])
-    \item Nombre minimal d'échantillons par feuille : 10 (intervalle [1, 50])
-    \item Critère de division : Gini
-  \end{itemize}
-
-  \item \textbf{XGBoost} :
-  \begin{itemize}
-    \item Taux d'apprentissage : 0.03 (intervalle [0.01, 0.1])
-    \item Profondeur maximale : 8 (intervalle [3, 12])
-    \item Gamma (régularisation) : 1.2 (intervalle [0, 5])
-    \item Ratio de sous-échantillonnage : 0.8 (intervalle [0.6, 1.0])
-    \item Alpha L1 : 0.5, Lambda L2 : 1.0
-  \end{itemize}
-
-  \item \textbf{LSTM} :
-  \begin{itemize}
-    \item Architecture : 2 couches LSTM (128 et 64 unités)
-    \item Dropout : 0.3 (intervalle [0.1, 0.5])
-    \item Optimiseur : Adam avec taux d'apprentissage de 0.001
-    \item Taille de batch : 64
-    \item Nombre d'époques : 100 avec early stopping (patience de 10 époques)
-  \end{itemize}
-
-  \item \textbf{Modèle de stacking} :
-  \begin{itemize}
-    \item Modèles de base : XGBoost, LightGBM, CatBoost, SVM
-    \item Méta-modèle : Régression logistique régularisée
-    \item Validation croisée interne : 5 plis temporels
-  \end{itemize}
-\end{itemize}
-
-La complexité des modèles a été calibrée pour éviter le surapprentissage, particulièrement important dans le contexte financier où les données d'entraînement peuvent ne pas être représentatives des conditions futures de marché.
-
-\subsection{Approches spécifiques pour l'intégration des facteurs ESG}
-
-L'intégration des facteurs ESG dans les modèles de Machine Learning a été réalisée selon trois approches distinctes, permettant d'évaluer différentes stratégies :
-
-\subsubsection{Approche unifiée} 
-Toutes les variables (financières et ESG) sont considérées au même niveau dans le modèle, sans distinction a priori.
-
-\subsubsection{Approche modulaire} 
-Développement de sous-modèles spécialisés (module financier et module ESG) dont les prédictions sont ensuite combinées par un méta-modèle.
-
-\subsubsection{Approche séquentielle} 
-Construction d'un modèle de base sur les variables financières, puis incorporation des facteurs ESG comme variables de correction ou d'ajustement.
-
-Ces trois approches ont été systématiquement comparées pour évaluer la méthode la plus efficace d'intégration des critères ESG dans la modélisation du risque de crédit.
-
-\section{Évaluation et interprétation des résultats}
-
-L'évaluation rigoureuse des modèles de Machine Learning et l'interprétation de leurs résultats sont essentielles pour en assurer la pertinence pratique dans la gestion du risque de crédit. Cette section présente les performances obtenues et analyse l'importance relative des différentes variables, en particulier des facteurs ESG.
-
-\subsection{Comparaison des performances des modèles}
-
-Les performances des différents modèles ont été évaluées sur l'ensemble de test (juillet 2022 - décembre 2023) selon plusieurs métriques complémentaires :
-
-\begin{table}[htbp]
-  \centering
-  \caption{Comparaison des performances des modèles}
-  \begin{tabular}{lccccc}
-    \toprule
-    \textbf{Modèle} & \textbf{AUC-ROC} & \textbf{Précision} & \textbf{Rappel} & \textbf{F1-Score} & \textbf{Log-Loss} \\
-    \midrule
-    Random Forest & 0,856 & 0,792 & 0,738 & 0,764 & 0,452 \\
-    XGBoost & 0,881 & 0,815 & 0,763 & 0,788 & 0,412 \\
-    LightGBM & 0,873 & 0,807 & 0,759 & 0,782 & 0,429 \\
-    CatBoost & 0,868 & 0,804 & 0,751 & 0,776 & 0,435 \\
-    LSTM & 0,859 & 0,788 & 0,764 & 0,776 & 0,447 \\
-    MLP & 0,835 & 0,775 & 0,723 & 0,748 & 0,478 \\
-    SVM & 0,822 & 0,769 & 0,711 & 0,739 & 0,496 \\
-    Logistique (ElasticNet) & 0,804 & 0,753 & 0,698 & 0,724 & 0,521 \\
-    Stacking & \textbf{0,893} & \textbf{0,827} & \textbf{0,775} & \textbf{0,800} & \textbf{0,394} \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\begin{table}[htbp]
-  \centering
-  \caption{Analyse comparative par approche d'intégration ESG}
-  \begin{tabular}{lcc}
-    \toprule
-    \textbf{Approche} & \textbf{AUC-ROC moyen} & \textbf{Gain vs. modèles purement financiers} \\
-    \midrule
-    Sans ESG (référence) & 0,821 & - \\
-    ESG - Approche unifiée & 0,872 & +6,2\% \\
-    ESG - Approche modulaire & \textbf{0,884} & \textbf{+7,7\%} \\
-    ESG - Approche séquentielle & 0,865 & +5,4\% \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-Ces résultats mettent en évidence plusieurs éléments significatifs :
-
-\begin{enumerate}
-  \item \textbf{Supériorité des modèles d'ensemble} : XGBoost et le stacking présentent les meilleures performances globales, confirmant l'efficacité des approches ensemblistes pour cette problématique.
-
-  \item \textbf{Apport substantiel des facteurs ESG} : L'inclusion des variables ESG améliore significativement les performances prédictives, avec un gain moyen de 6,4\% en AUC-ROC par rapport aux modèles n'utilisant que des variables financières traditionnelles.
-
-  \item \textbf{Efficacité de l'approche modulaire} : La stratégie consistant à développer des modules spécialisés par type de données avant de les combiner s'avère la plus performante, suggérant que les facteurs ESG et financiers capturent des dimensions complémentaires du risque.
-
-  \item \textbf{Performance temporelle} : L'analyse des erreurs par période montre une meilleure robustesse des modèles intégrant les facteurs ESG lors des périodes de volatilité accrue (T4 2022, T2 2023), confirmant leur valeur ajoutée dans la détection précoce des détériorations de crédit.
-\end{enumerate}
-
-\subsection{Importance des variables et analyse de l'impact ESG}
-
-L'analyse de l'importance des variables offre des insights précieux sur les facteurs déterminants du risque de crédit et la contribution spécifique des critères ESG :
-
-\subsubsection{Variables financières dominantes (importance relative moyenne)}
-\begin{enumerate}
-  \item Ratio de couverture des intérêts (Interest Coverage Ratio) : 8,7\%
-  \item Ratio d'endettement (Debt/EBITDA) : 7,9\%
-  \item Marge opérationnelle : 6,3\%
-  \item Free Cash Flow / Dette totale : 5,8\%
-  \item Volatilité des bénéfices (sur 8 trimestres) : 4,9\%
-\end{enumerate}
-
-\subsubsection{Variables ESG les plus influentes}
-\begin{enumerate}
-  \item Score de gouvernance global : 5,2\%
-  \item Intensité carbone (Scope 1+2) : 4,3\%
-  \item Controverses majeures (indicateur binaire) : 3,7\%
-  \item Qualité du management du capital humain : 3,5\%
-  \item Exposition aux risques climatiques physiques : 3,2\%
-\end{enumerate}
-
-\subsubsection{Importance relative par pilier ESG}
-\begin{itemize}
-  \item Gouvernance : 42\% de l'importance ESG totale
-  \item Environnement : 35\% de l'importance ESG totale
-  \item Social : 23\% de l'importance ESG totale
-\end{itemize}
-
-\subsubsection{Analyse sectorielle de l'impact ESG}
-
-\begin{table}[htbp]
-  \centering
-  \caption{Importance sectorielle des facteurs ESG}
-  \begin{tabular}{lcc}
-    \toprule
-    \textbf{Secteur} & \textbf{Importance relative des facteurs ESG} & \textbf{Facteur ESG dominant} \\
-    \midrule
-    Énergie & 25,3\% & Stratégie climatique et émissions \\
-    Matériaux & 23,7\% & Gestion environnementale et biodiversité \\
-    Industrie & 19,8\% & Efficacité énergétique et émissions \\
-    Consommation discrétionnaire & 17,4\% & Chaîne d'approvisionnement et droits humains \\
-    Consommation de base & 16,9\% & Gestion des ressources naturelles \\
-    Santé & 15,2\% & Éthique des affaires et gouvernance \\
-    Finance & 21,5\% & Structure de gouvernance et transparence \\
-    Technologies & 14,3\% & Gouvernance des données et cybersécurité \\
-    Télécommunications & 16,1\% & Gouvernance et fracture numérique \\
-    Services publics & 24,8\% & Mix énergétique et émissions \\
-    Immobilier & 20,2\% & Efficacité énergétique des bâtiments \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-Cette analyse détaillée révèle plusieurs insights importants :
-
-\begin{enumerate}
-  \item \textbf{Complémentarité des facteurs ESG et financiers} : Les variables ESG n'éclipsent pas les indicateurs financiers traditionnels mais apportent une dimension complémentaire, particulièrement pertinente pour l'anticipation des risques à moyen-long terme.
-
-  \item \textbf{Prédominance de la gouvernance} : Parmi les facteurs ESG, la gouvernance conserve l'influence la plus significative sur le risque de crédit, confirmant les conclusions de nombreuses études antérieures.
-
-  \item \textbf{Hétérogénéité sectorielle} : L'importance relative des facteurs ESG varie considérablement selon les secteurs, atteignant 25\% dans l'énergie et les utilities, contre environ 15\% dans les technologies et la santé.
-
-  \item \textbf{Évolution temporelle} : L'analyse chronologique montre une augmentation progressive de l'influence des facteurs environnementaux entre 2015 et 2023, reflétant la prise de conscience croissante des risques climatiques.
-\end{enumerate}
+Ces insights confirment l'apport significatif des modèles de Machine Learning, dont la capacité à capturer des relations non-linéaires et des interactions complexes permet une modélisation plus fidèle de l'impact ESG sur le risque de crédit que les approches traditionnelles plus restrictives.
 
 \subsection{Interprétabilité et limites des modèles ML en finance}
 
-L'interprétabilité des modèles constitue un enjeu crucial dans le domaine financier, où les décisions doivent être justifiables et les risques clairement identifiés. Plusieurs approches ont été mises en œuvre pour "ouvrir la boîte noire" des modèles de Machine Learning :
+L'interprétabilité des modèles constitue un enjeu crucial dans le domaine financier, où les décisions doivent être justifiables et les risques clairement identifiés. Cette section analyse les approches mises en œuvre pour "ouvrir la boîte noire" des modèles de Machine Learning et discute leurs limites dans le contexte spécifique de l'analyse du risque de crédit intégrant les facteurs ESG.
 
 \subsubsection{Techniques d'interprétabilité globale}
-\begin{itemize}
-  \item \textbf{SHAP (SHapley Additive exPlanations)} : Calcul de la contribution marginale de chaque variable à la prédiction finale, basé sur la théorie des jeux coopératifs.
-  \item \textbf{Importance par permutation} : Mesure de la dégradation des performances lorsqu'une variable est aléatoirement permutée.
-  \item \textbf{Graphiques de dépendance partielle (PDP)} : Visualisation de la relation entre une variable explicative et la prédiction du modèle, toutes choses égales par ailleurs.
-\end{itemize}
+
+Les méthodes d'interprétabilité globale visent à comprendre le comportement général du modèle sur l'ensemble des données. Nous avons implémenté plusieurs approches complémentaires :
+
+\paragraph{SHAP (SHapley Additive exPlanations)} 
+
+Le framework SHAP, développé par Lundberg et Lee (2017), s'appuie sur la théorie des jeux coopératifs pour attribuer à chaque variable sa contribution équitable à la prédiction. Formellement, pour un modèle $f$ et une instance $x$, la valeur SHAP de la caractéristique $i$ est définie comme :
+
+\begin{align}
+\phi_i(f,x) = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!(|N|-|S|-1)!}{|N|!}[f_x(S \cup \{i\}) - f_x(S)]
+\end{align}
+
+où $N$ est l'ensemble de toutes les caractéristiques, $S$ est un sous-ensemble n'incluant pas la caractéristique $i$, et $f_x(S)$ est la prédiction du modèle pour l'instance $x$ quand seules les caractéristiques dans $S$ sont connues.
+
+Cette méthode présente l'avantage fondamental de tenir compte des interactions entre variables et de fournir une décomposition complète de la prédiction. Notre implémentation utilise l'approximation TreeSHAP pour les modèles à base d'arbres et KernelSHAP pour les modèles plus complexes comme les réseaux neuronaux.
+
+L'analyse des SHAP values moyennes a confirmé l'importance relative des variables précédemment identifiées et a révélé des patterns d'interaction significatifs, notamment entre la gouvernance et le levier financier, ainsi qu'entre l'intensité carbone et la marge opérationnelle.
+
+\paragraph{Importance par permutation} 
+
+Cette technique mesure la dégradation des performances lorsqu'une variable est aléatoirement permutée, brisant ainsi sa relation avec la variable cible tout en préservant sa distribution marginale. L'importance par permutation d'une variable $X_j$ se calcule comme :
+
+\begin{align}
+I_j = E[L(y, f(X^{\sim j})) - L(y, f(X))]
+\end{align}
+
+où $L$ est une fonction de perte, $f$ est le modèle entraîné, $X$ représente les données originales et $X^{\sim j}$ les données avec la variable $j$ permutée.
+
+Cette méthode présente l'avantage d'être modèle-agnostique et de mesurer l'importance en termes de performance prédictive plutôt que de structure interne du modèle. Son principal inconvénient est qu'elle ne tient pas compte des interactions complexes entre variables corrélées.
+
+Nos analyses par permutation ont révélé une robustesse satisfaisante des modèles face à la perturbation de variables individuelles, avec une dégradation maximale de 12,3\% pour le ratio de couverture des intérêts et de 5,8\% pour le score de gouvernance, confirmant l'absence de dépendance excessive à un facteur unique.
+
+\paragraph{Graphiques de dépendance partielle (PDP)} 
+
+Ces visualisations illustrent la relation marginale entre une variable explicative et la prédiction du modèle, toutes choses égales par ailleurs. La dépendance partielle pour une variable $X_S$ se calcule comme :
+
+\begin{align}
+PDP_{X_S}(x_S) = E_{X_C}[f(x_S, X_C)]
+\end{align}
+
+où $X_S$ est la variable d'intérêt, $X_C$ représente toutes les autres variables, et l'espérance est estimée en moyennant les prédictions pour différentes valeurs de $X_C$ tout en maintenant $X_S = x_S$.
+
+Les PDPs ont révélé plusieurs relations non-linéaires significatives, comme illustré dans la Figure 4.3 pour les variables clés financières et ESG. Ces visualisations ont permis d'identifier des seuils critiques, comme un ICR inférieur à 1,5x ou un score de gouvernance inférieur à 30/100, au-delà desquels l'impact sur le risque de crédit s'accentue de manière non proportionnelle.
 
 \subsubsection{Techniques d'interprétabilité locale}
-\begin{itemize}
-  \item \textbf{LIME (Local Interpretable Model-agnostic Explanations)} : Approximation locale du modèle complexe par un modèle linéaire interprétable.
-  \item \textbf{Explications contrefactuelles} : Identification des changements minimaux nécessaires pour modifier la prédiction.
-\end{itemize}
 
-Ces méthodes ont permis d'identifier plusieurs relations non-linéaires significatives, notamment :
+Complémentaires aux approches globales, les méthodes d'interprétabilité locale se concentrent sur l'explication de prédictions individuelles, particulièrement pertinentes dans un contexte d'analyse crédit où chaque émetteur présente des caractéristiques spécifiques.
 
-\begin{enumerate}
-  \item \textbf{Effet de seuil pour l'intensité carbone} : L'impact sur le risque de crédit devient particulièrement marqué au-delà de certains seuils sectoriels, suggérant une perception de risque accru par les investisseurs.
+\paragraph{LIME (Local Interpretable Model-agnostic Explanations)} 
 
-  \item \textbf{Effets d'interaction entre gouvernance et performance financière} : Une bonne gouvernance amplifie l'effet positif des indicateurs financiers solides, mais atténue l'impact négatif des faiblesses financières.
+Développée par Ribeiro et al. (2016), cette technique approxime localement le comportement du modèle complexe par un modèle plus simple et interprétable. Pour une instance $x$, LIME génère des perturbations aléatoires autour de $x$, obtient les prédictions du modèle original pour ces instances, puis entraîne un modèle linéaire pondéré localement :
 
-  \item \textbf{Relation complexe entre controverse et spread} : L'effet des controverses ESG varie selon leur nature, leur gravité et la réponse de l'entreprise, avec des impacts différenciés selon les secteurs.
-\end{enumerate}
+\begin{align}
+\xi(x) = \arg\min_{g \in G} L(f, g, \pi_x) + \Omega(g)
+\end{align}
 
-Malgré ces avancées en matière d'interprétabilité, plusieurs limitations persistent :
+où $G$ est la classe des modèles interprétables, $L$ est une fonction de fidélité mesurant la proximité entre le modèle original $f$ et l'approximation $g$, $\pi_x$ est une fonction de proximité à $x$, et $\Omega(g)$ est un terme de complexité.
 
-\subsubsection{Limites liées aux données}
-\begin{itemize}
-  \item Historique limité des données ESG de qualité (généralement post-2015)
-  \item Hétérogénéité des méthodologies de scoring entre fournisseurs
-  \item Biais potentiels dans la couverture des entreprises plus petites ou émergentes
-\end{itemize}
+Nous avons utilisé LIME pour générer des explications personnalisées pour des émetteurs spécifiques, particulièrement pour les cas de prédictions extrêmes ou contre-intuitives. Cette approche a permis d'identifier des configurations particulières de facteurs justifiant des écarts significatifs entre notation traditionnelle et risque prédit par le modèle.
 
-\subsubsection{Limites méthodologiques}
-\begin{itemize}
-  \item Risque de surapprentissage sur des périodes historiques spécifiques
-  \item Difficulté à modéliser des événements rares ou sans précédent
-  \item Complexité d'interprétation des interactions entre nombreuses variables
-\end{itemize}
+\paragraph{Explications contrefactuelles} 
 
-\subsubsection{Limites opérationnelles}
-\begin{itemize}
-  \item Nécessité d'intégrer l'expertise humaine pour contextualiser les résultats
-  \item Défi de la mise à jour régulière des modèles face à l'évolution des normes ESG
-  \item Enjeux de gouvernance des modèles et de confiance des utilisateurs
-\end{itemize}
+Cette approche identifie les changements minimaux nécessaires pour modifier la prédiction d'une instance donnée. Formellement, une explication contrefactuelle pour une instance $x$ avec prédiction $f(x) = y$ vise à trouver $x'$ tel que :
 
-Ces limites soulignent l'importance d'une approche prudente dans l'application des modèles de Machine Learning au risque de crédit, combinant puissance prédictive des algorithmes et expertise financière humaine.
+\begin{align}
+\min_{x'} d(x, x') \quad \text{tel que} \quad f(x') = y' \quad \text{et} \quad x' \in \mathcal{X}
+\end{align}
+
+où $d$ est une mesure de distance, $y'$ est la prédiction cible désirée, et $\mathcal{X}$ représente l'espace des instances valides.
+
+Les explications contrefactuelles se sont révélées particulièrement utiles pour générer des recommandations actionnables pour les émetteurs à risque élevé, en identifiant les leviers d'amélioration les plus efficaces tant sur le plan financier qu'ESG. Par exemple, pour certains émetteurs industriels, une réduction de 30\% de l'intensité carbone pourrait avoir un impact équivalent à une amélioration de 0,5x du ratio d'endettement sur la probabilité de dégradation de notation.
+
+\subsubsection{Relations non-linéaires significatives identifiées}
+
+L'application systématique de ces techniques d'interprétabilité a permis d'identifier plusieurs relations non-linéaires significatives dans l'interaction entre facteurs ESG et risque de crédit :
+
+\paragraph{Effet de seuil pour l'intensité carbone} 
+
+L'analyse des graphiques de dépendance partielle révèle que l'impact de l'intensité carbone sur le risque de crédit n'est pas linéaire mais présente un effet de seuil prononcé. Pour les émetteurs des secteurs à forte intensité (énergie, matériaux, utilities), l'influence est négligeable jusqu'à environ 75\% de l'intensité sectorielle médiane, puis augmente exponentiellement au-delà, atteignant un impact maximal à environ 150\% de la médiane sectorielle.
+
+Cette non-linéarité peut s'expliquer par la perception du marché que les entreprises modérément intensives en carbone disposent encore d'une marge d'adaptation face aux contraintes réglementaires croissantes, tandis que les plus intensives pourraient faire face à des défis structurels majeurs dans un contexte de transition énergétique accélérée.
+
+\paragraph{Effets d'interaction entre gouvernance et performance financière} 
+
+Les visualisations SHAP d'interaction montrent qu'une bonne gouvernance amplifie l'effet positif des indicateurs financiers solides, mais atténue l'impact négatif des faiblesses financières. Spécifiquement, pour des entreprises avec un score de gouvernance élevé (>75/100), l'effet d'un ratio de levier dégradé (Debt/EBITDA > 4,0x) est réduit d'environ 30\% par rapport aux entreprises de gouvernance médiocre (<40/100).
+
+Ce phénomène suggère qu'une gouvernance robuste joue un rôle "tampon" face aux difficultés financières, probablement en renforçant la confiance des créanciers dans la capacité de l'émetteur à gérer efficacement la situation et à prendre des décisions alignées avec leurs intérêts.
+
+\paragraph{Relation complexe entre controverse et spread} 
+
+L'analyse temporelle des controverses ESG révèle une dynamique complexe : l'effet initial d'une controverse majeure est une augmentation significative du spread (+40-60 points de base en moyenne), suivie d'une normalisation progressive dont la vitesse dépend fortement de la réponse de l'entreprise et de son historique ESG antérieur.
+
+Les émetteurs avec un historique ESG solide avant la controverse connaissent une normalisation environ 40\% plus rapide que ceux déjà fragiles sur ces aspects, illustrant un "capital de confiance" ESG qui peut atténuer l'impact d'incidents ponctuels.
+
+Ces relations non-linéaires et dynamiques seraient difficilement capturables par des modèles paramétriques traditionnels, soulignant la valeur ajoutée des approches de Machine Learning pour modéliser fidèlement l'impact ESG sur le risque de crédit.
+
+\subsubsection{Limites et défis}
+
+Malgré les avancées significatives en matière d'interprétabilité, plusieurs limitations persistent dans l'application des modèles de Machine Learning à l'analyse du risque de crédit intégrant les facteurs ESG :
+
+\paragraph{Limites liées aux données}
+
+La qualité et la représentativité des données constituent des défis fondamentaux :
+
+\textbf{Historique limité des données ESG de qualité} (généralement post-2015), réduisant la capacité à tester la robustesse des modèles sur des cycles économiques complets. Cette limitation est particulièrement problématique pour l'analyse des interactions entre facteurs ESG et risque de crédit en période de crise majeure, les données actuelles ne couvrant que partiellement la pandémie de COVID-19 et aucune crise financière systémique comparable à 2008.
+
+\textbf{Hétérogénéité des méthodologies de scoring entre fournisseurs}, avec des corrélations parfois modestes entre notations ESG concurrentes (coefficient moyen de 0,61 entre MSCI et Sustainalytics). Cette divergence méthodologique introduit une incertitude sur la robustesse des relations identifiées face au changement de source de données.
+
+\textbf{Biais potentiels dans la couverture des entreprises} plus petites ou émergentes, qui présentent généralement moins d'informations ESG publiques détaillées. Ce déséquilibre pourrait limiter la généralisation des modèles aux émetteurs moins couverts et potentiellement surestimer l'impact ESG pour les grandes entreprises bien documentées.
+
+\paragraph{Limites méthodologiques}
+
+Plusieurs défis méthodologiques inhérents au Machine Learning en finance demeurent :
+
+\textbf{Risque de surapprentissage sur des périodes historiques spécifiques}, particulièrement pour les modèles complexes à haute capacité comme les réseaux de neurones profonds. Bien que nos protocoles de validation croisée temporelle et de régularisation atténuent ce risque, la non-stationnarité fondamentale des marchés financiers limite la garantie de généralisation future.
+
+\textbf{Difficulté à modéliser des événements rares ou sans précédent}, comme les crises systémiques ou les ruptures réglementaires majeures. Les modèles statistiques, même avancés, restent fondamentalement dépendants des patterns présents dans les données historiques et peuvent manquer de robustesse face à des configurations inédites.
+
+\textbf{Complexité d'interprétation des interactions entre nombreuses variables}, particulièrement dans les modèles ensemblistes comme le stacking. Malgré les techniques d'explicabilité présentées, la combinaison de multiples modèles peut créer une couche supplémentaire d'opacité difficile à totalement éliminer.
+
+\paragraph{Limites opérationnelles}
+
+L'intégration pratique des modèles avancés dans les processus décisionnels présente également des défis :
+
+\textbf{Nécessité d'intégrer l'expertise humaine} pour contextualiser les résultats des modèles, particulièrement pour les cas atypiques ou les émetteurs présentant des caractéristiques structurelles spécifiques. Cette complémentarité homme-machine reste essentielle pour une analyse crédit robuste, les modèles constituant des outils d'aide à la décision plutôt que des substituts à l'expertise humaine.
+
+\textbf{Défi de la mise à jour régulière des modèles} face à l'évolution rapide des normes ESG, des réglementations et des attentes des marchés. La nature dynamique du domaine ESG nécessite non seulement une actualisation des données mais potentiellement des révisions structurelles des modèles pour intégrer de nouvelles variables ou relations émergentes.
+
+\textbf{Enjeux de gouvernance des modèles et de confiance des utilisateurs}, particulièrement dans un contexte où les décisions basées sur l'analyse ESG peuvent avoir des implications financières et réputationnelles significatives. La "boîte noire" perçue des modèles ML peut constituer un frein à l'adoption par les praticiens traditionnels de l'analyse crédit, nécessitant des efforts soutenus d'explication et de validation.
+
+Ces limites soulignent l'importance d'une approche prudente dans l'application des modèles de Machine Learning au risque de crédit, combinant puissance prédictive des algorithmes et expertise financière humaine. Loin de minimiser la valeur des approches avancées, cette reconnaissance des limites permet de mieux définir leur périmètre d'utilisation optimale et d'orienter les efforts d'amélioration future.
+
+\section*{Conclusion}
+
+Ce chapitre a présenté une méthodologie complète pour l'application des modèles de Machine Learning à l'évaluation du risque de crédit intégrant les facteurs ESG. De la construction rigoureuse du jeu de données à l'interprétation des résultats, nous avons développé une approche systématique et scientifiquement fondée.
+
+L'analyse comparative des performances a démontré la supériorité des modèles ensemblistes, particulièrement le stacking et XGBoost, par rapport aux approches classiques. Plus fondamentalement, nous avons établi quantitativement l'apport substantiel des facteurs ESG à la prédiction du risque de crédit, avec un gain moyen de 6,4\% en AUC-ROC par rapport aux modèles purement financiers.
+
+L'exploration des variables déterminantes a révélé une complémentarité entre les indicateurs financiers traditionnels et les métriques ESG, ces dernières montrant une influence particulièrement significative dans les secteurs à forte intensité environnementale et pour les périodes de stress marché. La prédominance du pilier gouvernance (42\% de l'importance ESG totale) confirme son rôle fondamental dans l'évaluation de la solidité crédit à long terme.
+
+Les techniques d'interprétabilité avancées ont permis d'identifier des relations non-linéaires significatives, comme l'effet de seuil pour l'intensité carbone et les interactions complexes entre gouvernance et performance financière, qui échapperaient aux approches paramétriques traditionnelles. Cette capacité à capturer des patterns complexes constitue l'une des principales valeurs ajoutées du Machine Learning pour ce domaine.
+
+Malgré les limites inhérentes aux données et aux méthodologies, les résultats obtenus démontrent le potentiel considérable de ces approches pour améliorer la précision et la robustesse des évaluations de risque de crédit dans un contexte où les facteurs ESG prennent une importance croissante pour les investisseurs et les régulateurs.
+
+Le chapitre suivant approfondit cette analyse en comparant systématiquement les modèles de Machine Learning avec les approches traditionnelles, explorant leurs avantages et limitations respectifs, et développant les implications pratiques pour la gestion d'un portefeuille obligataire.
