@@ -1,0 +1,289 @@
+Pour les entreprises non cotées, une variante $Z'$ remplace $X_4$ par le ratio valeur comptable des capitaux propres sur valeur comptable des dettes, avec des coefficients adaptés.
+
+Pour les entreprises non manufacturières, le modèle $Z''$ exclut $X_5$ pour réduire l'effet sectoriel:
+
+\begin{equation}
+Z'' = 6.56 X_1 + 3.26 X_2 + 6.72 X_3 + 1.05 X_4
+\end{equation}
+
+avec des seuils d'interprétation ajustés en conséquence.
+
+\paragraph{Analyse discriminante linéaire sous-jacente}
+Le score Z et ses variantes reposent sur l'analyse discriminante linéaire, qui cherche à déterminer une fonction discriminante $D$ maximisant la séparation entre deux groupes (entreprises en défaut vs. saines) :
+
+\begin{equation}
+D = \sum_{i=1}^{p} \beta_i X_i
+\end{equation}
+
+où les coefficients $\beta_i$ sont déterminés en maximisant le ratio de la variance inter-groupe sur la variance intra-groupe :
+
+\begin{equation}
+\max_{\beta} \frac{\beta^T B \beta}{\beta^T W \beta}
+\end{equation}
+
+avec $B$ la matrice de variance-covariance inter-groupe et $W$ la matrice de variance-covariance intra-groupe. La solution est donnée par les vecteurs propres de $W^{-1}B$.
+
+\subsubsection{Modèles de régression logistique}
+
+La régression logistique constitue une méthode statistique classique pour modéliser la probabilité de défaut :
+
+\begin{itemize}
+    \item \textbf{Équation générale} : $P(Défaut) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 X_1 + \beta_2 X_2 + ... + \beta_n X_n)}}$ où les $X_i$ sont des variables explicatives financières et les $\beta_i$ leurs coefficients
+    
+    \item \textbf{Variables typiques} : Ratios de levier, couverture des intérêts, liquidité, rentabilité, volatilité des bénéfices, croissance, taille, âge
+    
+    \item \textbf{Extensions} : Intégration de variables macroéconomiques, sectorielles et de marché pour capturer les effets systémiques et cycliques
+\end{itemize}
+
+La régression logistique offre l'avantage de produire directement des probabilités interprétables et d'identifier la contribution relative de chaque facteur.
+
+\paragraph{Estimation et interprétation}
+Les coefficients $\beta_i$ de la régression logistique sont estimés par la méthode du maximum de vraisemblance, maximisant:
+
+\begin{equation}
+L(\beta) = \prod_{i=1}^{n} p_i^{y_i} (1-p_i)^{1-y_i}
+\end{equation}
+
+où $y_i$ est l'indicateur de défaut (1 si défaut, 0 sinon) et $p_i$ la probabilité de défaut prédite pour l'observation $i$.
+
+L'effet marginal d'une variable $X_j$ sur la probabilité de défaut dépend du niveau des autres variables:
+
+\begin{equation}
+\frac{\partial P(Défaut)}{\partial X_j} = \beta_j \times P(Défaut) \times (1 - P(Défaut))
+\end{equation}
+
+Les odds ratios, définis comme $e^{\beta_j}$, indiquent le changement multiplicatif des cotes de défaut associé à une augmentation unitaire de $X_j$.
+
+\paragraph{Évaluation de la performance}
+La performance des modèles logistiques peut être évaluée par:
+\begin{itemize}
+    \item L'aire sous la courbe ROC (AUC), mesurant la capacité du modèle à distinguer les défauts des non-défauts
+    \item La statistique de Hosmer-Lemeshow, vérifiant l'adéquation du modèle aux données observées
+    \item Les taux de classification correcte, à différents seuils de décision
+    \item Le critère d'information d'Akaike (AIC), pénalisant la complexité du modèle
+\end{itemize}
+
+\paragraph{Extension multivariate: modèle Probit multinomial}
+Pour modéliser les transitions entre plusieurs états de qualité de crédit (au lieu d'une simple dichotomie défaut/non-défaut), une extension naturelle est le modèle Probit multinomial:
+
+\begin{equation}
+P(Y_i = j) = \Phi(\alpha_j - X_i'\beta) - \Phi(\alpha_{j-1} - X_i'\beta)
+\end{equation}
+
+où $Y_i$ est l'état de crédit (noté de 1 à $J$), $\Phi$ est la fonction de répartition de la loi normale standard, $\alpha_j$ sont des seuils ordonnés ($\alpha_1 < \alpha_2 < ... < \alpha_{J-1}$), et $\beta$ est le vecteur des coefficients.
+
+\subsubsection{Modèles de durée et analyses de survie}
+
+Ces modèles, empruntés à l'épidémiologie et à la fiabilité industrielle, s'intéressent au temps jusqu'au défaut :
+
+\begin{itemize}
+    \item \textbf{Modèle de Cox à risques proportionnels} : Modélisation du taux de hasard comme produit d'une fonction de base et d'un terme exponentiel des covariables
+    
+    \item \textbf{Modèles paramétriques} : Spécification d'une distribution particulière (Weibull, exponentielle, log-normale) pour le temps jusqu'au défaut
+    
+    \item \textbf{Modèles de transition} : Analyse des probabilités de migration entre différentes classes de notation au cours du temps
+\end{itemize}
+
+Ces approches permettent de modéliser l'évolution dynamique du risque de crédit et de produire des structures par terme de probabilités de défaut.
+
+\paragraph{Formulation du modèle de Cox}
+Le modèle de Cox modélise le taux de hasard $h(t,X)$, représentant la probabilité instantanée de défaut au temps $t$ conditionnellement à la survie jusqu'à $t$, comme:
+
+\begin{equation}
+h(t,X) = h_0(t) \exp(X'\beta)
+\end{equation}
+
+où $h_0(t)$ est le taux de hasard de base (non spécifié paramétriquement), $X$ est le vecteur des covariables, et $\beta$ le vecteur des coefficients.
+
+Le rapport des risques (hazard ratio) pour deux émetteurs avec des covariables $X_1$ et $X_2$ est:
+
+\begin{equation}
+\frac{h(t,X_1)}{h(t,X_2)} = \exp((X_1-X_2)'\beta)
+\end{equation}
+
+Ce rapport est constant dans le temps, d'où l'appellation "risques proportionnels".
+
+\paragraph{Modèles paramétriques de survie}
+Dans les modèles paramétriques, le temps jusqu'au défaut $T$ est supposé suivre une distribution spécifique. Par exemple, dans le modèle de Weibull:
+
+\begin{equation}
+S(t,X) = \exp\left(-\left(\frac{t}{\lambda(X)}\right)^\gamma\right)
+\end{equation}
+
+où $S(t,X) = P(T > t|X)$ est la fonction de survie, $\gamma$ est le paramètre de forme (commun à tous les émetteurs), et $\lambda(X) = \exp(X'\beta)$ est le paramètre d'échelle dépendant des covariables.
+
+Le taux de hasard correspondant est:
+
+\begin{equation}
+h(t,X) = \frac{\gamma}{\lambda(X)} \left(\frac{t}{\lambda(X)}\right)^{\gamma-1}
+\end{equation}
+
+Selon la valeur de $\gamma$, ce taux peut être constant ($\gamma = 1$, modèle exponentiel), croissant ($\gamma > 1$) ou décroissant ($\gamma < 1$) dans le temps.
+
+\paragraph{Modèles multi-états pour les transitions de notation}
+Les transitions entre différentes classes de notation peuvent être modélisées par un processus de Markov continu, caractérisé par une matrice d'intensités de transition $Q(t,X) = [q_{ij}(t,X)]$, où $q_{ij}(t,X)$ représente l'intensité instantanée de migration de l'état $i$ vers l'état $j$:
+
+\begin{equation}
+q_{ij}(t,X) = \lim_{\Delta t \to 0} \frac{P(S(t+\Delta t) = j | S(t) = i, X)}{\Delta t}
+\end{equation}
+
+Pour un processus de Markov homogène, la matrice de transition sur un horizon $t$ est donnée par:
+
+\begin{equation}
+P(t,X) = \exp(Q(X) \times t)
+\end{equation}
+
+où $\exp$ représente l'exponentielle matricielle.
+
+Les intensités peuvent être modélisées en fonction des covariables, par exemple selon un modèle de Cox:
+
+\begin{equation}
+q_{ij}(t,X) = q_{ij,0}(t) \exp(X'\beta_{ij})
+\end{equation}
+
+où $\beta_{ij}$ est spécifique à la transition de $i$ vers $j$.
+
+\subsection{Limites des approches traditionnelles face aux exigences ESG}
+
+Les modèles classiques de risque de crédit présentent plusieurs limitations significatives dans le contexte actuel d'intégration des critères ESG.
+
+\subsubsection{Limites conceptuelles}
+
+Les approches traditionnelles se heurtent à des obstacles conceptuels pour intégrer pleinement la dimension ESG :
+
+\begin{itemize}
+    \item \textbf{Horizon temporel} : Les modèles standards se concentrent généralement sur un horizon court à moyen terme (1-5 ans), alors que de nombreux risques ESG, notamment climatiques, se matérialisent sur des horizons plus longs
+    
+    \item \textbf{Non-linéarités et effets de seuil} : Les impacts ESG peuvent suivre des dynamiques non linéaires ou comporter des points de basculement que les modèles linéaires traditionnels capturent mal
+    
+    \item \textbf{Événements rares et extrêmes} : Les catastrophes environnementales ou les crises sociales majeures représentent des événements à faible probabilité mais fort impact, difficilement modélisables avec les approches classiques
+    
+    \item \textbf{Interactions complexes} : Les facteurs ESG interagissent entre eux et avec les variables financières traditionnelles de façon complexe, dépassant les capacités des modèles additifs simples
+\end{itemize}
+
+\paragraph{Analyse des biais d'horizon temporel}
+Le biais d'horizon temporel peut être formalisé en comparant la valeur actualisée des impacts ESG sur différents horizons:
+
+\begin{equation}
+NPV_{ESG}(T) = \sum_{t=1}^{T} \frac{E[Impact_{ESG}(t)]}{(1+r)^t}
+\end{equation}
+
+où $E[Impact_{ESG}(t)]$ est l'impact ESG attendu à l'année $t$, et $r$ le taux d'actualisation.
+
+Pour de nombreux risques climatiques, la structure temporelle des impacts suit une courbe convexe:
+
+\begin{equation}
+E[Impact_{ESG}(t)] = \alpha t^\beta \quad \text{avec } \beta > 1
+\end{equation}
+
+Cette convexité implique que $\frac{NPV_{ESG}(T)}{NPV_{ESG}(T/2)} \to \infty$ lorsque $\beta > 1+\ln(1+r)/\ln(2)$, illustrant la sous-estimation systématique des impacts de long terme dans les modèles standards.
+
+\paragraph{Modélisation des effets de seuil}
+Les non-linéarités et points de basculement peuvent être représentés par des fonctions à seuil:
+
+\begin{equation}
+Impact(x) = 
+\begin{cases}
+f_1(x) & \text{si } x < c \\
+f_2(x) & \text{si } x \geq c
+\end{cases}
+\end{equation}
+
+où $x$ est une variable ESG (par exemple, la température moyenne globale), $c$ un point de basculement critique, et $f_1$, $f_2$ des fonctions d'impact avec des pentes significativement différentes.
+
+Ces dynamiques peuvent aussi être capturées par des fonctions sigmoïdes avec un taux de changement variable autour du seuil:
+
+\begin{equation}
+Impact(x) = \frac{a}{1 + e^{-k(x-c)}} + b
+\end{equation}
+
+où $k$ contrôle la raideur de la transition autour du point de basculement $c$.
+
+\subsubsection{Limites empiriques et opérationnelles}
+
+En pratique, l'application des modèles traditionnels aux problématiques ESG se heurte à plusieurs difficultés :
+
+\begin{itemize}
+    \item \textbf{Historique de données limité} : Les données ESG systématiques sont relativement récentes, ce qui complique l'estimation et la validation des modèles sur des cycles économiques complets
+    
+    \item \textbf{Hétérogénéité et comparabilité} : Les métriques ESG manquent encore de standardisation, avec des méthodologies variables selon les fournisseurs et des enjeux de comparabilité intersectorielle
+    
+    \item \textbf{Matérialité variable} : L'importance relative des différents facteurs ESG varie considérablement selon les secteurs et évolue au fil du temps, compliquant l'utilisation de modèles statiques
+    
+    \item \textbf{Multicolinéarité} : Les variables ESG sont souvent fortement corrélées entre elles et avec certaines variables financières traditionnelles, posant des problèmes d'identification statistique
+\end{itemize}
+
+\paragraph{Quantification du biais de données limitées}
+L'impact de l'historique limité sur la précision des estimations peut être évalué par la variance asymptotique des estimateurs:
+
+\begin{equation}
+Var(\hat{\beta}_{ESG}) \propto \frac{\sigma^2}{T \times Var(X_{ESG})}
+\end{equation}
+
+où $\hat{\beta}_{ESG}$ est le coefficient estimé pour la variable ESG, $\sigma^2$ la variance des erreurs, $T$ la longueur de l'historique, et $Var(X_{ESG})$ la variance de la variable explicative.
+
+Pour des séries temporelles courtes, cette variance peut être prohibitivement élevée, surtout pour des phénomènes à évolution lente comme les impacts climatiques, où la variance du signal annuel est faible par rapport au bruit.
+
+\paragraph{Traitement des problèmes de multicolinéarité}
+La multicolinéarité entre variables ESG peut être diagnostiquée par le facteur d'inflation de la variance (VIF):
+
+\begin{equation}
+VIF_j = \frac{1}{1-R_j^2}
+\end{equation}
+
+où $R_j^2$ est le coefficient de détermination de la régression de la variable $j$ sur toutes les autres variables explicatives.
+
+Pour atténuer ces problèmes, plusieurs approches peuvent être employées:
+\begin{itemize}
+    \item Réduction de dimension par analyse en composantes principales
+    \item Régularisation de type ridge ou LASSO
+    \item Régression sur composantes orthogonales
+    \item Construction d'indices composites sectoriels avec pondération basée sur la matérialité
+\end{itemize}
+
+\subsubsection{Besoins d'innovation méthodologique}
+
+Ces limitations appellent à des approches plus sophistiquées et flexibles :
+
+\begin{itemize}
+    \item \textbf{Capacité à traiter des données hétérogènes} : Intégration de données structurées et non structurées, quantitatives et qualitatives, à différentes fréquences
+    
+    \item \textbf{Modélisation des interactions complexes} : Capture des effets croisés, des non-linéarités et des dynamiques temporelles complexes
+    
+    \item \textbf{Adaptabilité contextuelle} : Capacité à adapter l'importance relative des facteurs selon le contexte sectoriel, géographique et temporel
+    
+    \item \textbf{Robustesse aux données limitées} : Performance maintenue malgré des historiques courts ou des données partielles
+    
+    \item \textbf{Interprétabilité préservée} : Maintien d'un niveau d'explicabilité compatible avec les exigences de gouvernance et de communication
+\end{itemize}
+
+Ces défis méthodologiques préparent le terrain pour l'introduction des techniques avancées de Machine Learning, qui feront l'objet du chapitre suivant.
+
+\paragraph{Cadre conceptuel pour les nouvelles approches}
+Un cadre méthodologique adapté aux exigences ESG devrait intégrer:
+
+\begin{itemize}
+    \item Une architecture multi-niveaux permettant de combiner différentes sources de données et temporalités
+    \item Des mécanismes d'apprentissage de représentations hiérarchiques capturant les interactions entre facteurs
+    \item Des méthodes d'apprentissage par transfert pour pallier le manque de données historiques
+    \item Des techniques d'apprentissage semi-supervisé valorisant les données non étiquetées
+    \item Des approches bayésiennes pour quantifier l'incertitude épistémique
+    \item Des mécanismes d'attention pour moduler l'importance des facteurs selon le contexte
+\end{itemize}
+
+\paragraph{Exemple d'architecture innovante: modèle hybride pour l'intégration ESG}
+Un cadre méthodologique prometteur pourrait prendre la forme d'une architecture hybride à plusieurs niveaux:
+
+\begin{itemize}
+    \item \textbf{Niveau 1 - Prétraitement des données} : Traitement spécifique par type de données (textuelles, numériques, temporelles) avec extraction de caractéristiques adaptées
+
+    \item \textbf{Niveau 2 - Modélisation spécifique par dimension} : Sous-modèles spécialisés pour chaque dimension ESG et financière, capturant leurs dynamiques propres
+
+    \item \textbf{Niveau 3 - Intégration contextuelle} : Mécanismes d'attention modulant l'importance relative des dimensions selon le secteur, la région et la conjoncture
+
+    \item \textbf{Niveau 4 - Prévision multi-horizon} : Projections différenciées selon les horizons temporels pour adapter la prédiction à la temporalité variable des risques
+
+    \item \textbf{Niveau 5 - Quantification de l'incertitude} : Encadrement des prévisions par des intervalles de confiance ou des distributions de probabilité complètes
+\end{itemize}
+
+Cette architecture, combinant apprentissage profond et modèles probabilistes, permettrait de répondre aux limites identifiées des approches traditionnelles tout en maintenant un niveau d'interprétabilité suffisant pour les exigences réglementaires et de gouvernance. Sa mise en œuvre concrète via les techniques de Machine Learning fera l'objet du chapitre suivant.
