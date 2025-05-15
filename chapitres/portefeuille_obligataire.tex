@@ -1,1 +1,589 @@
-\\section{Méthodologie quantitative d'optimisation de portefeuille avec contraintes ESG}\n\n\\subsection{Cadre théorique d'optimisation sous contraintes ESG}\n\nL'intégration des critères ESG dans la construction d'un portefeuille obligataire nécessite une adaptation des cadres d'optimisation traditionnels pour incorporer explicitement ces considérations extra-financières. Cette section présente le cadre théorique et mathématique sous-tendant notre approche d'optimisation.\n\n\\subsubsection{Formulation du problème d'optimisation multi-objectif}\n\nLa construction d'un portefeuille obligataire intégrant les critères ESG peut être formulée comme un problème d'optimisation multi-objectif, cherchant à équilibrer performance financière et performance extra-financière. Formellement, nous cherchons à résoudre :\n\n\\begin{align}\n\\max_{\\mathbf{w}} \\quad & U(\\mathbf{w}) = (1-\\lambda) \\cdot U_{fin}(\\mathbf{w}) + \\lambda \\cdot U_{ESG}(\\mathbf{w}) \\\\\n\\text{s.t.} \\quad & \\mathbf{w}^T \\mathbf{1} = 1 \\\\\n& \\mathbf{w} \\geq \\mathbf{0} \\\\\n& \\mathbf{C w} \\leq \\mathbf{b}\n\\end{align}\n\noù $\\mathbf{w} = (w_1, w_2, \\ldots, w_n)^T$ représente le vecteur des poids alloués aux $n$ obligations du portefeuille, $U_{fin}(\\mathbf{w})$ et $U_{ESG}(\\mathbf{w})$ sont respectivement les fonctions d'utilité financière et ESG, $\\lambda \\in [0,1]$ est le paramètre de pondération entre ces deux objectifs, et $\\mathbf{C w} \\leq \\mathbf{b}$ englobe l'ensemble des contraintes supplémentaires (sectorielles, géographiques, de duration, etc.).\n\nPour la composante financière de la fonction d'utilité, nous adoptons une formulation de type Markowitz ajustée au contexte obligataire :\n\n\\begin{equation}\nU_{fin}(\\mathbf{w}) = \\frac{\\mathbf{w}^T \\boldsymbol{\\mu} - r_f}{\\sqrt{\\mathbf{w}^T \\boldsymbol{\\Sigma} \\mathbf{w}}}\n\\end{equation}\n\noù $\\boldsymbol{\\mu}$ représente le vecteur des rendements espérés des obligations, $\\boldsymbol{\\Sigma}$ leur matrice de variance-covariance, et $r_f$ le taux sans risque.\n\nCette fonction maximise le ratio de Sharpe du portefeuille, soit le rendement excédentaire par unité de risque, une métrique particulièrement pertinente dans le contexte obligataire où les investisseurs sont typiquement averses au risque.\n\nPour la composante ESG, nous définissons :\n\n\\begin{equation}\nU_{ESG}(\\mathbf{w}) = \\frac{\\mathbf{w}^T \\mathbf{s}_{ESG} - s_{min}}{s_{max} - s_{min}}\n\\end{equation}\n\noù $\\mathbf{s}_{ESG}$ représente le vecteur des scores ESG des obligations, normalisé sur une échelle commune, et $s_{min}$ et $s_{max}$ sont respectivement les scores minimum et maximum dans l'univers d'investissement.\n\nCette formulation normalise le score ESG du portefeuille sur une échelle [0,1], facilitant son intégration avec la composante financière et permettant une interprétation intuitive de la performance ESG relative.\n\n\\subsubsection{Modélisation des contraintes spécifiques}\n\nLes contraintes incluses dans notre problème d'optimisation reflètent à la fois des considérations de gestion des risques traditionnelles et des exigences spécifiques liées à l'intégration ESG.\n\n\\paragraph{Contraintes de diversification} \nPour éviter une concentration excessive du risque, nous imposons des limites sur l'exposition maximale à chaque émetteur et secteur :\n\n\\begin{align}\nw_i &\\leq w_{max} \\quad \\forall i \\in \\{1, \\ldots, n\\} \\\\\n\\sum_{i \\in S_j} w_i &\\leq s_{max} \\quad \\forall j \\in \\{1, \\ldots, m\\}\n\\end{align}\n\noù $w_{max}$ représente la pondération maximale par émetteur (typiquement 3% dans notre implémentation), $S_j$ l'ensemble des obligations appartenant au secteur $j$, et $s_{max}$ la pondération sectorielle maximale (15% dans notre cas).\n\n\\paragraph{Contraintes de duration} \nPour contrôler le risque de taux d'intérêt du portefeuille, nous imposons des bornes sur sa duration modifiée :\n\n\\begin{equation}\nD_{min} \\leq \\sum_{i=1}^n w_i D_i \\leq D_{max}\n\\end{equation}\n\noù $D_i$ représente la duration modifiée de l'obligation $i$, et $D_{min}$ et $D_{max}$ les bornes inférieure et supérieure de duration (respectivement 3 et 8 ans dans notre implémentation).\n\n\\paragraph{Contraintes ESG minimales} \nAu-delà de l'optimisation du score ESG dans la fonction objectif, nous imposons également un score ESG minimum pour le portefeuille global :\n\n\\begin{equation}\n\\sum_{i=1}^n w_i s^{ESG}_i \\geq s^{ESG}_{min}\n\\end{equation}\n\noù $s^{ESG}_{min}$ représente le score ESG minimum requis (fixé à 55 sur une échelle de 100 dans notre implémentation).\n\nDe plus, certaines exclusions sectorielles sont formalisées comme des contraintes dures :\n\n\\begin{equation}\nw_i = 0 \\quad \\forall i \\in E\n\\end{equation}\n\noù $E$ représente l'ensemble des obligations exclues sur la base de critères ESG normatifs (controverses graves, violations du Global Compact, implication dans des armes controversées, etc.).\n\n\\paragraph{Contraintes d'exposition thématique} \nPour certains objectifs ESG spécifiques, nous introduisons des contraintes d'exposition minimale à des thématiques ciblées :\n\n\\begin{equation}\n\\sum_{i \\in T_k} w_i \\geq t_{k,min} \\quad \\forall k \\in \\{1, \\ldots, p\\}\n\\end{equation}\n\noù $T_k$ représente l'ensemble des obligations liées à la thématique $k$ (par exemple, les obligations vertes ou durables), et $t_{k,min}$ l'exposition minimale requise (10% pour les obligations vertes dans notre cas).\n\n\\subsubsection{Résolution numérique et considérations algorithmiques}\n\nLa résolution numérique du problème d'optimisation formalisé ci-dessus présente plusieurs défis techniques, notamment en raison de sa nature non linéaire et de la présence de multiples contraintes. Nous avons adopté une approche en deux étapes pour sa résolution.\n\nPremièrement, nous reformulons le problème en utilisant la technique de la frontière efficiente, en résolvant une série de problèmes paramétrés par un facteur de risque $\\delta$ :\n\n\\begin{align}\n\\max_{\\mathbf{w}} \\quad & \\mathbf{w}^T \\boldsymbol{\\mu} + (1-\\lambda) \\cdot \\delta \\cdot \\mathbf{w}^T \\mathbf{s}_{ESG} \\\\\n\\text{s.t.} \\quad & \\mathbf{w}^T \\boldsymbol{\\Sigma} \\mathbf{w} \\leq \\sigma^2_{target} \\\\\n& \\text{(autres contraintes)}\n\\end{align}\n\nCette reformulation permet d'utiliser des algorithmes d'optimisation quadratique standard tout en explorant systématiquement le front de Pareto des solutions optimales.\n\nPour la résolution numérique proprement dite, nous employons l'algorithme Sequential Least Squares Programming (SLSQP), particulièrement adapté aux problèmes non linéaires sous contraintes. Cet algorithme approche itérativement la solution en résolvant une séquence de sous-problèmes quadratiques, utilisant l'approximation de la matrice hessienne de la fonction objectif.\n\nL'implémentation algorithmique inclut également :\n\n\\begin{itemize}\n    \\item Une phase d'initialisation multi-départ pour éviter les optima locaux, en générant $k$ points de départ aléatoires respectant les contraintes et en sélectionnant la meilleure solution\n    \n    \\item Une validation croisée des résultats via la méthode du simplexe de Nelder-Mead, appliquée comme second solveur sur les meilleures solutions préliminaires\n    \n    \\item Une procédure adaptative d'ajustement du paramètre de pondération $\\lambda$ basée sur les caractéristiques de l'univers d'investissement, définie comme :\n    \n    \\begin{equation}\n    \\lambda_{adaptive} = \\lambda_{base} \\cdot \\left(1 + \\alpha \\cdot \\frac{\\sigma(\\mathbf{s}_{ESG})}{\\mu(\\mathbf{s}_{ESG})}\\right)\n    \\end{equation}\n    \n    où $\\sigma(\\mathbf{s}_{ESG})$ et $\\mu(\\mathbf{s}_{ESG})$ représentent respectivement l'écart-type et la moyenne des scores ESG dans l'univers, et $\\alpha$ un paramètre de sensibilité fixé à 0.5 dans notre implémentation.\n\\end{itemize}\n\nCette approche algorithmique nous permet d'obtenir des solutions d'optimisation robustes, évitant les problèmes de convergence locale et s'adaptant aux caractéristiques spécifiques de l'univers obligataire considéré.\n\n\\subsection{Approche retenue et implémentation}\n\nPour notre portefeuille final, nous avons adopté une approche hybride combinant plusieurs des méthodologies précédemment décrites :\n\n\\begin{itemize}\n    \\item \\textbf{Segmentation} du portefeuille en trois compartiments, correspondant aux trois types d'obligations (corporate, souveraine, verte)\n    \n    \\item \\textbf{Allocation stratégique} entre ces compartiments selon les proportions définies précédemment (60\\%, 30\\%, 10\\%)\n    \n    \\item Pour chaque compartiment :\n    \\begin{itemize}\n        \\item \\textbf{Pré-sélection} des titres selon les critères financiers et ESG définis\n        \\item \\textbf{Optimisation sous contraintes ESG}, avec une fonction objectif hybride intégrant rendement, risque et score ESG\n        \\item \\textbf{Ajustement manuel} pour garantir la représentativité sectorielle et géographique\n    \\end{itemize}\n    \n    \\item \\textbf{Rebalancement trimestriel} avec des seuils de tolérance pour limiter le turnover\n\\end{itemize}\n\nEn termes mathématiques, notre problème d'optimisation pour chaque compartiment peut être formulé comme suit :\n\n\\begin{align}\n\\max_w \\quad & (1-\\lambda) \\times \\left( \\frac{w^T \\mu - r_f}{\\sqrt{w^T \\Sigma w}} \\right) + \\lambda \\times \\left( \\frac{\\sum_{i=1}^n w_i \\times \\text{ESG}_i - \\text{ESG}_{\\text{min}}}{\\text{ESG}_{\\text{max}} - \\text{ESG}_{\\text{min}}} \\right) \\\\\n\\text{s.t.} \\quad & \\sum_{i=1}^n w_i = 1 \\\\\n& w_i \\geq 0, \\quad \\forall i \\in \\{1,...,n\\} \\\\\n& w_i \\leq w_{\\text{max}}, \\quad \\forall i \\in \\{1,...,n\\} \\\\\n& \\sum_{i \\in S_j} w_i \\leq s_{\\text{max}}, \\quad \\forall j \\in \\{1,...,m\\} \\\\\n& L_{\\text{dur}} \\leq \\sum_{i=1}^n w_i \\times D_i \\leq U_{\\text{dur}} \\\\\n& \\sum_{i=1}^n w_i \\times \\text{ESG}_i \\geq \\text{ESG}_{\\text{min}}\n\\end{align}\n\noù :\n\\begin{itemize}\n    \\item $\\lambda = 0.3$ est le paramètre de pondération entre objectifs financiers et ESG\n    \\item $w_{\\text{max}} = 3\\%$ est la pondération maximale par émetteur\n    \\item $S_j$ représente l'ensemble des titres appartenant au secteur $j$\n    \\item $s_{\\text{max}} = 15\\%$ est la pondération sectorielle maximale\n    \\item $L_{\\text{dur}} = 3$ et $U_{\\text{dur}} = 8$ sont les bornes inférieure et supérieure de duration\n    \\item $\\text{ESG}_{\\text{min}} = 55$ est le score ESG minimal du portefeuille (sur une échelle de 0 à 100)\n\\end{itemize}\n\nLa résolution de ce problème d'optimisation a été réalisée à l'aide de l'algorithme Sequential Least Squares Programming (SLSQP), particulièrement adapté aux problèmes non linéaires sous contraintes, avec une validation croisée des résultats via la méthode du simplexe de Nelder-Mead pour éviter les optima locaux.\n\n\\subsection{Implémentation algorithmique et complexité computationnelle}\n\nL'implémentation pratique de notre approche d'optimisation a nécessité plusieurs adaptations algorithmiques pour gérer efficacement la complexité computationnelle inhérente à ce type de problème multi-objectif sous contraintes multiples, particulièrement dans le contexte d'un univers obligataire de grande dimension.\n\n\\subsubsection{Décomposition hiérarchique du problème}\n\nFace à la difficulté de résoudre directement le problème global avec plusieurs centaines d'obligations candidates, nous avons adopté une approche de décomposition hiérarchique structurée comme suit :\n\n\\begin{algorithm}\n\\caption{Optimisation hiérarchique du portefeuille obligataire ESG}\n\\begin{algorithmic}[1]\n\\REQUIRE Univers d'obligations $\\Omega$, Matrices de covariance $\\Sigma$, Rendements attendus $\\mu$, Scores ESG $s_{ESG}$\n\\ENSURE Allocation optimale $w^*$\n\n\\STATE Segmenter $\\Omega$ en compartiments $\\Omega_1, \\Omega_2, \\ldots, \\Omega_K$ selon les types d'obligations\n\\STATE Déterminer l'allocation stratégique $\\alpha = (\\alpha_1, \\alpha_2, \\ldots, \\alpha_K)$ entre compartiments\n\n\\FOR{chaque compartiment $k \\in \\{1, 2, \\ldots, K\\}$}\n    \\STATE Appliquer les filtres d'exclusion ESG: $\\Omega_k' = \\Omega_k \\setminus E_k$\n    \\STATE Appliquer les critères de pré-sélection financière et ESG pour obtenir $\\Omega_k''$\n    \\STATE Résoudre le problème d'optimisation sur $\\Omega_k''$ pour obtenir $w_k^*$\n\\ENDFOR\n\n\\STATE Construire l'allocation finale: $w^* = (\\alpha_1 w_1^*, \\alpha_2 w_2^*, \\ldots, \\alpha_K w_K^*)$\n\\STATE Appliquer les ajustements manuels pour garantir la représentativité et obtenir $\\tilde{w}^*$\n\\RETURN $\\tilde{w}^*$\n\\end{algorithmic}\n\\end{algorithm}\n\nCette décomposition réduit significativement la dimension de chaque sous-problème d'optimisation, permettant une résolution plus efficace tout en préservant la structure globale de l'allocation.\n\n\\subsubsection{Estimation robuste des matrices de covariance}\n\nL'optimisation de type Markowitz est notoirement sensible à l'estimation de la matrice de covariance. Pour améliorer la robustesse de notre implémentation, nous avons adopté l'estimateur de rétrécissement (shrinkage estimator) de Ledoit-Wolf :\n\n\\begin{equation}\n\\hat{\\Sigma}_{LW} = (1 - \\delta) \\hat{\\Sigma}_{sample} + \\delta \\hat{\\Sigma}_{target}\n\\end{equation}\n\noù $\\hat{\\Sigma}_{sample}$ est l'estimateur classique de la matrice de covariance échantillonnale, $\\hat{\\Sigma}_{target}$ une matrice cible (typiquement diagonale ou à corrélation constante), et $\\delta \\in [0,1]$ le paramètre de rétrécissement optimal déterminé analytiquement pour minimiser l'erreur quadratique moyenne.\n\nPour les rendements obligataires, nous avons utilisé une matrice cible structurée par les facteurs de risque principaux :\n\n\\begin{equation}\n\\hat{\\Sigma}_{target} = BB^T + D\n\\end{equation}\n\noù $B$ est la matrice des charges factorielles estimée par analyse en composantes principales sur les rendements historiques (conservant les 5 premiers facteurs), et $D$ une matrice diagonale des variances résiduelles.\n\n\\subsubsection{Optimisation numérique et complexité}  \n\nLa résolution numérique de chaque sous-problème d'optimisation utilise l'algorithme SLSQP avec plusieurs améliorations techniques :\n\n\\begin{itemize}\n    \\item Reformulation du problème pour améliorer son conditionnement numérique, notamment par la normalisation des variables et l'élimination des contraintes redondantes\n    \n    \\item Implémentation d'une recherche multi-départ avec 50 points initiaux générés par échantillonnage de quasi-Monte Carlo (séquence de Sobol) pour une exploration plus systématique de l'espace des solutions\n    \n    \\item Parallélisation des calculs sur 8 cœurs pour les différents points de départ, réduisant significativement le temps de calcul global\n\\end{itemize}\n\nLa complexité computationnelle de notre approche peut être analysée comme suit :\n\n\\begin{itemize}\n    \\item Complexité temporelle : $O(K \\cdot M \\cdot I \\cdot N^3)$ où $K$ est le nombre de compartiments, $M$ le nombre de points de départ, $I$ le nombre typique d'itérations de l'algorithme d'optimisation, et $N$ la taille moyenne de chaque sous-problème\n    \n    \\item Complexité spatiale : $O(N^2)$ principalement dominée par le stockage des matrices de covariance\n\\end{itemize}\n\nPour notre implémentation avec $K=3$ compartiments, des sous-problèmes de taille moyenne $N \\approx 100$ obligations, et $M=50$ points de départ, le temps de calcul total était d'environ 15 minutes sur un serveur standard avec 32 Go de RAM et un processeur Intel Xeon à 3.5 GHz.\n\n\\subsubsection{Rebalancement et contrôle du turnover}\n\nNotre stratégie de rebalancement trimestriel intègre une composante de contrôle du turnover pour limiter les coûts de transaction tout en maintenant l'alignement du portefeuille avec ses objectifs financiers et ESG. Formellement, nous introduisons une pénalité de turnover dans la fonction objectif lors des rebalancements :\n\n\\begin{equation}\nU_{rebal}(\\mathbf{w}) = U(\\mathbf{w}) - \\kappa \\cdot \\sum_{i=1}^n |w_i - w_i^{prev}|\n\\end{equation}\n\noù $U(\\mathbf{w})$ est la fonction d'utilité standard définie précédemment, $w_i^{prev}$ le poids de l'obligation $i$ avant rebalancement, et $\\kappa$ un paramètre de pénalité fixé à 0.1 dans notre implémentation.\n\nDe plus, nous implémentons des seuils de tolérance pour éviter les transactions de faible amplitude :\n\n\\begin{equation}\nw_i^{new} = \\begin{cases}\nw_i^{opt} & \\text{si } |w_i^{opt} - w_i^{prev}| > \\epsilon \\\\\nw_i^{prev} & \\text{sinon}\n\\end{cases}\n\\end{equation}\n\noù $w_i^{opt}$ est le poids optimal issu de l'optimisation, $w_i^{new}$ le poids effectivement implémenté, et $\\epsilon$ un seuil de tolérance fixé à 0.5% dans notre implémentation.\n\nCette approche algorithmique complète nous a permis de construire un portefeuille obligataire optimisé intégrant efficacement les considérations ESG tout en maintenant des caractéristiques financières attrayantes, comme détaillé dans les sections suivantes.\n\n\\section{Présentation des caractéristiques du portefeuille étudié}
+\\section{Méthodologie quantitative d'optimisation de portefeuille avec contraintes ESG}
+
+\\subsection{Cadre théorique d'optimisation sous contraintes ESG}
+
+L'intégration des critères ESG dans la construction d'un portefeuille obligataire nécessite une adaptation des cadres d'optimisation traditionnels pour incorporer explicitement ces considérations extra-financières. Cette section présente le cadre théorique et mathématique sous-tendant notre approche d'optimisation.
+
+\\subsubsection{Formulation du problème d'optimisation multi-objectif}
+
+La construction d'un portefeuille obligataire intégrant les critères ESG peut être formulée comme un problème d'optimisation multi-objectif, cherchant à équilibrer performance financière et performance extra-financière. Formellement, nous cherchons à résoudre :
+
+\\begin{align}
+\\max_{\\mathbf{w}} \\quad & U(\\mathbf{w}) = (1-\\lambda) \\cdot U_{fin}(\\mathbf{w}) + \\lambda \\cdot U_{ESG}(\\mathbf{w}) \\\\
+\\text{s.t.} \\quad & \\mathbf{w}^T \\mathbf{1} = 1 \\\\
+& \\mathbf{w} \\geq \\mathbf{0} \\\\
+& \\mathbf{C w} \\leq \\mathbf{b}
+\\end{align}
+
+où $\\mathbf{w} = (w_1, w_2, \\ldots, w_n)^T$ représente le vecteur des poids alloués aux $n$ obligations du portefeuille, $U_{fin}(\\mathbf{w})$ et $U_{ESG}(\\mathbf{w})$ sont respectivement les fonctions d'utilité financière et ESG, $\\lambda \\in [0,1]$ est le paramètre de pondération entre ces deux objectifs, et $\\mathbf{C w} \\leq \\mathbf{b}$ englobe l'ensemble des contraintes supplémentaires (sectorielles, géographiques, de duration, etc.).
+
+Pour la composante financière de la fonction d'utilité, nous adoptons une formulation de type Markowitz ajustée au contexte obligataire :
+
+\\begin{equation}
+U_{fin}(\\mathbf{w}) = \\frac{\\mathbf{w}^T \\boldsymbol{\\mu} - r_f}{\\sqrt{\\mathbf{w}^T \\boldsymbol{\\Sigma} \\mathbf{w}}}
+\\end{equation}
+
+où $\\boldsymbol{\\mu}$ représente le vecteur des rendements espérés des obligations, $\\boldsymbol{\\Sigma}$ leur matrice de variance-covariance, et $r_f$ le taux sans risque.
+
+Cette fonction maximise le ratio de Sharpe du portefeuille, soit le rendement excédentaire par unité de risque, une métrique particulièrement pertinente dans le contexte obligataire où les investisseurs sont typiquement averses au risque.
+
+Pour la composante ESG, nous définissons :
+
+\\begin{equation}
+U_{ESG}(\\mathbf{w}) = \\frac{\\mathbf{w}^T \\mathbf{s}_{ESG} - s_{min}}{s_{max} - s_{min}}
+\\end{equation}
+
+où $\\mathbf{s}_{ESG}$ représente le vecteur des scores ESG des obligations, normalisé sur une échelle commune, et $s_{min}$ et $s_{max}$ sont respectivement les scores minimum et maximum dans l'univers d'investissement.
+
+Cette formulation normalise le score ESG du portefeuille sur une échelle [0,1], facilitant son intégration avec la composante financière et permettant une interprétation intuitive de la performance ESG relative.
+
+\\paragraph{Extension avec facteurs de risque multiples}
+La formulation précédente peut être enrichie pour tenir compte de multiples facteurs de risque, particulièrement pertinents dans le contexte obligataire. Le modèle d'utilité financière s'étend alors à :
+
+\\begin{equation}
+U_{fin}(\\mathbf{w}) = \\frac{\\mathbf{w}^T \\boldsymbol{\\mu} - r_f}{\\sqrt{\\mathbf{w}^T (\\sum_{k=1}^{K} \\beta_k \\beta_k^T \\sigma_k^2 + \\mathbf{D}) \\mathbf{w}}}
+\\end{equation}
+
+où :
+\\begin{itemize}
+    \\item $\\beta_k$ représente le vecteur des expositions des obligations au facteur de risque $k$
+    \\item $\\sigma_k^2$ est la variance du facteur $k$
+    \\item $\\mathbf{D}$ est une matrice diagonale des variances idiosyncratiques
+\\end{itemize}
+
+Ces facteurs peuvent inclure :
+\\begin{itemize}
+    \\item Facteur de duration (sensibilité aux variations des taux d'intérêt)
+    \\item Facteur de crédit (sensibilité aux variations des spreads)
+    \\item Facteur de convexité (sensibilité aux mouvements non-linéaires de la courbe)
+    \\item Facteurs sectoriels et géographiques
+\\end{itemize}
+
+Cette décomposition factorielle permet une attribution plus précise et une gestion plus granulaire du risque, ainsi qu'une estimation plus robuste de la matrice de variance-covariance, particulièrement pour les univers obligataires de grande dimension.
+
+\\paragraph{Modélisation avancée de l'utilité ESG}
+La fonction d'utilité ESG peut être raffinée pour intégrer différentes dimensions et préférences spécifiques :
+
+\\begin{equation}
+U_{ESG}(\\mathbf{w}) = \\sum_{j=1}^{3} \\omega_j \\frac{\\mathbf{w}^T \\mathbf{s}_{j} - s_{j,min}}{s_{j,max} - s_{j,min}} - \\kappa \\frac{\\sum_{i=1}^{n} w_i \\cdot \\mathbb{I}(\\mathbf{s}_{i} < s_{thresh})}{\\sum_{i=1}^{n} w_i}
+\\end{equation}
+
+où :
+\\begin{itemize}
+    \\item $\\mathbf{s}_{j}$ représente le vecteur des scores pour la dimension ESG $j$ (environnement, social, gouvernance)
+    \\item $\\omega_j$ est le poids attribué à la dimension $j$, avec $\\sum_{j=1}^{3} \\omega_j = 1$
+    \\item Le second terme pénalise la proportion du portefeuille investie dans des obligations dont le score ESG est inférieur à un seuil $s_{thresh}$, avec $\\mathbb{I}(\\cdot)$ la fonction indicatrice
+    \\item $\\kappa$ est un paramètre de pénalité ajustable
+\\end{itemize}
+
+Cette formulation permet de mieux refléter les préférences spécifiques des investisseurs, comme une importance relative différente accordée aux trois piliers ESG ou une aversion particulière aux émetteurs de faible qualité ESG.
+
+\\subsubsection{Modélisation des contraintes spécifiques}
+
+Les contraintes incluses dans notre problème d'optimisation reflètent à la fois des considérations de gestion des risques traditionnelles et des exigences spécifiques liées à l'intégration ESG.
+
+\\paragraph{Contraintes de diversification} 
+Pour éviter une concentration excessive du risque, nous imposons des limites sur l'exposition maximale à chaque émetteur et secteur :
+
+\\begin{align}
+w_i &\\leq w_{max} \\quad \\forall i \\in \\{1, \\ldots, n\\} \\\\
+\\sum_{i \\in S_j} w_i &\\leq s_{max} \\quad \\forall j \\in \\{1, \\ldots, m\\}
+\\end{align}
+
+où $w_{max}$ représente la pondération maximale par émetteur (typiquement 3% dans notre implémentation), $S_j$ l'ensemble des obligations appartenant au secteur $j$, et $s_{max}$ la pondération sectorielle maximale (15% dans notre cas).
+
+\\paragraph{Extension de diversification avec contraintes de concentration}
+Au-delà des limites simples par émetteur et secteur, nous pouvons introduire des contraintes plus sophistiquées contrôlant la concentration globale du portefeuille :
+
+\\begin{equation}
+\\sum_{i=1}^{n} w_i^2 \\leq HHI_{max}
+\\end{equation}
+
+où $HHI_{max}$ représente le niveau maximal acceptable de l'indice de Herfindahl-Hirschman, mesurant la concentration du portefeuille.
+
+De plus, nous pouvons contrôler la diversification effective via une contrainte sur le nombre effectif d'émetteurs indépendants ($NEE$) :
+
+\\begin{equation}
+NEE = \\frac{1}{\\sum_{i=1}^{n} \\sum_{j=1}^{n} w_i w_j \\rho_{ij}} \\geq NEE_{min}
+\\end{equation}
+
+où $\\rho_{ij}$ est la corrélation entre les rendements des émetteurs $i$ et $j$, et $NEE_{min}$ est le nombre minimal d'émetteurs effectifs requis (par exemple, 10).
+
+Cette contrainte, plus sophistiquée que les limites nominales, assure une véritable diversification tenant compte des corrélations entre émetteurs, particulièrement importante dans le contexte obligataire où certains émetteurs peuvent être fortement corrélés malgré leur appartenance à des secteurs différents.
+
+\\paragraph{Contraintes de duration} 
+Pour contrôler le risque de taux d'intérêt du portefeuille, nous imposons des bornes sur sa duration modifiée :
+
+\\begin{equation}
+D_{min} \\leq \\sum_{i=1}^n w_i D_i \\leq D_{max}
+\\end{equation}
+
+où $D_i$ représente la duration modifiée de l'obligation $i$, et $D_{min}$ et $D_{max}$ les bornes inférieure et supérieure de duration (respectivement 3 et 8 ans dans notre implémentation).
+
+\\paragraph{Extension du contrôle du risque de taux}
+Le contrôle du risque de taux peut être étendu pour capturer non seulement la sensibilité globale aux variations parallèles des taux (duration), mais aussi les expositions aux changements de forme de la courbe des taux :
+
+\\begin{align}
+|\\sum_{i=1}^{n} w_i \\cdot K_{1,i}| &\\leq K_{1,max} \\quad \\text{(niveau)} \\\\
+|\\sum_{i=1}^{n} w_i \\cdot K_{2,i}| &\\leq K_{2,max} \\quad \\text{(pente)} \\\\
+|\\sum_{i=1}^{n} w_i \\cdot K_{3,i}| &\\leq K_{3,max} \\quad \\text{(courbure)}
+\\end{align}
+
+où $K_{j,i}$ représente la sensibilité de l'obligation $i$ au $j$-ème facteur principal de la courbe des taux (typiquement dérivé d'une analyse en composantes principales des mouvements historiques), et $K_{j,max}$ la limite d'exposition à ce facteur.
+
+Cette approche multifactorielle du risque de taux permet une gestion plus granulaire et une protection contre des scénarios de déformation de la courbe qui affectent différemment les obligations selon leur positionnement sur l'échelle des maturités.
+
+\\paragraph{Contraintes ESG minimales} 
+Au-delà de l'optimisation du score ESG dans la fonction objectif, nous imposons également un score ESG minimum pour le portefeuille global :
+
+\\begin{equation}
+\\sum_{i=1}^n w_i s^{ESG}_i \\geq s^{ESG}_{min}
+\\end{equation}
+
+où $s^{ESG}_{min}$ représente le score ESG minimum requis (fixé à 55 sur une échelle de 100 dans notre implémentation).
+
+De plus, certaines exclusions sectorielles sont formalisées comme des contraintes dures :
+
+\\begin{equation}
+w_i = 0 \\quad \\forall i \\in E
+\\end{equation}
+
+où $E$ représente l'ensemble des obligations exclues sur la base de critères ESG normatifs (controverses graves, violations du Global Compact, implication dans des armes controversées, etc.).
+
+\\paragraph{Contraintes d'impact carbone et de transition climatique}
+Les considérations climatiques peuvent être formalisées plus précisément via des contraintes sur l'empreinte carbone et l'alignement avec une trajectoire de décarbonation :
+
+\\begin{align}
+\\frac{\\sum_{i=1}^{n} w_i \\cdot IC_i}{\\sum_{i=1}^{n} w_i \\cdot CA_i} &\\leq IC_{max} \\quad \\text{(intensité carbone)} \\\\
+\\sum_{i=1}^{n} w_i \\cdot AT_i &\\geq AT_{min} \\quad \\text{(alignement transition)}
+\\end{align}
+
+où :
+\\begin{itemize}
+    \\item $IC_i$ représente les émissions de gaz à effet de serre (scopes 1 et 2) de l'émetteur $i$
+    \\item $CA_i$ est le chiffre d'affaires de l'émetteur $i$
+    \\item $IC_{max}$ est l'intensité carbone maximale tolérée pour le portefeuille
+    \\item $AT_i$ est un score d'alignement de l'émetteur $i$ avec une trajectoire de décarbonation compatible avec l'Accord de Paris
+    \\item $AT_{min}$ est le score minimum d'alignement requis pour le portefeuille
+\\end{itemize}
+
+Ces contraintes permettent de traduire concrètement des engagements de décarbonation et d'alignement climatique dans le processus d'optimisation du portefeuille.
+
+\\paragraph{Contraintes d'exposition thématique} 
+Pour certains objectifs ESG spécifiques, nous introduisons des contraintes d'exposition minimale à des thématiques ciblées :
+
+\\begin{equation}
+\\sum_{i \\in T_k} w_i \\geq t_{k,min} \\quad \\forall k \\in \\{1, \\ldots, p\\}
+\\end{equation}
+
+où $T_k$ représente l'ensemble des obligations liées à la thématique $k$ (par exemple, les obligations vertes ou durables), et $t_{k,min}$ l'exposition minimale requise (10% pour les obligations vertes dans notre cas).
+
+\\paragraph{Extension des expositions thématiques avec objectifs d'impact}
+Les contraintes thématiques peuvent être étendues pour cibler non seulement des classes d'actifs spécifiques mais aussi des objectifs d'impact mesurables :
+
+\\begin{equation}
+\\sum_{i=1}^{n} w_i \\cdot I_{j,i} \\geq I_{j,min} \\quad \\forall j \\in \\{1, \\ldots, q\\}
+\\end{equation}
+
+où $I_{j,i}$ représente la contribution de l'émetteur $i$ à l'indicateur d'impact $j$ (par exemple, emplois créés, réduction d'émissions, économie d'eau, accès à l'éducation, etc.), et $I_{j,min}$ le niveau minimal requis pour cet indicateur.
+
+Cette approche permet d'aligner le portefeuille avec des objectifs d'impact spécifiques et mesurables, au-delà des simples scores ESG agrégés, et de contribuer directement à des Objectifs de Développement Durable particuliers.
+
+\\subsubsection{Résolution numérique et considérations algorithmiques}
+
+La résolution numérique du problème d'optimisation formalisé ci-dessus présente plusieurs défis techniques, notamment en raison de sa nature non linéaire et de la présence de multiples contraintes. Nous avons adopté une approche en deux étapes pour sa résolution.
+
+Premièrement, nous reformulons le problème en utilisant la technique de la frontière efficiente, en résolvant une série de problèmes paramétrés par un facteur de risque $\\delta$ :
+
+\\begin{align}
+\\max_{\\mathbf{w}} \\quad & \\mathbf{w}^T \\boldsymbol{\\mu} + (1-\\lambda) \\cdot \\delta \\cdot \\mathbf{w}^T \\mathbf{s}_{ESG} \\\\
+\\text{s.t.} \\quad & \\mathbf{w}^T \\boldsymbol{\\Sigma} \\mathbf{w} \\leq \\sigma^2_{target} \\\\
+& \\text{(autres contraintes)}
+\\end{align}
+
+Cette reformulation permet d'utiliser des algorithmes d'optimisation quadratique standard tout en explorant systématiquement le front de Pareto des solutions optimales.
+
+\\paragraph{Décomposition par dualité de Lagrange}
+Pour traiter efficacement les nombreuses contraintes, nous pouvons exploiter la décomposition par dualité de Lagrange. Le Lagrangien associé à notre problème s'écrit :
+
+\\begin{align}
+L(\\mathbf{w}, \\boldsymbol{\\lambda}, \\boldsymbol{\\mu}, \\nu) = &-\\mathbf{w}^T \\boldsymbol{\\mu} - (1-\\lambda) \\cdot \\delta \\cdot \\mathbf{w}^T \\mathbf{s}_{ESG} + \\frac{\\gamma}{2}\\mathbf{w}^T \\boldsymbol{\\Sigma} \\mathbf{w} \\\\
+&+ \\boldsymbol{\\lambda}^T (\\mathbf{C}\\mathbf{w} - \\mathbf{b}) - \\boldsymbol{\\mu}^T \\mathbf{w} + \\nu(\\mathbf{w}^T\\mathbf{1} - 1)
+\\end{align}
+
+où $\\boldsymbol{\\lambda} \\geq \\mathbf{0}$, $\\boldsymbol{\\mu} \\geq \\mathbf{0}$ et $\\nu$ sont les multiplicateurs de Lagrange associés respectivement aux contraintes d'inégalité $\\mathbf{C}\\mathbf{w} \\leq \\mathbf{b}$, de non-négativité $\\mathbf{w} \\geq \\mathbf{0}$ et de somme unitaire $\\mathbf{w}^T\\mathbf{1} = 1$.
+
+La résolution du problème dual :
+
+\\begin{equation}
+\\max_{\\boldsymbol{\\lambda} \\geq \\mathbf{0}, \\boldsymbol{\\mu} \\geq \\mathbf{0}, \\nu} \\min_{\\mathbf{w}} L(\\mathbf{w}, \\boldsymbol{\\lambda}, \\boldsymbol{\\mu}, \\nu)
+\\end{equation}
+
+permet de décomposer le problème original en sous-problèmes plus facilement traitables, en particulier pour les portefeuilles de grande dimension.
+
+Pour la résolution numérique proprement dite, nous employons l'algorithme Sequential Least Squares Programming (SLSQP), particulièrement adapté aux problèmes non linéaires sous contraintes. Cet algorithme approche itérativement la solution en résolvant une séquence de sous-problèmes quadratiques, utilisant l'approximation de la matrice hessienne de la fonction objectif.
+
+\\paragraph{Algorithme SLSQP détaillé}
+L'algorithme SLSQP (Sequential Least Squares Programming) procède comme suit :
+
+\\begin{algorithm}
+\\caption{SLSQP pour l'optimisation de portefeuille ESG}
+\\begin{algorithmic}[1]
+\\REQUIRE Tolérance $\\epsilon$, nombre maximum d'itérations $N_{max}$, point initial $\\mathbf{w}^{(0)}$
+\\ENSURE Solution optimale $\\mathbf{w}^*$
+\\STATE $k \\gets 0$
+\\WHILE{$k < N_{max}$ et critère d'arrêt non satisfait}
+    \\STATE Calculer le gradient $\\nabla f(\\mathbf{w}^{(k)})$ et le hessien approché $\\mathbf{B}^{(k)}$ de la fonction objectif
+    \\STATE Calculer les gradients $\\nabla g_i(\\mathbf{w}^{(k)})$ et $\\nabla h_j(\\mathbf{w}^{(k)})$ des contraintes
+    \\STATE Formuler le sous-problème quadratique :
+    \\begin{align}
+    \\min_{\\mathbf{d}} \\quad & f(\\mathbf{w}^{(k)}) + \\nabla f(\\mathbf{w}^{(k)})^T \\mathbf{d} + \\frac{1}{2}\\mathbf{d}^T\\mathbf{B}^{(k)}\\mathbf{d} \\\\
+    \\text{s.t.} \\quad & g_i(\\mathbf{w}^{(k)}) + \\nabla g_i(\\mathbf{w}^{(k)})^T \\mathbf{d} \\leq 0, \\quad i = 1, \\ldots, m \\\\
+    & h_j(\\mathbf{w}^{(k)}) + \\nabla h_j(\\mathbf{w}^{(k)})^T \\mathbf{d} = 0, \\quad j = 1, \\ldots, p
+    \\end{align}
+    \\STATE Résoudre le sous-problème quadratique pour obtenir la direction de descente $\\mathbf{d}^{(k)}$
+    \\STATE Effectuer une recherche linéaire pour déterminer le pas $\\alpha_k$ satisfaisant les conditions de Wolfe
+    \\STATE $\\mathbf{w}^{(k+1)} \\gets \\mathbf{w}^{(k)} + \\alpha_k \\mathbf{d}^{(k)}$
+    \\STATE Mettre à jour l'approximation du hessien $\\mathbf{B}^{(k+1)}$ selon la formule BFGS
+    \\STATE $k \\gets k + 1$
+\\ENDWHILE
+\\RETURN $\\mathbf{w}^{(k)}$
+\\end{algorithmic}
+\\end{algorithm}
+
+Dans notre implémentation, nous utilisons une mise à jour BFGS (Broyden-Fletcher-Goldfarb-Shanno) de l'approximation du hessien pour éviter le calcul coûteux des dérivées secondes :
+
+\\begin{equation}
+\\mathbf{B}^{(k+1)} = \\mathbf{B}^{(k)} - \\frac{\\mathbf{B}^{(k)}\\mathbf{s}^{(k)}(\\mathbf{s}^{(k)})^T\\mathbf{B}^{(k)}}{(\\mathbf{s}^{(k)})^T\\mathbf{B}^{(k)}\\mathbf{s}^{(k)}} + \\frac{\\mathbf{y}^{(k)}(\\mathbf{y}^{(k)})^T}{(\\mathbf{y}^{(k)})^T\\mathbf{s}^{(k)}}
+\\end{equation}
+
+où $\\mathbf{s}^{(k)} = \\mathbf{w}^{(k+1)} - \\mathbf{w}^{(k)}$ et $\\mathbf{y}^{(k)} = \\nabla f(\\mathbf{w}^{(k+1)}) - \\nabla f(\\mathbf{w}^{(k)})$.
+
+L'implémentation algorithmique inclut également :
+
+\\begin{itemize}
+    \\item Une phase d'initialisation multi-départ pour éviter les optima locaux, en générant $k$ points de départ aléatoires respectant les contraintes et en sélectionnant la meilleure solution
+    
+    \\item Une validation croisée des résultats via la méthode du simplexe de Nelder-Mead, appliquée comme second solveur sur les meilleures solutions préliminaires
+    
+    \\item Une procédure adaptative d'ajustement du paramètre de pondération $\\lambda$ basée sur les caractéristiques de l'univers d'investissement, définie comme :
+    
+    \\begin{equation}
+    \\lambda_{adaptive} = \\lambda_{base} \\cdot \\left(1 + \\alpha \\cdot \\frac{\\sigma(\\mathbf{s}_{ESG})}{\\mu(\\mathbf{s}_{ESG})}\\right)
+    \\end{equation}
+    
+    où $\\sigma(\\mathbf{s}_{ESG})$ et $\\mu(\\mathbf{s}_{ESG})$ représentent respectivement l'écart-type et la moyenne des scores ESG dans l'univers, et $\\alpha$ un paramètre de sensibilité fixé à 0.5 dans notre implémentation.
+\\end{itemize}
+
+\\paragraph{Initialisation multi-départ avancée}
+L'initialisation multi-départ peut être significativement améliorée en utilisant une stratégie d'échantillonnage quasi-aléatoire basée sur les séquences de Sobol, qui offrent une meilleure couverture de l'espace des solutions que l'échantillonnage purement aléatoire.
+
+Pour chaque point de départ $\\mathbf{w}^{(0,i)}$, nous procédons comme suit :
+\\begin{enumerate}
+    \\item Générer un point de la séquence de Sobol $\\mathbf{x}^{(i)} \\in [0,1]^n$
+    \\item Projeter ce point sur le simplexe unitaire : $\\mathbf{y}^{(i)} = \\mathbf{x}^{(i)} / \\sum_{j=1}^{n} x_j^{(i)}$
+    \\item Appliquer une heuristique de réparation pour satisfaire les contraintes dures :
+    \\begin{align}
+    w_j^{(0,i)} &= 0 \\quad \\forall j \\in E \\quad \\text{(exclusions)} \\\\
+    w_j^{(0,i)} &= \\frac{y_j^{(i)} \\cdot \\mathbb{I}(j \\notin E)}{\\sum_{k=1}^{n} y_k^{(i)} \\cdot \\mathbb{I}(k \\notin E)} \\quad \\forall j \\in \\{1,\\ldots,n\\}
+    \\end{align}
+\\end{enumerate}
+
+Cette approche assure une diversité des points de départ tout en satisfaisant les contraintes structurelles fondamentales, augmentant ainsi la probabilité de converger vers l'optimum global.
+
+Cette approche algorithmique nous permet d'obtenir des solutions d'optimisation robustes, évitant les problèmes de convergence locale et s'adaptant aux caractéristiques spécifiques de l'univers obligataire considéré.
+
+\\paragraph{Analyse de sensibilité et robustesse}
+Pour évaluer la robustesse des solutions obtenues, nous effectuons une analyse de sensibilité systématique :
+
+\\begin{enumerate}
+    \\item Perturbation des paramètres d'entrée : rendements espérés, matrice de variance-covariance, scores ESG
+    \\item Génération de scénarios par simulation Monte Carlo avec modèles de bootstrap et copules pour préserver la structure de dépendance
+    \\item Ré-optimisation sur chaque ensemble de paramètres perturbés
+    \\item Calcul de statistiques de stabilité : poids moyens, écarts-types, fréquences d'inclusion
+\\end{enumerate}
+
+Un indicateur de robustesse globale $R$ est défini comme :
+
+\\begin{equation}
+R = 1 - \\frac{1}{n} \\sum_{i=1}^{n} \\frac{\\sigma(w_i)}{\\mu(w_i)} \\cdot \\mathbb{I}(\\mu(w_i) > 0)
+\\end{equation}
+
+où $\\mu(w_i)$ et $\\sigma(w_i)$ sont respectivement la moyenne et l'écart-type du poids de l'obligation $i$ à travers les scénarios.
+
+Cette analyse permet d'identifier les obligations dont l'inclusion dans le portefeuille est particulièrement sensible aux variations des paramètres d'entrée, et ainsi de construire des portefeuilles non seulement optimaux mais aussi robustes face aux incertitudes d'estimation.
+
+\\subsection{Approche retenue et implémentation}
+
+Pour notre portefeuille final, nous avons adopté une approche hybride combinant plusieurs des méthodologies précédemment décrites :
+
+\\begin{itemize}
+    \\item \\textbf{Segmentation} du portefeuille en trois compartiments, correspondant aux trois types d'obligations (corporate, souveraine, verte)
+    
+    \\item \\textbf{Allocation stratégique} entre ces compartiments selon les proportions définies précédemment (60\\%, 30\\%, 10\\%)
+    
+    \\item Pour chaque compartiment :
+    \\begin{itemize}
+        \\item \\textbf{Pré-sélection} des titres selon les critères financiers et ESG définis
+        \\item \\textbf{Optimisation sous contraintes ESG}, avec une fonction objectif hybride intégrant rendement, risque et score ESG
+        \\item \\textbf{Ajustement manuel} pour garantir la représentativité sectorielle et géographique
+    \\end{itemize}
+    
+    \\item \\textbf{Rebalancement trimestriel} avec des seuils de tolérance pour limiter le turnover
+\\end{itemize}
+
+En termes mathématiques, notre problème d'optimisation pour chaque compartiment peut être formulé comme suit :
+
+\\begin{align}
+\\max_w \\quad & (1-\\lambda) \\times \\left( \\frac{w^T \\mu - r_f}{\\sqrt{w^T \\Sigma w}} \\right) + \\lambda \\times \\left( \\frac{\\sum_{i=1}^n w_i \\times \\text{ESG}_i - \\text{ESG}_{\\text{min}}}{\\text{ESG}_{\\text{max}} - \\text{ESG}_{\\text{min}}} \\right) \\\\
+\\text{s.t.} \\quad & \\sum_{i=1}^n w_i = 1 \\\\
+& w_i \\geq 0, \\quad \\forall i \\in \\{1,...,n\\} \\\\
+& w_i \\leq w_{\\text{max}}, \\quad \\forall i \\in \\{1,...,n\\} \\\\
+& \\sum_{i \\in S_j} w_i \\leq s_{\\text{max}}, \\quad \\forall j \\in \\{1,...,m\\} \\\\
+& L_{\\text{dur}} \\leq \\sum_{i=1}^n w_i \\times D_i \\leq U_{\\text{dur}} \\\\
+& \\sum_{i=1}^n w_i \\times \\text{ESG}_i \\geq \\text{ESG}_{\\text{min}}
+\\end{align}
+
+où :
+\\begin{itemize}
+    \\item $\\lambda = 0.3$ est le paramètre de pondération entre objectifs financiers et ESG
+    \\item $w_{\\text{max}} = 3\\%$ est la pondération maximale par émetteur
+    \\item $S_j$ représente l'ensemble des titres appartenant au secteur $j$
+    \\item $s_{\\text{max}} = 15\\%$ est la pondération sectorielle maximale
+    \\item $L_{\\text{dur}} = 3$ et $U_{\\text{dur}} = 8$ sont les bornes inférieure et supérieure de duration
+    \\item $\\text{ESG}_{\\text{min}} = 55$ est le score ESG minimal du portefeuille (sur une échelle de 0 à 100)
+\\end{itemize}
+
+\\paragraph{Optimisation par horizon d'investissement}
+Une extension naturelle de notre approche consiste à adapter la formulation de l'optimisation selon l'horizon d'investissement. Pour un horizon de long terme (supérieur à 5 ans), nous modifions l'objectif financier pour intégrer la dimension de réinvestissement des coupons :
+
+\\begin{equation}
+U_{fin}^{LT}(\\mathbf{w}) = \\frac{(1+R(\\mathbf{w}))^T - (1+r_f)^T}{\\sqrt{\\mathbf{w}^T \\boldsymbol{\\Sigma}_{LT} \\mathbf{w}}}
+\\end{equation}
+
+où $R(\\mathbf{w})$ est le taux de rendement annualisé attendu incluant le réinvestissement des coupons, $T$ est l'horizon d'investissement en années, et $\\boldsymbol{\\Sigma}_{LT}$ est une matrice de variance-covariance à long terme estimée par une méthode de bootstrap avec modèle GARCH multivarié pour capturer la persistance de la volatilité.
+
+Cette formulation privilégie naturellement les obligations à coupons élevés et à longue duration, dont l'avantage relatif s'accroît avec l'horizon d'investissement grâce à l'effet composé du réinvestissement. Elle accorde également un poids plus important aux facteurs ESG de long terme, comme les risques climatiques de transition, dont la matérialité financière augmente avec l'horizon temporel.
+
+La résolution de ce problème d'optimisation a été réalisée à l'aide de l'algorithme Sequential Least Squares Programming (SLSQP), particulièrement adapté aux problèmes non linéaires sous contraintes, avec une validation croisée des résultats via la méthode du simplexe de Nelder-Mead pour éviter les optima locaux.
+
+\\paragraph{Intégration des scénarios macroéconomiques}
+Notre approche d'optimisation peut être étendue pour intégrer explicitement différents scénarios macroéconomiques, permettant ainsi de construire des portefeuilles robustes face à l'incertitude future. Nous considérons $K$ scénarios distincts, chacun caractérisé par un ensemble de paramètres et une probabilité d'occurrence $p_k$ :
+
+\\begin{align}
+\\max_w \\quad & \\sum_{k=1}^{K} p_k \\left[(1-\\lambda) \\times U_{fin,k}(\\mathbf{w}) + \\lambda \\times U_{ESG,k}(\\mathbf{w})\\right] - \\gamma \\cdot \\text{Reg}(\\mathbf{w}) \\\\
+\\text{s.t.} \\quad & \\text{(contraintes standards)}
+\\end{align}
+
+où $U_{fin,k}(\\mathbf{w})$ et $U_{ESG,k}(\\mathbf{w})$ sont les fonctions d'utilité financière et ESG sous le scénario $k$, et $\\text{Reg}(\\mathbf{w})$ est un terme de régularisation pénalisant la sensibilité du portefeuille aux scénarios extrêmes :
+
+\\begin{equation}
+\\text{Reg}(\\mathbf{w}) = \\sum_{k=1}^{K} p_k \\cdot \\left|U_{tot,k}(\\mathbf{w}) - \\bar{U}_{tot}(\\mathbf{w})\\right|
+\\end{equation}
+
+où $U_{tot,k}(\\mathbf{w}) = (1-\\lambda) \\times U_{fin,k}(\\mathbf{w}) + \\lambda \\times U_{ESG,k}(\\mathbf{w})$ est l'utilité totale sous le scénario $k$, et $\\bar{U}_{tot}(\\mathbf{w}) = \\sum_{k=1}^{K} p_k \\cdot U_{tot,k}(\\mathbf{w})$ est l'utilité moyenne à travers les scénarios.
+
+Cette formulation conduit à des portefeuilles qui non seulement maximisent l'utilité espérée mais présentent également une performance relativement stable à travers les différents environnements économiques envisagés.
+
+\\subsection{Implémentation algorithmique et complexité computationnelle}
+
+L'implémentation pratique de notre approche d'optimisation a nécessité plusieurs adaptations algorithmiques pour gérer efficacement la complexité computationnelle inhérente à ce type de problème multi-objectif sous contraintes multiples, particulièrement dans le contexte d'un univers obligataire de grande dimension.
+
+\\subsubsection{Décomposition hiérarchique du problème}
+
+Face à la difficulté de résoudre directement le problème global avec plusieurs centaines d'obligations candidates, nous avons adopté une approche de décomposition hiérarchique structurée comme suit :
+
+\\begin{algorithm}
+\\caption{Optimisation hiérarchique du portefeuille obligataire ESG}
+\\begin{algorithmic}[1]
+\\REQUIRE Univers d'obligations $\\Omega$, Matrices de covariance $\\Sigma$, Rendements attendus $\\mu$, Scores ESG $s_{ESG}$
+\\ENSURE Allocation optimale $w^*$
+
+\\STATE Segmenter $\\Omega$ en compartiments $\\Omega_1, \\Omega_2, \\ldots, \\Omega_K$ selon les types d'obligations
+\\STATE Déterminer l'allocation stratégique $\\alpha = (\\alpha_1, \\alpha_2, \\ldots, \\alpha_K)$ entre compartiments
+
+\\FOR{chaque compartiment $k \\in \\{1, 2, \\ldots, K\\}$}
+    \\STATE Appliquer les filtres d'exclusion ESG: $\\Omega_k' = \\Omega_k \\setminus E_k$
+    \\STATE Appliquer les critères de pré-sélection financière et ESG pour obtenir $\\Omega_k''$
+    \\STATE Résoudre le problème d'optimisation sur $\\Omega_k''$ pour obtenir $w_k^*$
+\\ENDFOR
+
+\\STATE Construire l'allocation finale: $w^* = (\\alpha_1 w_1^*, \\alpha_2 w_2^*, \\ldots, \\alpha_K w_K^*)$
+\\STATE Appliquer les ajustements manuels pour garantir la représentativité et obtenir $\\tilde{w}^*$
+\\RETURN $\\tilde{w}^*$
+\\end{algorithmic}
+\\end{algorithm}
+
+Cette décomposition réduit significativement la dimension de chaque sous-problème d'optimisation, permettant une résolution plus efficace tout en préservant la structure globale de l'allocation.
+
+\\paragraph{Approche bi-niveau avec clustering}
+Une extension raffinée de l'approche hiérarchique consiste à introduire un niveau intermédiaire de clustering au sein de chaque compartiment, en regroupant les obligations selon leurs caractéristiques fondamentales (duration, qualité de crédit, rentabilité), puis en appliquant une optimisation en deux temps :
+
+\\begin{enumerate}
+    \\item Optimisation inter-clusters : détermination des poids optimaux à allouer à chaque cluster
+    \\item Optimisation intra-clusters : répartition de l'allocation de chaque cluster entre ses obligations constitutives
+\\end{enumerate}
+
+Formellement, si $C_{k,1}, C_{k,2}, ..., C_{k,L_k}$ sont les clusters du compartiment $k$, nous résolvons d'abord :
+
+\\begin{align}
+\\max_{\\beta} \\quad & U(\\beta) \\\\
+\\text{s.t.} \\quad & \\sum_{l=1}^{L_k} \\beta_l = 1 \\\\
+& \\beta_l \\geq 0 \\quad \\forall l \\in \\{1,...,L_k\\} \\\\
+& \\text{(contraintes de diversification et de risque agrégées)}
+\\end{align}
+
+où $\\beta_l$ est le poids alloué au cluster $l$ et $U(\\beta)$ est la fonction d'utilité évaluée en considérant chaque cluster comme une obligation synthétique avec des caractéristiques agrégées.
+
+Puis, pour chaque cluster $l$ avec une allocation $\\beta_l^*$, nous résolvons :
+
+\\begin{align}
+\\max_{\\gamma} \\quad & U_l(\\gamma) \\\\
+\\text{s.t.} \\quad & \\sum_{i \\in C_{k,l}} \\gamma_i = 1 \\\\
+& \\gamma_i \\geq 0 \\quad \\forall i \\in C_{k,l} \\\\
+& \\text{(contraintes spécifiques au cluster)}
+\\end{align}
+
+où $\\gamma_i$ est le poids relatif de l'obligation $i$ au sein du cluster $l$, et $U_l(\\gamma)$ est une fonction d'utilité potentiellement différente, adaptée aux caractéristiques du cluster.
+
+Le poids final de chaque obligation est alors $w_i^* = \\alpha_k \\times \\beta_l^* \\times \\gamma_i^*$ pour $i \\in C_{k,l}$.
+
+Cette approche bi-niveau offre plusieurs avantages :
+\\begin{itemize}
+    \\item Réduction drastique de la dimension des problèmes d'optimisation
+    \\item Meilleure gestion des contraintes à différentes échelles
+    \\item Possibilité d'adapter les fonctions d'utilité aux caractéristiques de chaque cluster
+    \\item Amélioration de la diversification effective
+    \\item Moindre sensibilité aux erreurs d'estimation des paramètres
+\\end{itemize}
+
+\\subsubsection{Estimation robuste des matrices de covariance}
+
+L'optimisation de type Markowitz est notoirement sensible à l'estimation de la matrice de covariance. Pour améliorer la robustesse de notre implémentation, nous avons adopté l'estimateur de rétrécissement (shrinkage estimator) de Ledoit-Wolf :
+
+\\begin{equation}
+\\hat{\\Sigma}_{LW} = (1 - \\delta) \\hat{\\Sigma}_{sample} + \\delta \\hat{\\Sigma}_{target}
+\\end{equation}
+
+où $\\hat{\\Sigma}_{sample}$ est l'estimateur classique de la matrice de covariance échantillonnale, $\\hat{\\Sigma}_{target}$ une matrice cible (typiquement diagonale ou à corrélation constante), et $\\delta \\in [0,1]$ le paramètre de rétrécissement optimal déterminé analytiquement pour minimiser l'erreur quadratique moyenne.
+
+Pour les rendements obligataires, nous avons utilisé une matrice cible structurée par les facteurs de risque principaux :
+
+\\begin{equation}
+\\hat{\\Sigma}_{target} = BB^T + D
+\\end{equation}
+
+où $B$ est la matrice des charges factorielles estimée par analyse en composantes principales sur les rendements historiques (conservant les 5 premiers facteurs), et $D$ une matrice diagonale des variances résiduelles.
+
+\\paragraph{Estimateur Multi-factoriel avec effet ARCH}
+Une amélioration supplémentaire consiste à incorporer la dynamique temporelle de la volatilité dans l'estimation de la matrice de covariance. Nous adoptons un modèle DCC-GARCH (Dynamic Conditional Correlation - Generalized Autoregressive Conditional Heteroskedasticity) multivarié, qui décompose la matrice de covariance conditionnelle en deux composantes :
+
+\\begin{equation}
+\\Sigma_t = D_t R_t D_t
+\\end{equation}
+
+où $D_t$ est une matrice diagonale des écarts-types conditionnels modélisés par des processus GARCH univariés :
+
+\\begin{equation}
+\\sigma_{i,t}^2 = \\omega_i + \\sum_{j=1}^{p} \\alpha_{i,j} \\varepsilon_{i,t-j}^2 + \\sum_{k=1}^{q} \\beta_{i,k} \\sigma_{i,t-k}^2
+\\end{equation}
+
+et $R_t$ est la matrice de corrélation conditionnelle qui évolue selon :
+
+\\begin{equation}
+Q_t = (1-a-b)\\bar{Q} + a \\eta_{t-1}\\eta_{t-1}^T + b Q_{t-1}
+\\end{equation}
+
+\\begin{equation}
+R_t = diag(Q_t)^{-1/2} Q_t diag(Q_t)^{-1/2}
+\\end{equation}
+
+où $\\eta_t = D_t^{-1}\\varepsilon_t$ sont les résidus standardisés, $\\bar{Q}$ est la matrice de corrélation non conditionnelle, et $a, b$ sont des paramètres scalaires tels que $a + b < 1$.
+
+Cette spécification capture à la fois les clusters de volatilité et l'évolution des corrélations au cours du temps, particulièrement pertinents dans les périodes de stress où les corrélations entre actifs risqués ont tendance à augmenter.
+
+\\subsubsection{Optimisation numérique et complexité}  
+
+La résolution numérique de chaque sous-problème d'optimisation utilise l'algorithme SLSQP avec plusieurs améliorations techniques :
+
+\\begin{itemize}
+    \\item Reformulation du problème pour améliorer son conditionnement numérique, notamment par la normalisation des variables et l'élimination des contraintes redondantes
+    
+    \\item Implémentation d'une recherche multi-départ avec 50 points initiaux générés par échantillonnage de quasi-Monte Carlo (séquence de Sobol) pour une exploration plus systématique de l'espace des solutions
+    
+    \\item Parallélisation des calculs sur 8 cœurs pour les différents points de départ, réduisant significativement le temps de calcul global
+\\end{itemize}
+
+La complexité computationnelle de notre approche peut être analysée comme suit :
+
+\\begin{itemize}
+    \\item Complexité temporelle : $O(K \\cdot M \\cdot I \\cdot N^3)$ où $K$ est le nombre de compartiments, $M$ le nombre de points de départ, $I$ le nombre typique d'itérations de l'algorithme d'optimisation, et $N$ la taille moyenne de chaque sous-problème
+    
+    \\item Complexité spatiale : $O(N^2)$ principalement dominée par le stockage des matrices de covariance
+\\end{itemize}
+
+Pour notre implémentation avec $K=3$ compartiments, des sous-problèmes de taille moyenne $N \\approx 100$ obligations, et $M=50$ points de départ, le temps de calcul total était d'environ 15 minutes sur un serveur standard avec 32 Go de RAM et un processeur Intel Xeon à 3.5 GHz.
+
+\\paragraph{Optimisation par programmation quadratique conique}
+Une reformulation efficace de notre problème d'optimisation consiste à le transformer en un programme quadratique conique (SOCP - Second-Order Cone Programming), une classe de problèmes pour lesquels des algorithmes de point intérieur hautement optimisés existent.
+
+En introduisant des variables auxiliaires, notre problème peut être reformulé comme :
+
+\\begin{align}
+\\max_{\\mathbf{w}, t, s} \\quad & (1-\\lambda) t + \\lambda s \\\\
+\\text{s.t.} \\quad & \\mathbf{w}^T \\boldsymbol{\\mu} - r_f \\geq t \\cdot \\sqrt{\\mathbf{w}^T \\boldsymbol{\\Sigma} \\mathbf{w}} \\\\
+& \\mathbf{w}^T \\mathbf{s}_{ESG} - s_{min} \\geq s \\cdot (s_{max} - s_{min}) \\\\
+& \\text{(autres contraintes linéaires)}
+\\end{align}
+
+La première contrainte peut être réécrite sous forme conique standard :
+
+\\begin{equation}
+\\left\\| \\boldsymbol{\\Sigma}^{1/2} \\mathbf{w} \\right\\|_2 \\leq \\frac{\\mathbf{w}^T \\boldsymbol{\\mu} - r_f}{t}
+\\end{equation}
+
+Cette reformulation permet l'utilisation de solveurs SOCP comme MOSEK ou ECOS, qui offrent des performances supérieures pour les problèmes de grande dimension, réduisant les temps de calcul typiquement d'un facteur 5 à 10 par rapport à l'algorithme SLSQP.
+
+\\subsubsection{Rebalancement et contrôle du turnover}
+
+Notre stratégie de rebalancement trimestriel intègre une composante de contrôle du turnover pour limiter les coûts de transaction tout en maintenant l'alignement du portefeuille avec ses objectifs financiers et ESG. Formellement, nous introduisons une pénalité de turnover dans la fonction objectif lors des rebalancements :
+
+\\begin{equation}
+U_{rebal}(\\mathbf{w}) = U(\\mathbf{w}) - \\kappa \\cdot \\sum_{i=1}^n |w_i - w_i^{prev}|
+\\end{equation}
+
+où $U(\\mathbf{w})$ est la fonction d'utilité standard définie précédemment, $w_i^{prev}$ le poids de l'obligation $i$ avant rebalancement, et $\\kappa$ un paramètre de pénalité fixé à 0.1 dans notre implémentation.
+
+De plus, nous implémentons des seuils de tolérance pour éviter les transactions de faible amplitude :
+
+\\begin{equation}
+w_i^{new} = \\begin{cases}
+w_i^{opt} & \\text{si } |w_i^{opt} - w_i^{prev}| > \\epsilon \\\\
+w_i^{prev} & \\text{sinon}
+\\end{cases}
+\\end{equation}
+
+où $w_i^{opt}$ est le poids optimal issu de l'optimisation, $w_i^{new}$ le poids effectivement implémenté, et $\\epsilon$ un seuil de tolérance fixé à 0.5% dans notre implémentation.
+
+\\paragraph{Rebalancement dynamique avec évolution adaptative}
+Un raffinement supplémentaire consiste à adapter la fréquence et l'intensité des rebalancements en fonction de l'évolution des conditions de marché et des scores ESG. Nous définissons un score de désalignement $D_t$ à chaque période $t$ :
+
+\\begin{equation}
+D_t = \\omega_{fin} \\cdot \\left| \\frac{SR_t^{act} - SR_t^{opt}}{SR_t^{opt}} \\right| + \\omega_{ESG} \\cdot \\left| \\frac{ESG_t^{act} - ESG_t^{opt}}{ESG_t^{opt}} \\right| + \\omega_{risk} \\cdot \\left| \\frac{\\sigma_t^{act} - \\sigma_t^{target}}{\\sigma_t^{target}} \\right|
+\\end{equation}
+
+où $SR_t^{act}$ et $SR_t^{opt}$ sont respectivement les ratios de Sharpe du portefeuille actuel et du portefeuille théoriquement optimal à la période $t$, $ESG_t^{act}$ et $ESG_t^{opt}$ les scores ESG correspondants, et $\\sigma_t^{act}$ et $\\sigma_t^{target}$ les niveaux de risque.
+
+Le rebalancement n'est déclenché que si $D_t > D_{threshold}$, où $D_{threshold}$ est un seuil adaptatif qui évolue en fonction de la volatilité du marché et des coûts de transaction estimés :
+
+\\begin{equation}
+D_{threshold,t} = D_{base} \\cdot (1 + \\gamma \\cdot VIX_t) \\cdot (1 + \\delta \\cdot Spread_{bid-ask,t})
+\\end{equation}
+
+où $VIX_t$ est un indicateur de volatilité de marché, $Spread_{bid-ask,t}$ une mesure de la liquidité obligataire, et $\\gamma, \\delta$ sont des paramètres de sensibilité.
+
+Cette approche dynamique permet de réduire la fréquence des rebalancements en période de forte volatilité ou de faible liquidité, où les coûts de transaction sont plus élevés, tout en maintenant un alignement satisfaisant avec les objectifs financiers et ESG.
+
+Cette approche algorithmique complète nous a permis de construire un portefeuille obligataire optimisé intégrant efficacement les considérations ESG tout en maintenant des caractéristiques financières attrayantes, comme détaillé dans les sections suivantes.
+
+\\section{Présentation des caractéristiques du portefeuille étudié}
