@@ -13,133 +13,63 @@
 
 % Définition des couleurs
 \definecolor{senegalblue}{RGB}{67, 89, 186}
-\definecolor{senegalgreen}{RGB}{21, 122, 81}
-\definecolor{senegalgold}{RGB}{255, 204, 0}
+\definecolor{eslscablue}{RGB}{0, 123, 191}
 
 \begin{document}
 
-% Fond bleu avec bordure
+% Fond avec bordure bleue sénégalaise
 \begin{tikzpicture}[remember picture,overlay]
-    \fill[senegalblue] (current page.south west) rectangle (current page.north east);
-    \fill[white] ([shift={(0.8cm,0.8cm)}]current page.south west) rectangle ([shift={(-0.8cm,-0.8cm)}]current page.north east);
+    \draw[senegalblue, line width=8pt] ([shift={(0.5cm,0.5cm)}]current page.south west) rectangle ([shift={(-0.5cm,-0.5cm)}]current page.north east);
 \end{tikzpicture}
 
-\vspace{1cm}
+\vspace{1.5cm}
 
-% En-tête République du Sénégal
+% Logo ESLSCA
 \begin{center}
-    {\LARGE \textbf{République du Sénégal}}\\[0.5cm]
-    
-    % Espace pour les armoiries (remplacé par un symbole)
     \begin{tikzpicture}
-        \node[draw, circle, minimum size=1.5cm, fill=senegalgold] at (0,0) {\Large \textbf{♦}};
+        \node[draw=none, circle, minimum size=2cm, fill=eslscablue] at (0,0) 
+        {\color{white}\Large\textbf{ESLSCA}};
     \end{tikzpicture}\\[0.3cm]
-    
-    {\large \textit{Un peuple - Un but - Une foi}}\\[0.5cm]
-    
-    \rule{5cm}{0.5pt}\\[0.3cm]
-    
-    {\Large \textbf{Ministère de l'Économie du Plan et de la Coopération}}\\[0.3cm]
-    
-    \rule{5cm}{0.5pt}\\[0.5cm]
-\end{center}
-
-% Logos et institutions (simulés avec des boîtes)
-\begin{center}
-\begin{minipage}{0.45\textwidth}
-    \centering
-    \begin{tikzpicture}
-        \node[draw, rectangle, minimum height=1cm, minimum width=2cm, fill=lightblue] at (0,0) {\small ANSD};
-    \end{tikzpicture}\\[0.2cm]
-    {\small \textbf{Agence Nationale de la Statistique et}\\
-    \textbf{de la Démographie (ANSD)}}
-\end{minipage}
-\hfill
-\begin{minipage}{0.45\textwidth}
-    \centering
-    \begin{tikzpicture}
-        \node[draw, rectangle, minimum height=1cm, minimum width=2cm, fill=orange] at (0,0) {\small BAME};
-    \end{tikzpicture}\\[0.2cm]
-    {\small \textbf{Bureau des Analyses}\\
-    \textbf{Macro-Économiques (BAME/ISRA)}}
-\end{minipage}
-\end{center}
-
-\vspace{0.5cm}
-
-\rule{8cm}{0.5pt}
-
-\vspace{0.5cm}
-
-% Logo ENSAE
-\begin{center}
-    \begin{tikzpicture}
-        \node[draw, rectangle, minimum height=1cm, minimum width=3cm, fill=lightblue] at (0,0) {\textbf{ensae}};
-    \end{tikzpicture}\\[0.3cm]
-    
-    {\Large \textbf{École Nationale de la Statistique et de l'Analyse Économique}\\
-    \textbf{Pierre Ndiaye (ENSAE)}}\\[0.5cm]
-\end{center}
-
-% Décoration
-\begin{center}
-    \begin{tikzpicture}
-        \node[senegalblue] at (0,0) {\Large \textbf{※ ※ ※}};
-    \end{tikzpicture}\\[0.3cm]
-    
-    \colorbox{senegalblue}{\color{white} \textbf{\large Mémoire de fin d'étude}}\\[0.5cm]
+    {\Large \textbf{Business School Paris}}\\[1cm]
 \end{center}
 
 % Titre principal
 \begin{center}
-    \fcolorbox{black}{lightgray}{%
-    \begin{minipage}{0.85\textwidth}
-        \centering
-        \colorbox{black}{\color{white} \textbf{THÈME}}\\[0.3cm]
-        {\large \textbf{Modélisation du risque de crédit d'un portefeuille obligataire intégrant les critères ESG et les modèles de machine learning}}
-    \end{minipage}
-    }
+    {\LARGE \textbf{MÉMOIRE DE FIN D'ÉTUDES}}\\[0.5cm]
+    {\large Présenté en vue d'obtenir}\\[0.3cm]
+    {\Large \textbf{Le Master en Finance Quantitative et Gestion des Risques}}\\[0.5cm]
+    {\textit{Année Universitaire 2023-2024}}\\[1.5cm]
 \end{center}
 
-\vspace{1cm}
-
-% Informations sur l'auteur
+% Titre du mémoire
 \begin{center}
-    {\color{senegalblue} \textbf{Rédigé par :}}\\
-    {\large \textbf{Pègdwendé Yacouba KONSEIGA}}\\
-    {\textit{Élève Ingénieur des Travaux Statistiques}}\\[0.8cm]
-    
-    \begin{minipage}{0.45\textwidth}
-        \centering
-        {\color{senegalblue} \textbf{Maître de stage :}}\\
-        {\textbf{Dr. Ndèye Fatou Faye MANE}}\\
-        {\textit{Économiste}}\\
-        {\textit{BAME/ISRA}}\\[0.3cm]
-        {\textbf{M. Rassoul SY}}\\
-        {\textit{Ingénieur Statisticien}}\\
-        {\textit{PhD. Wageningen University}}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.45\textwidth}
-        \centering
-        {\color{senegalblue} \textbf{Encadreur pédagogique :}}\\
-        {\textbf{M. Idrissa DIAGNE}}\\
-        {\textit{Directeur}}\\
-        {\textit{ENSAE-DAKAR}}\\[0.5cm]
-        
-        {\color{senegalblue} \textbf{Programme :}}\\
-        {\textit{Master en Finance Quantitative}}\\
-        {\textit{et Gestion des Risques}}
-    \end{minipage}
+    {\huge \textbf{Modélisation du risque de crédit d'un portefeuille obligataire intégrant les critères ESG et les modèles de machine learning}}\\[1cm]
 \end{center}
 
-\vspace{1cm}
+% Problématique
+\begin{flushleft}
+    \textbf{Problématique :} Comment l'intégration des critères ESG via des techniques de Machine Learning peut-elle améliorer significativement la précision des modèles de risque de crédit tout en optimisant la performance financière et extra-financière des portefeuilles obligataires ?\\[1.5cm]
+\end{flushleft}
 
-% Date
+% Informations de l'auteur et encadrement
+\begin{center}
+    Mémoire réalisé et présenté par : \textbf{Pègdwendé Yacouba KONSEIGA}\\[0.8cm]
+    
+    Sous la direction de : \textbf{M. Georges Castel}\\[0.8cm]
+    
+    Programme : \textbf{Master Finance Quantitative -- Gestion des Risques}\\[0.5cm]
+    
+    Entreprise : \textbf{ENSAE Pierre Ndiaye}\\[0.8cm]
+\end{center}
+
+% Date en bas dans une boîte
+\vfill
 \begin{center}
     \fcolorbox{senegalblue}{senegalblue}{%
-        \color{white} \textbf{Année Universitaire 2023-2024}
+        \color{white} \textbf{\large Année : 2023-2024}
     }
 \end{center}
+
+\vspace{0.5cm}
 
 \end{document}
