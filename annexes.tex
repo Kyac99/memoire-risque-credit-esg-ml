@@ -20,654 +20,380 @@ PD = N\left(\frac{\ln(D/V_0) - (\mu - \frac{\sigma^2}{2})T}{\sigma\sqrt{T}}\righ
 
 où $D$ représente la dette de l'entreprise, $V_0$ la valeur initiale des actifs, et $N(\cdot)$ la fonction de répartition de la loi normale standard.
 
-\subsection{Score Z d'Altman modifié}
+\subsection{Optimisation de portefeuille avec contraintes ESG}
 
-La version étendue du modèle d'Altman pour les entreprises non cotées s'exprime :
-
-\begin{equation}
-Z'' = 6.56X_1 + 3.26X_2 + 6.72X_3 + 1.05X_4
-\end{equation}
-
-où :
-\begin{itemize}
-\item $X_1 = \frac{\text{Fonds de roulement}}{\text{Total des actifs}}$
-\item $X_2 = \frac{\text{Bénéfices non distribués}}{\text{Total des actifs}}$
-\item $X_3 = \frac{\text{Résultat avant intérêts et impôts}}{\text{Total des actifs}}$
-\item $X_4 = \frac{\text{Valeur comptable des capitaux propres}}{\text{Total des dettes}}$
-\end{itemize}
-
-Les seuils de classification sont : $Z'' > 2.6$ (zone sûre), $1.1 < Z'' < 2.6$ (zone grise), $Z'' < 1.1$ (zone de détresse).
-
-\section{Annexe B : Algorithmes d'apprentissage automatique}
-
-\subsection{Algorithme XGBoost}
-
-L'objectif d'optimisation de XGBoost pour l'itération $t$ est :
-
-\begin{equation}
-\mathcal{L}^{(t)} = \sum_{i=1}^n l(y_i, \hat{y}_i^{(t-1)} + f_t(x_i)) + \Omega(f_t)
-\end{equation}
-
-où $l$ est la fonction de perte, $\hat{y}_i^{(t-1)}$ la prédiction à l'itération précédente, $f_t$ le nouvel arbre, et $\Omega(f_t)$ le terme de régularisation :
-
-\begin{equation}
-\Omega(f_t) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^T w_j^2
-\end{equation}
-
-avec $T$ le nombre de feuilles, $w_j$ le poids de la feuille $j$, $\gamma$ et $\lambda$ les paramètres de régularisation.
-
-\subsection{Architecture LSTM}
-
-Les équations gouvernant une cellule LSTM sont :
+La formulation du problème d'optimisation multi-objectif utilisée dans cette recherche s'écrit :
 
 \begin{align}
-f_t &= \sigma(W_f \cdot [h_{t-1}, x_t] + b_f) \\
-i_t &= \sigma(W_i \cdot [h_{t-1}, x_t] + b_i) \\
-\tilde{C}_t &= \tanh(W_C \cdot [h_{t-1}, x_t] + b_C) \\
-C_t &= f_t * C_{t-1} + i_t * \tilde{C}_t \\
-o_t &= \sigma(W_o \cdot [h_{t-1}, x_t] + b_o) \\
-h_t &= o_t * \tanh(C_t)
+\max_{\mathbf{w}} \quad & U(\mathbf{w}) = (1-\lambda) \cdot U_{fin}(\mathbf{w}) + \lambda \cdot U_{ESG}(\mathbf{w}) \\
+\text{s.t.} \quad & \mathbf{w}^T \mathbf{1} = 1 \\
+& \mathbf{w} \geq \mathbf{0} \\
+& \mathbf{C w} \leq \mathbf{b}
 \end{align}
 
-où $f_t$, $i_t$, et $o_t$ sont respectivement les portes d'oubli, d'entrée et de sortie.
-
-\section{Annexe C : Métriques d'évaluation détaillées}
-
-\subsection{Courbe ROC et AUC}
-
-L'aire sous la courbe ROC (AUC) se calcule par intégration :
+où la fonction d'utilité financière est définie comme :
 
 \begin{equation}
-AUC = \int_0^1 TPR(FPR^{-1}(x)) dx
+U_{fin}(\mathbf{w}) = \frac{\mathbf{w}^T \boldsymbol{\mu} - r_f}{\sqrt{\mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w}}}
 \end{equation}
 
-où $TPR = \frac{TP}{TP + FN}$ et $FPR = \frac{FP}{FP + TN}$.
-
-\subsection{Coefficient de Gini}
-
-Le coefficient de Gini, utilisé en scoring de crédit, est relié à l'AUC par :
+et la fonction d'utilité ESG comme :
 
 \begin{equation}
-\text{Gini} = 2 \times AUC - 1
+U_{ESG}(\mathbf{w}) = \frac{\mathbf{w}^T \mathbf{s}_{ESG} - s_{min}}{s_{max} - s_{min}}
 \end{equation}
 
-Un modèle parfait a un Gini de 1, tandis qu'un modèle aléatoire a un Gini de 0.
+\section{Annexe B : Résultats détaillés des modèles de Machine Learning}
 
-\subsection{Test de Kolmogorov-Smirnov}
+\subsection{Performance comparative des modèles}
 
-La statistique KS mesure la séparation maximale entre les distributions des bons et mauvais payeurs :
+Les résultats de l'évaluation comparative des modèles de Machine Learning sur données crédit-ESG sont présentés ci-dessous, utilisant la validation croisée temporelle avec un horizon de prédiction de 12 mois :
+
+\begin{table}[h]
+\centering
+\caption{Performance comparative des modèles de machine learning}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Modèle} & \textbf{AUC-ROC} & \textbf{AUC-PR} & \textbf{Brier Score} & \textbf{EWS (mois)} & \textbf{ECI (\%)} \\
+\midrule
+Régression Logistique & 0.741 ± 0.018 & 0.382 ± 0.021 & 0.142 ± 0.007 & 1.9 ± 0.3 & 3.2 ± 0.8 \\
+Random Forest & 0.823 ± 0.015 & 0.452 ± 0.019 & 0.118 ± 0.006 & 2.6 ± 0.4 & 8.7 ± 1.2 \\
+Gradient Boosting & 0.847 ± 0.013 & 0.487 ± 0.017 & 0.104 ± 0.005 & 2.9 ± 0.3 & 9.8 ± 1.1 \\
+XGBoost & 0.872 ± 0.011 & 0.526 ± 0.015 & 0.097 ± 0.004 & 3.4 ± 0.3 & 11.2 ± 0.9 \\
+LightGBM & 0.868 ± 0.012 & 0.517 ± 0.016 & 0.099 ± 0.005 & 3.3 ± 0.3 & 10.8 ± 1.0 \\
+Réseau Neuronal (MLP) & 0.853 ± 0.014 & 0.494 ± 0.018 & 0.101 ± 0.006 & 3.1 ± 0.4 & 9.3 ± 1.3 \\
+Réseau Récurrent (LSTM) & 0.861 ± 0.013 & 0.508 ± 0.017 & 0.098 ± 0.005 & 3.6 ± 0.4 & 10.5 ± 1.2 \\
+Ensemble Modulaire & 0.878 ± 0.010 & 0.535 ± 0.014 & 0.093 ± 0.004 & 3.5 ± 0.3 & 12.4 ± 0.8 \\
+Stacking & \textbf{0.889 ± 0.009} & \textbf{0.549 ± 0.013} & \textbf{0.091 ± 0.004} & \textbf{3.8 ± 0.2} & \textbf{13.1 ± 0.7} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Robustesse temporelle des modèles}
+
+L'analyse de robustesse temporelle évalue les performances des modèles sur trois sous-périodes distinctes :
+
+\begin{table}[h]
+\centering
+\caption{Robustesse temporelle des modèles (AUC-ROC)}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Modèle} & \textbf{Stabilité} & \textbf{Stress} & \textbf{Reprise} & \textbf{Écart Max} & \textbf{TSR} \\
+& \textbf{(2019-2020)} & \textbf{(2020-2021)} & \textbf{(2021-2023)} & & \\
+\midrule
+Régression Logistique & 0.763 & 0.712 & 0.741 & 0.051 & 1.00 \\
+Random Forest & 0.835 & 0.798 & 0.819 & 0.037 & 1.38 \\
+XGBoost & 0.883 & 0.857 & 0.871 & 0.026 & 1.96 \\
+Réseau Neuronal (MLP) & 0.865 & 0.832 & 0.849 & 0.033 & 1.55 \\
+Ensemble Modulaire & 0.889 & 0.865 & 0.877 & 0.024 & 2.13 \\
+Stacking & \textbf{0.898} & \textbf{0.879} & \textbf{0.888} & \textbf{0.019} & \textbf{2.68} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Contribution des facteurs ESG par pilier}
+
+La décomposition de l'indice de contribution ESG (ECI) par pilier révèle la contribution relative de chaque dimension :
+
+\begin{table}[h]
+\centering
+\caption{Contribution relative des piliers ESG}
+\begin{tabular}{lc}
+\toprule
+\textbf{Pilier ESG} & \textbf{Contribution relative (\%)} \\
+\midrule
+Gouvernance (G) & 42\% \\
+Environnement (E) & 35\% \\
+Social (S) & 23\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Annexe C : Données du portefeuille obligataire}
+
+\subsection{Constitution de l'univers d'investissement}
+
+L'univers d'investissement comprend 847 obligations sélectionnées selon des critères stricts de liquidité, qualité de crédit et disponibilité des données ESG.
+
+\begin{table}[h]
+\centering
+\caption{Composition de l'univers obligataire}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Type d'obligation} & \textbf{Nombre de titres} & \textbf{Allocation cible} & \textbf{Allocation réalisée} \\
+\midrule
+Obligations corporates & 508 & 60.0\% & 58.7\% \\
+Obligations souveraines & 254 & 30.0\% & 31.8\% \\
+Obligations vertes/durables & 85 & 10.0\% & 9.5\% \\
+\midrule
+\textbf{Total} & \textbf{847} & \textbf{100.0\%} & \textbf{100.0\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Caractéristiques financières du portefeuille optimal}
+
+\begin{table}[h]
+\centering
+\caption{Profil rendement-risque du portefeuille}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Métrique} & \textbf{Portefeuille ESG} & \textbf{Benchmark} \\
+\midrule
+Rendement espéré annuel & 3.12\% & 3.28\% \\
+Volatilité annuelle & 4.67\% & 4.89\% \\
+Ratio de Sharpe & 0.89 & 0.85 \\
+Duration modifiée & 5.8 ans & 6.2 ans \\
+Convexité & 0.42 & 0.48 \\
+Spread crédit moyen & 142 bp & 156 bp \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Performance ESG du portefeuille}
+
+\begin{table}[h]
+\centering
+\caption{Scores ESG du portefeuille optimal}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Dimension ESG} & \textbf{Score portefeuille} & \textbf{Score benchmark} & \textbf{Amélioration} \\
+\midrule
+Score Environnement (E) & 74.2 & 58.7 & +15.5 \\
+Score Social (S) & 71.8 & 62.1 & +9.7 \\
+Score Gouvernance (G) & 76.5 & 64.3 & +12.2 \\
+\midrule
+\textbf{Score ESG global} & \textbf{74.1} & \textbf{61.2} & \textbf{+12.9} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Métriques d'impact climatique}
+
+\begin{table}[h]
+\centering
+\caption{Impact climatique du portefeuille}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Métrique climatique} & \textbf{Portefeuille ESG} & \textbf{Benchmark} \\
+\midrule
+Intensité carbone (tCO2e/M€ CA) & 127.3 & 198.6 \\
+Réduction relative & -35.9\% & - \\
+Exposition aux énergies fossiles & 8.2\% & 14.7\% \\
+Exposition aux solutions climatiques & 23.1\% & 11.4\% \\
+Score d'alignement Paris & 68.4 & 42.7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Annexe D : Tests de robustesse et analyses de sensibilité}
+
+\subsection{Résilience face aux scénarios de transition climatique}
+
+Les tests de stress climatique évaluent la dégradation de performance des modèles sous différents scénarios de transition énergétique :
+
+\begin{table}[h]
+\centering
+\caption{Impact des scénarios climatiques sur la performance des modèles (\% de dégradation)}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Modèle} & \textbf{Transition ordonnée} & \textbf{Transition désordonnée} & \textbf{Transition retardée} \\
+\midrule
+Régression Logistique & -5.3\% & -12.7\% & -14.2\% \\
+Random Forest & -4.1\% & -9.8\% & -11.5\% \\
+XGBoost & -3.6\% & -8.3\% & -9.7\% \\
+Ensemble Modulaire & -3.8\% & -7.9\% & -10.1\% \\
+Stacking & \textbf{-3.2\%} & \textbf{-7.5\%} & \textbf{-8.9\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analyse de sensibilité aux paramètres ESG}
+
+L'analyse de sensibilité au paramètre de pondération ESG ($\lambda$) illustre l'arbitrage entre objectifs financiers et extra-financiers :
+
+\begin{table}[h]
+\centering
+\caption{Sensibilité du portefeuille aux paramètres ESG}
+\begin{tabular}{cccc}
+\toprule
+\textbf{$\lambda$} & \textbf{Rendement (\%)} & \textbf{Score ESG} & \textbf{Ratio de Sharpe} \\
+\midrule
+0.0 & 3.34 & 61.2 & 0.91 \\
+0.1 & 3.28 & 66.8 & 0.90 \\
+0.2 & 3.21 & 71.4 & 0.89 \\
+0.3 & 3.12 & 74.1 & 0.89 \\
+0.4 & 3.01 & 75.9 & 0.87 \\
+0.5 & 2.87 & 77.2 & 0.84 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Annexe E : Métriques d'évaluation spécialisées}
+
+\subsection{Métriques adaptées au contexte financier}
+
+En complément des métriques statistiques standards, plusieurs mesures spécialisées ont été développées :
+
+\paragraph{Early Warning Score (EWS)}
+Mesure la capacité du modèle à détecter précocement les dégradations de crédit :
 
 \begin{equation}
-KS = \max_s |F_1(s) - F_0(s)|
+EWS = \frac{1}{|E|} \sum_{i \in E} (t_{event,i} - t_{signal,i})
 \end{equation}
 
-où $F_1$ et $F_0$ sont les fonctions de répartition empiriques des classes positive et négative.
+\paragraph{ESG Contribution Index (ECI)}
+Quantifie la contribution relative des variables ESG à la performance prédictive :
 
-\section{Annexe D : Tableaux de statistiques descriptives}
+\begin{equation}
+ECI = \frac{Perf(M_{full}) - Perf(M_{non\_ESG})}{Perf(M_{full}) - Perf(M_{random})}
+\end{equation}
 
-\subsection{Variables ESG par secteur}
+\paragraph{Temporal Stability Ratio (TSR)}
+Évalue la stabilité temporelle des prédictions face aux variations de conditions de marché :
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|c|}
-\hline
-\textbf{Secteur} & \textbf{Score E} & \textbf{Score S} & \textbf{Score G} & \textbf{Score Global} & \textbf{N} \\
-\hline
-Technologies & 72.3 ± 15.2 & 68.4 ± 12.8 & 75.1 ± 14.3 & 71.9 ± 11.7 & 342 \\
-Services financiers & 65.8 ± 18.7 & 71.2 ± 15.4 & 78.9 ± 12.1 & 72.0 ± 13.9 & 286 \\
-Énergie & 58.2 ± 22.4 & 62.7 ± 18.9 & 69.3 ± 16.8 & 63.4 ± 17.2 & 198 \\
-Industrie & 64.1 ± 17.3 & 65.9 ± 14.7 & 72.6 ± 15.2 & 67.5 ± 14.1 & 425 \\
-Santé & 69.7 ± 16.8 & 74.2 ± 13.6 & 76.8 ± 13.9 & 73.6 ± 12.8 & 234 \\
-Biens de consommation & 61.4 ± 19.1 & 66.8 ± 16.3 & 71.2 ± 17.4 & 66.5 ± 15.7 & 387 \\
-Utilities & 71.8 ± 14.9 & 69.3 ± 15.8 & 74.5 ± 14.6 & 71.9 ± 13.2 & 156 \\
-Matériaux & 59.6 ± 20.8 & 63.4 ± 17.2 & 68.9 ± 18.3 & 64.0 ± 16.9 & 203 \\
-\hline
-\textbf{Total} & \textbf{65.4 ± 18.2} & \textbf{67.7 ± 15.6} & \textbf{73.4 ± 15.8} & \textbf{68.8 ± 14.9} & \textbf{2231} \\
-\hline
-\end{tabular}
-\caption{Statistiques descriptives des scores ESG par secteur (moyenne ± écart-type)}
-\end{table}
+\begin{equation}
+TSR = \frac{\sigma_{perf}(M_{benchmark})}{\sigma_{perf}(M_{evaluated})}
+\end{equation}
 
-\subsection{Variables financières traditionnelles}
+\subsection{Métriques de calibration}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|c|}
-\hline
-\textbf{Variable} & \textbf{Moyenne} & \textbf{Médiane} & \textbf{Écart-type} & \textbf{Min} & \textbf{Max} \\
-\hline
-Ratio dette/capitaux propres & 0.847 & 0.623 & 0.892 & 0.001 & 8.432 \\
-ROE (\%) & 12.4 & 11.8 & 18.7 & -87.3 & 124.6 \\
-ROA (\%) & 6.8 & 6.2 & 8.4 & -34.2 & 45.7 \\
-Marge EBITDA (\%) & 18.6 & 16.4 & 14.2 & -12.8 & 78.9 \\
-Ratio de liquidité courante & 1.68 & 1.42 & 1.23 & 0.12 & 12.34 \\
-Couverture des intérêts & 12.8 & 8.6 & 24.7 & -5.2 & 284.5 \\
-Chiffre d'affaires (M€) & 8,247 & 2,156 & 18,432 & 87 & 234,567 \\
-Total des actifs (M€) & 15,689 & 4,234 & 42,567 & 156 & 456,789 \\
-\hline
-\end{tabular}
-\caption{Statistiques descriptives des variables financières}
-\end{table}
+\paragraph{Brier Score}
+Mesure quadratique de l'écart entre probabilités prédites et résultats observés :
 
-\subsection{Distribution des ratings de crédit}
+\begin{equation}
+BS = \frac{1}{n} \sum_{i=1}^{n} (f(x_i) - y_i)^2
+\end{equation}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|}
-\hline
-\textbf{Rating} & \textbf{Fréquence} & \textbf{Pourcentage} & \textbf{Taux de défaut (\%)} \\
-\hline
-AAA & 23 & 1.0 & 0.0 \\
-AA+ & 45 & 2.0 & 0.0 \\
-AA & 78 & 3.5 & 0.1 \\
-AA- & 134 & 6.0 & 0.2 \\
-A+ & 189 & 8.5 & 0.3 \\
-A & 267 & 12.0 & 0.5 \\
-A- & 312 & 14.0 & 0.8 \\
-BBB+ & 334 & 15.0 & 1.2 \\
-BBB & 289 & 13.0 & 1.8 \\
-BBB- & 245 & 11.0 & 2.7 \\
-BB+ & 178 & 8.0 & 4.2 \\
-BB & 134 & 6.0 & 6.8 \\
-BB- & 89 & 4.0 & 10.5 \\
-B+ & 67 & 3.0 & 15.2 \\
-B & 45 & 2.0 & 22.8 \\
-B- & 23 & 1.0 & 31.4 \\
-CCC et below & 23 & 1.0 & 45.7 \\
-\hline
-\textbf{Total} & \textbf{2,231} & \textbf{100.0} & \textbf{3.8} \\
-\hline
-\end{tabular}
-\caption{Distribution des ratings de crédit et taux de défaut associés}
-\end{table}
+\paragraph{Expected Calibration Error (ECE)}
+Mesure plus granulaire de la calibration, calculée en regroupant les prédictions en bins :
 
-\section{Annexe E : Matrices de corrélation}
+\begin{equation}
+ECE = \sum_{j=1}^{M} \frac{|B_j|}{n} |\text{acc}(B_j) - \text{conf}(B_j)|
+\end{equation}
 
-\subsection{Corrélations entre facteurs ESG}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-& \textbf{Score E} & \textbf{Score S} & \textbf{Score G} & \textbf{Score Global} \\
-\hline
-\textbf{Score E} & 1.000 & 0.623*** & 0.587*** & 0.847*** \\
-\textbf{Score S} & 0.623*** & 1.000 & 0.694*** & 0.889*** \\
-\textbf{Score G} & 0.587*** & 0.694*** & 1.000 & 0.871*** \\
-\textbf{Score Global} & 0.847*** & 0.889*** & 0.871*** & 1.000 \\
-\hline
-\end{tabular}
-\caption{Matrice de corrélation entre les scores ESG (* p<0.1, ** p<0.05, *** p<0.01)}
-\end{table}
-
-\subsection{Corrélations ESG-Finance}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-\textbf{Variable financière} & \textbf{Score E} & \textbf{Score S} & \textbf{Score G} & \textbf{Score Global} \\
-\hline
-ROE & 0.187*** & 0.234*** & 0.298*** & 0.267*** \\
-ROA & 0.201*** & 0.256*** & 0.312*** & 0.284*** \\
-Marge EBITDA & 0.143** & 0.189*** & 0.223*** & 0.198*** \\
-Ratio dette/capitaux propres & -0.156*** & -0.198*** & -0.267*** & -0.223*** \\
-Liquidité courante & 0.089* & 0.123** & 0.167*** & 0.134*** \\
-Couverture des intérêts & 0.134** & 0.176*** & 0.234*** & 0.198*** \\
-Log(Total actifs) & 0.298*** & 0.334*** & 0.389*** & 0.367*** \\
-Volatilité des rendements & -0.123** & -0.167*** & -0.198*** & -0.176*** \\
-\hline
-\end{tabular}
-\caption{Corrélations entre scores ESG et variables financières}
-\end{table}
-
-\section{Annexe F : Performance comparative des modèles}
-
-\subsection{Résultats détaillés par modèle}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|c|c|}
-\hline
-\textbf{Modèle} & \textbf{AUC} & \textbf{Gini} & \textbf{KS} & \textbf{Précision} & \textbf{Rappel} & \textbf{F1-Score} \\
-\hline
-Régression logistique & 0.742 & 0.484 & 0.387 & 0.694 & 0.623 & 0.657 \\
-Random Forest & 0.798 & 0.596 & 0.456 & 0.742 & 0.689 & 0.714 \\
-XGBoost & 0.834 & 0.668 & 0.523 & 0.789 & 0.734 & 0.761 \\
-LightGBM & 0.827 & 0.654 & 0.512 & 0.782 & 0.721 & 0.750 \\
-CatBoost & 0.831 & 0.662 & 0.518 & 0.785 & 0.729 & 0.756 \\
-SVM & 0.759 & 0.518 & 0.412 & 0.708 & 0.645 & 0.675 \\
-LSTM & 0.812 & 0.624 & 0.487 & 0.763 & 0.698 & 0.729 \\
-Ensemble & 0.847 & 0.694 & 0.541 & 0.801 & 0.756 & 0.778 \\
-\hline
-\end{tabular}
-\caption{Performance comparative des modèles sur l'ensemble de test}
-\end{table}
-
-\subsection{Validation croisée temporelle}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|c|}
-\hline
-\textbf{Modèle} & \textbf{Fold 1} & \textbf{Fold 2} & \textbf{Fold 3} & \textbf{Fold 4} & \textbf{Moyenne ± ET} \\
-\hline
-XGBoost & 0.829 & 0.841 & 0.826 & 0.838 & 0.834 ± 0.007 \\
-LightGBM & 0.821 & 0.835 & 0.819 & 0.832 & 0.827 ± 0.008 \\
-CatBoost & 0.825 & 0.839 & 0.823 & 0.836 & 0.831 ± 0.007 \\
-Random Forest & 0.792 & 0.806 & 0.789 & 0.801 & 0.797 ± 0.008 \\
-LSTM & 0.806 & 0.819 & 0.803 & 0.817 & 0.811 ± 0.007 \\
-Ensemble & 0.841 & 0.855 & 0.838 & 0.852 & 0.847 ± 0.008 \\
-\hline
-\end{tabular}
-\caption{Scores AUC en validation croisée temporelle}
-\end{table>
-
-\section{Annexe G : Analyse de sensibilité}
-
-\subsection{Sensibilité aux hyperparamètres XGBoost}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-\textbf{Paramètre} & \textbf{Valeur basse} & \textbf{AUC basse} & \textbf{Valeur haute} & \textbf{AUC haute} \\
-\hline
-n\_estimators & 100 & 0.821 & 1000 & 0.837 \\
-max\_depth & 3 & 0.798 & 10 & 0.829 \\
-learning\_rate & 0.01 & 0.789 & 0.3 & 0.826 \\
-subsample & 0.6 & 0.812 & 1.0 & 0.831 \\
-colsample\_bytree & 0.6 & 0.818 & 1.0 & 0.834 \\
-gamma & 0 & 0.831 & 0.5 & 0.824 \\
-reg\_alpha & 0 & 0.829 & 0.1 & 0.834 \\
-reg\_lambda & 0.1 & 0.826 & 10 & 0.831 \\
-\hline
-\end{tabular}
-\caption{Analyse de sensibilité des hyperparamètres XGBoost}
-\end{table}
-
-\subsection{Impact de l'inclusion des variables ESG}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-\textbf{Configuration} & \textbf{AUC} & \textbf{Gini} & \textbf{Amélioration AUC} & \textbf{p-value} \\
-\hline
-Variables financières seules & 0.789 & 0.578 & - & - \\
-+ Score ESG global & 0.821 & 0.642 & +0.032 & <0.001 \\
-+ Scores E, S, G séparés & 0.834 & 0.668 & +0.045 & <0.001 \\
-+ Variables ESG détaillées & 0.847 & 0.694 & +0.058 & <0.001 \\
-\hline
-\end{tabular}
-\caption{Impact progressif de l'intégration des variables ESG}
-\end{table>
-
-\section{Annexe H : Tests statistiques détaillés}
-
-\subsection{Tests de significativité des améliorations}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-\textbf{Comparaison} & \textbf{Différence AUC} & \textbf{Erreur standard} & \textbf{Statistique z} & \textbf{p-value} \\
-\hline
-XGBoost vs Logistique & 0.092 & 0.018 & 5.11 & <0.001 \\
-XGBoost vs Random Forest & 0.036 & 0.014 & 2.57 & 0.010 \\
-Ensemble vs XGBoost & 0.013 & 0.009 & 1.44 & 0.150 \\
-Avec ESG vs Sans ESG & 0.058 & 0.012 & 4.83 & <0.001 \\
-\hline
-\end{tabular}
-\caption{Tests de significativité des différences de performance (test de DeLong)}
-\end{table>
-
-\subsection{Tests de stabilité temporelle (PSI)}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-\textbf{Variable} & \textbf{2019-2020} & \textbf{2020-2021} & \textbf{2021-2022} & \textbf{Interprétation} \\
-\hline
-Score ESG global & 0.067 & 0.089 & 0.124 & Stable à modéré \\
-Score environnemental & 0.156 & 0.234 & 0.298 & Changement significatif \\
-Score social & 0.078 & 0.098 & 0.156 & Stable à modéré \\
-Score gouvernance & 0.045 & 0.067 & 0.089 & Stable \\
-ROE & 0.234 & 0.312 & 0.456 & Changement significatif \\
-Ratio dette/capitaux propres & 0.123 & 0.167 & 0.234 & Modéré à significatif \\
-\hline
-\end{tabular}
-\caption{Indices de stabilité de population (PSI) par période}
-\end{table>
-
-\section{Annexe I : Importance des variables}
-
-\subsection{Importance SHAP par catégorie}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|}
-\hline
-\textbf{Variable} & \textbf{Importance SHAP} & \textbf{Importance Gain} & \textbf{Rang} \\
-\hline
-Ratio dette/capitaux propres & 0.156 & 0.189 & 1 \\
-ROA & 0.134 & 0.167 & 2 \\
-Score de gouvernance & 0.128 & 0.145 & 3 \\
-Couverture des intérêts & 0.098 & 0.123 & 4 \\
-Score social & 0.089 & 0.098 & 5 \\
-Marge EBITDA & 0.087 & 0.106 & 6 \\
-Log(Total actifs) & 0.078 & 0.089 & 7 \\
-Score environnemental & 0.076 & 0.087 & 8 \\
-Volatilité des rendements & 0.067 & 0.078 & 9 \\
-Liquidité courante & 0.054 & 0.067 & 10 \\
-ROE & 0.033 & 0.051 & 11 \\
-\hline
-\end{tabular}
-\caption{Importance des variables selon SHAP et Gain pour XGBoost}
-\end{table}
-
-\subsection{Contribution des facteurs ESG par secteur}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-\textbf{Secteur} & \textbf{Score E} & \textbf{Score S} & \textbf{Score G} & \textbf{Impact global} \\
-\hline
-Énergie & 0.234 & 0.156 & 0.098 & Élevé \\
-Utilities & 0.198 & 0.134 & 0.089 & Élevé \\
-Matériaux & 0.167 & 0.123 & 0.087 & Modéré \\
-Industrie & 0.145 & 0.145 & 0.098 & Modéré \\
-Technologies & 0.089 & 0.156 & 0.123 & Modéré \\
-Services financiers & 0.078 & 0.134 & 0.167 & Modéré \\
-Santé & 0.067 & 0.189 & 0.134 & Modéré \\
-Biens de consommation & 0.098 & 0.167 & 0.112 & Modéré \\
-\hline
-\end{tabular}
-\caption{Contribution relative des facteurs ESG au risque de crédit par secteur}
-\end{table>
-
-\section{Annexe J : Critères ESG détaillés}
-
-\subsection{Critères environnementaux (E)}
-
-Les indicateurs environnementaux comprennent :
-
-\textbf{Émissions de carbone :}
-\begin{itemize}
-\item Scope 1 : Émissions directes des activités de l'entreprise
-\item Scope 2 : Émissions indirectes liées à l'énergie consommée
-\item Scope 3 : Autres émissions indirectes de la chaîne de valeur
-\end{itemize}
-
-\textbf{Gestion des ressources :}
-\begin{itemize}
-\item Consommation d'eau et efficacité hydrique
-\item Gestion des déchets et taux de recyclage
-\item Utilisation d'énergies renouvelables
-\item Impact sur la biodiversité
-\end{itemize}
-
-\subsection{Critères sociaux (S)}
-
-\textbf{Capital humain :}
-\begin{itemize}
-\item Diversité et inclusion (ratio hommes/femmes, représentation ethnique)
-\item Formation et développement des employés
-\item Santé et sécurité au travail (taux d'accidents)
-\item Rémunération équitable et avantages sociaux
-\end{itemize}
-
-\textbf{Relations avec les parties prenantes :}
-\begin{itemize}
-\item Satisfaction client et qualité des produits
-\item Impact sur les communautés locales
-\item Chaîne d'approvisionnement responsable
-\item Respect des droits humains
-\end{itemize}
-
-\subsection{Critères de gouvernance (G)}
-
-\textbf{Structure de gouvernance :}
-\begin{itemize}
-\item Indépendance du conseil d'administration
-\item Diversité du conseil (âge, genre, compétences)
-\item Séparation des fonctions PDG/Président
-\item Comités spécialisés (audit, rémunération, nomination)
-\end{itemize}
-
-\textbf{Éthique et transparence :}
-\begin{itemize}
-\item Politiques anti-corruption
-\item Transparence fiscale
-\item Protection des actionnaires minoritaires
-\item Qualité du reporting financier
-\end{itemize}
-
-\section{Annexe K : Paramètres des modèles}
-
-\subsection{Hyperparamètres XGBoost optimisés}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|l|}
-\hline
-\textbf{Paramètre} & \textbf{Valeur optimale} & \textbf{Plage testée} \\
-\hline
-n\_estimators & 500 & [100, 1000] \\
-max\_depth & 6 & [3, 10] \\
-learning\_rate & 0.1 & [0.01, 0.3] \\
-subsample & 0.8 & [0.6, 1.0] \\
-colsample\_bytree & 0.8 & [0.6, 1.0] \\
-gamma & 0.1 & [0, 0.5] \\
-reg\_alpha & 0.01 & [0, 0.1] \\
-reg\_lambda & 1.0 & [0.1, 10] \\
-\hline
-\end{tabular}
-\caption{Hyperparamètres optimisés pour XGBoost}
-\end{table>
-
-\subsection{Architecture du réseau LSTM}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Couche} & \textbf{Configuration} \\
-\hline
-LSTM 1 & 128 unités, return\_sequences=True \\
-Dropout & Taux = 0.2 \\
-LSTM 2 & 64 unités, return\_sequences=False \\
-Dropout & Taux = 0.2 \\
-Dense 1 & 32 unités, activation=ReLU \\
-Dense 2 & 1 unité, activation=Sigmoid \\
-\hline
-\end{tabular}
-\caption{Architecture du réseau LSTM}
-\end{table>
-
-\section{Annexe L : Pseudo-code des algorithmes principaux}
-
-\subsection{Préprocessing des données ESG}
-
-\begin{verbatim}
-ALGORITHME PreprocessingESG
-ENTRÉE: données_esg, données_financières
-SORTIE: dataset_intégré
-
-1. POUR chaque variable ESG v FAIRE
-2.    Détecter les valeurs aberrantes (Q1 - 1.5*IQR, Q3 + 1.5*IQR)
-3.    Imputer les valeurs manquantes par la médiane sectorielle
-4.    Normaliser v selon Z-score : (v - μ) / σ
-5. FIN POUR
-
-6. Créer variables d'interaction ESG × Financières
-7. Sélectionner variables par importance (Random Forest)
-8. RETOURNER dataset_intégré
-\end{verbatim}
+\section{Annexe F : Algorithmes et pseudo-code}
 
 \subsection{Validation croisée temporelle}
 
 \begin{verbatim}
 ALGORITHME ValidationCroiseeTemporelle
-ENTRÉE: données, modèle, n_splits
+ENTRÉE: données, modèle, fenêtre_initiale = 36 mois, horizon = 12 mois
 SORTIE: scores_validation
 
-1. Trier données par date
-2. taille_split = len(données) / n_splits
-3. POUR i = 1 à n_splits FAIRE
-4.    début_train = 0
-5.    fin_train = i * taille_split
-6.    début_test = fin_train + 1
-7.    fin_test = (i + 1) * taille_split
-8.    
-9.    Entraîner modèle sur [début_train:fin_train]
-10.   Évaluer modèle sur [début_test:fin_test]
-11.   Stocker score dans scores_validation[i]
-12. FIN POUR
-13. RETOURNER scores_validation
+1. Ordonner chronologiquement les données
+2. w = fenêtre_initiale, h = horizon de prédiction, s = 3 mois
+3. POUR t = w à T-h par pas de s FAIRE
+4.    Entraîner modèle sur [1:t]
+5.    Évaluer modèle sur [t+1:t+h]
+6.    Stocker métriques de performance
+7. FIN POUR
+8. Agréger les métriques (moyenne, écart-type)
+9. RETOURNER scores_validation
 \end{verbatim}
 
-\section{Annexe M : Tests statistiques complémentaires}
+\subsection{Optimisation de portefeuille avec contraintes ESG}
 
-\subsection{Test de significativité des coefficients}
+\begin{verbatim}
+ALGORITHME OptimisationPortefeuilleESG
+ENTRÉE: rendements, scores_ESG, contraintes, lambda = 0.3
+SORTIE: poids_optimaux
 
-Pour les modèles logistiques, la statistique de Wald teste $H_0: \beta_i = 0$ :
+1. Initialiser les poids uniformément
+2. POUR chaque itération FAIRE
+3.    Calculer fonction objectif hybride:
+       U = (1-λ) × Sharpe_ratio + λ × Score_ESG_normalisé
+4.    Vérifier contraintes (diversification, duration, ESG_min)
+5.    Ajuster poids selon gradient de la fonction objectif
+6.    Vérifier convergence
+7. FIN POUR
+8. RETOURNER poids_optimaux
+\end{verbatim}
 
-\begin{equation}
-W_i = \frac{\hat{\beta}_i^2}{Var(\hat{\beta}_i)} \sim \chi^2(1)
-\end{equation}
+\section{Annexe G : Sources et traitement des données}
 
-\subsection{Test de stabilité des modèles (PSI)}
+\subsection{Sources de données}
 
-L'indice de stabilité de population (PSI) compare les distributions entre échantillons :
-
-\begin{equation}
-PSI = \sum_{i=1}^{10} (P_{dev,i} - P_{val,i}) \times \ln\left(\frac{P_{dev,i}}{P_{val,i}}\right)
-\end{equation}
-
-où $P_{dev,i}$ et $P_{val,i}$ sont les proportions dans le décile $i$ pour les échantillons de développement et validation.
-
-Interprétation : PSI < 0.1 (stable), 0.1 ≤ PSI < 0.25 (changement modéré), PSI ≥ 0.25 (changement significatif).
-
-\section{Annexe N : Glossaire des termes techniques}
-
-\textbf{AUC (Area Under Curve)} : Aire sous la courbe ROC, mesure de performance pour les modèles de classification binaire.
-
-\textbf{Backtesting} : Validation d'un modèle sur des données historiques pour évaluer sa performance prédictive.
-
-\textbf{Bootstrapping} : Méthode de rééchantillonnage avec remise pour estimer la distribution d'une statistique.
-
-\textbf{Credit Spread} : Différence entre le rendement d'une obligation corporate et d'une obligation sans risque de même maturité.
-
-\textbf{Default Rate} : Taux de défaut, proportion d'emprunteurs qui ne remboursent pas leurs obligations.
-
-\textbf{Expected Loss} : Perte attendue, calculée comme PD × LGD × EAD.
-
-\textbf{Feature Engineering} : Processus de création et sélection de variables pertinentes pour l'apprentissage automatique.
-
-\textbf{Gradient Boosting} : Méthode d'ensemble qui combine séquentiellement des modèles faibles pour corriger les erreurs.
-
-\textbf{Loss Given Default (LGD)} : Taux de perte en cas de défaut, proportion de l'exposition perdue lors d'un défaut.
-
-\textbf{Probability of Default (PD)} : Probabilité qu'un emprunteur ne puisse honorer ses obligations sur un horizon donné.
-
-\textbf{Recall} : Sensibilité, proportion de vrais positifs correctement identifiés par le modèle.
-
-\textbf{SHAP (SHapley Additive exPlanations)} : Méthode d'explication des prédictions basée sur la théorie des jeux coopératifs.
-
-\section{Annexe O : Sources de données ESG}
-
-\subsection{Principales agences de notation ESG}
-
-\textbf{MSCI ESG Research} : Couvre plus de 8 500 entreprises avec une méthodologie basée sur l'exposition aux risques ESG et la gestion de ces risques.
-
-\textbf{Sustainalytics} : Évalue les risques ESG non gérés à travers un score de 0 (risque négligeable) à 100+ (risque sévère).
-
-\textbf{Refinitiv (ex-Thomson Reuters)} : Fournit des scores ESG basés sur plus de 630 métriques individuelles.
-
-\textbf{S\&P Global ESG Scores} : Évalue la durabilité des entreprises selon une échelle de 0 à 100.
-
-\subsection{Divergences entre agences}
-
-Les corrélations entre scores ESG varient significativement :
+\paragraph{Données financières}
+Les données de marché proviennent de Bloomberg Terminal avec mise à jour quotidienne, incluant :
 \begin{itemize}
-\item MSCI vs Sustainalytics : ρ ≈ 0.38
-\item MSCI vs Refinitiv : ρ ≈ 0.54
-\item Sustainalytics vs Refinitiv : ρ ≈ 0.42
+\item Prix et rendements (cours de clôture, rendement à l'échéance, spreads)
+\item Caractéristiques techniques (duration modifiée, convexité, sensibilité aux spreads)
+\item Données d'émission (nominal, dates, taux de coupon, fréquence)
+\item Notations (Moody's, S\&P, Fitch avec réconciliation numérique)
 \end{itemize}
 
-Ces divergences s'expliquent par des différences de méthodologie, de pondération des critères, et de périmètre d'évaluation.
-
-\section{Annexe P : Réglementation et standards}
-
-\subsection{Taxonomie européenne}
-
-La taxonomie européenne définit six objectifs environnementaux :
-\begin{enumerate}
-\item Atténuation du changement climatique
-\item Adaptation au changement climatique
-\item Utilisation durable et protection des ressources aquatiques et marines
-\item Transition vers une économie circulaire
-\item Prévention et réduction de la pollution
-\item Protection et restauration de la biodiversité et des écosystèmes
-\end{enumerate}
-
-\subsection{Standards de reporting}
-
-\textbf{TCFD (Task Force on Climate-related Financial Disclosures)} : Recommandations structurées autour de quatre piliers :
+\paragraph{Données ESG}
+Les scores ESG proviennent principalement de MSCI ESG Research, complétés par Sustainalytics pour validation croisée. L'agrégation combine :
 \begin{itemize}
-\item Gouvernance
-\item Stratégie
-\item Gestion des risques
-\item Métriques et objectifs
+\item Score E (40\%) : intensité carbone, gestion déchets, efficacité énergétique
+\item Score S (30\%) : relations sociales, sécurité produits, capital humain
+\item Score G (30\%) : conseil d'administration, transparence, éthique
 \end{itemize}
 
-\textbf{SASB (Sustainability Accounting Standards Board)} : Standards sectoriels pour le reporting de durabilité financièrement matériel.
+\subsection{Critères de sélection des titres}
 
-\textbf{GRI (Global Reporting Initiative)} : Standards mondiaux pour le reporting de durabilité couvrant les impacts économiques, environnementaux et sociaux.
+Les obligations incluses dans l'univers répondent aux critères suivants :
+\begin{itemize}
+\item Liquidité minimale : volume quotidien > 10 millions d'euros (12 mois)
+\item Maturité résiduelle : 1 à 30 ans
+\item Notation minimale : BBB- ou équivalent
+\item Devise : euros uniquement
+\item Disponibilité ESG : score complet et récent (< 12 mois)
+\end{itemize}
 
-\section{Annexe Q : Limites et biais identifiés}
+\section{Annexe H : Limites et perspectives}
 
-\subsection{Biais dans les données ESG}
+\subsection{Limites méthodologiques identifiées}
 
-\textbf{Biais de sélection} : Les entreprises qui reportent volontairement leurs données ESG peuvent être intrinsèquement différentes de celles qui ne le font pas.
+\paragraph{Données ESG}
+\begin{itemize}
+\item Historique limité des données ESG standardisées (généralement post-2015)
+\item Divergences méthodologiques entre fournisseurs de données
+\item Couverture inégale selon les émetteurs et marchés
+\item Biais potentiel de déclaration volontaire
+\end{itemize}
 
-\textbf{Biais de mesure} : Les métriques ESG peuvent ne pas capturer fidèlement les performances réelles en matière de durabilité.
+\paragraph{Modélisation}
+\begin{itemize}
+\item Risque de surapprentissage pour les modèles complexes
+\item Sensibilité aux paramètres d'estimation des rendements espérés
+\item Hypothèses de stationnarité des relations ESG-crédit
+\item Corrélations instables en période de crise
+\end{itemize}
 
-\textbf{Biais temporel} : L'impact des initiatives ESG peut se manifester avec retard, créant un décalage entre les scores et les performances financières.
+\subsection{Perspectives d'amélioration}
 
-\subsection{Limites méthodologiques}
+\paragraph{Données alternatives}
+\begin{itemize}
+\item Intégration de données satellitaires pour mesures environnementales directes
+\item Analyse textuelle des rapports annuels et communications
+\item Données comportementales et d'actualité en temps réel
+\item Intelligence artificielle appliquée aux sources non structurées
+\end{itemize}
 
-\textbf{Multicolinéarité} : Forte corrélation entre certaines variables ESG pouvant affecter la stabilité des modèles.
+\paragraph{Modèles avancés}
+\begin{itemize}
+\item Graph Neural Networks pour relations complexes entre émetteurs
+\item Transformer Models pour analyse de séries temporelles financières
+\item Approches d'inférence causale pour relations ESG-performance
+\item Modèles explicables combinant performance et interprétabilité
+\end{itemize}
 
-\textbf{Non-linéarité} : Relations complexes entre facteurs ESG et risque de crédit non toujours capturées par les modèles linéaires.
+\section{Annexe I : Glossaire technique}
 
-\textbf{Hétérogénéité sectorielle} : L'importance relative des facteurs ESG varie significativement entre secteurs d'activité.
+\textbf{AUC-ROC} : Aire sous la courbe ROC, mesure de discrimination pour classification binaire.
 
-\section{Annexe R : Perspectives de recherche future}
+\textbf{Duration modifiée} : Sensibilité approximative du prix d'une obligation aux variations de taux d'intérêt.
 
-\subsection{Intégration de données alternatives}
+\textbf{Early Warning Score (EWS)} : Délai moyen entre signal d'alerte et événement de crédit.
 
-\textbf{Données satellitaires} : Mesure directe des émissions, déforestation, activité industrielle.
+\textbf{ESG Contribution Index (ECI)} : Contribution relative des variables ESG à la performance prédictive.
 
-\textbf{Analyse textuelle} : Traitement automatique des rapports annuels, communiqués de presse, médias sociaux.
+\textbf{Expected Shortfall} : Perte moyenne attendue au-delà du seuil de Value-at-Risk.
 
-\textbf{Données comportementales} : Analyse des patterns de comportement des dirigeants et employés.
+\textbf{Stacking} : Technique d'ensemble combinant plusieurs modèles via un méta-modèle.
 
-\subsection{Modèles avancés}
+\textbf{Temporal Stability Ratio (TSR)} : Mesure de stabilité temporelle des performances de modèles.
 
-\textbf{Graph Neural Networks} : Modélisation des relations complexes entre entreprises, fournisseurs, et parties prenantes.
-
-\textbf{Transformer Models} : Application des architectures attention pour l'analyse de séries temporelles financières.
-
-\textbf{Causal Inference} : Identification des relations causales entre pratiques ESG et performance financière.
-
-\subsection{Défis émergents}
-
-\textbf{Greenwashing automatique} : Développement d'algorithmes pour détecter les pratiques de greenwashing.
-
-\textbf{Risques climatiques physiques} : Intégration des modèles climatiques dans l'évaluation du risque de crédit.
-
-\textbf{Transition énergétique} : Modélisation des risques associés à la transition vers une économie bas-carbone.
+\textbf{Value-at-Risk (VaR)} : Perte maximale avec un niveau de confiance donné sur un horizon défini.
