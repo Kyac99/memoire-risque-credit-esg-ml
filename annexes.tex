@@ -1,0 +1,388 @@
+\chapter{Annexes}
+
+\section{Annexe A : Formulations mathématiques détaillées}
+
+\subsection{Modèle de Merton (1974)}
+
+Le modèle de Merton établit la relation entre la valeur des actifs d'une entreprise et la probabilité de défaut. La valeur des actifs suit un processus de mouvement brownien géométrique :
+
+\begin{equation}
+dV_t = \mu V_t dt + \sigma V_t dW_t
+\end{equation}
+
+où $V_t$ représente la valeur des actifs au temps $t$, $\mu$ le taux de dérive, $\sigma$ la volatilité des actifs, et $dW_t$ un processus de Wiener.
+
+La probabilité de défaut sur l'horizon $T$ est donnée par :
+
+\begin{equation}
+PD = N\left(\frac{\ln(D/V_0) - (\mu - \frac{\sigma^2}{2})T}{\sigma\sqrt{T}}\right)
+\end{equation}
+
+où $D$ représente la dette de l'entreprise, $V_0$ la valeur initiale des actifs, et $N(\cdot)$ la fonction de répartition de la loi normale standard.
+
+\subsection{Score Z d'Altman modifié}
+
+La version étendue du modèle d'Altman pour les entreprises non cotées s'exprime :
+
+\begin{equation}
+Z'' = 6.56X_1 + 3.26X_2 + 6.72X_3 + 1.05X_4
+\end{equation}
+
+où :
+\begin{itemize}
+\item $X_1 = \frac{\text{Fonds de roulement}}{\text{Total des actifs}}$
+\item $X_2 = \frac{\text{Bénéfices non distribués}}{\text{Total des actifs}}$
+\item $X_3 = \frac{\text{Résultat avant intérêts et impôts}}{\text{Total des actifs}}$
+\item $X_4 = \frac{\text{Valeur comptable des capitaux propres}}{\text{Total des dettes}}$
+\end{itemize}
+
+Les seuils de classification sont : $Z'' > 2.6$ (zone sûre), $1.1 < Z'' < 2.6$ (zone grise), $Z'' < 1.1$ (zone de détresse).
+
+\section{Annexe B : Algorithmes d'apprentissage automatique}
+
+\subsection{Algorithme XGBoost}
+
+L'objectif d'optimisation de XGBoost pour l'itération $t$ est :
+
+\begin{equation}
+\mathcal{L}^{(t)} = \sum_{i=1}^n l(y_i, \hat{y}_i^{(t-1)} + f_t(x_i)) + \Omega(f_t)
+\end{equation}
+
+où $l$ est la fonction de perte, $\hat{y}_i^{(t-1)}$ la prédiction à l'itération précédente, $f_t$ le nouvel arbre, et $\Omega(f_t)$ le terme de régularisation :
+
+\begin{equation}
+\Omega(f_t) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^T w_j^2
+\end{equation}
+
+avec $T$ le nombre de feuilles, $w_j$ le poids de la feuille $j$, $\gamma$ et $\lambda$ les paramètres de régularisation.
+
+\subsection{Architecture LSTM}
+
+Les équations gouvernant une cellule LSTM sont :
+
+\begin{align}
+f_t &= \sigma(W_f \cdot [h_{t-1}, x_t] + b_f) \\
+i_t &= \sigma(W_i \cdot [h_{t-1}, x_t] + b_i) \\
+\tilde{C}_t &= \tanh(W_C \cdot [h_{t-1}, x_t] + b_C) \\
+C_t &= f_t * C_{t-1} + i_t * \tilde{C}_t \\
+o_t &= \sigma(W_o \cdot [h_{t-1}, x_t] + b_o) \\
+h_t &= o_t * \tanh(C_t)
+\end{align}
+
+où $f_t$, $i_t$, et $o_t$ sont respectivement les portes d'oubli, d'entrée et de sortie.
+
+\section{Annexe C : Métriques d'évaluation détaillées}
+
+\subsection{Courbe ROC et AUC}
+
+L'aire sous la courbe ROC (AUC) se calcule par intégration :
+
+\begin{equation}
+AUC = \int_0^1 TPR(FPR^{-1}(x)) dx
+\end{equation}
+
+où $TPR = \frac{TP}{TP + FN}$ et $FPR = \frac{FP}{FP + TN}$.
+
+\subsection{Coefficient de Gini}
+
+Le coefficient de Gini, utilisé en scoring de crédit, est relié à l'AUC par :
+
+\begin{equation}
+\text{Gini} = 2 \times AUC - 1
+\end{equation}
+
+Un modèle parfait a un Gini de 1, tandis qu'un modèle aléatoire a un Gini de 0.
+
+\subsection{Test de Kolmogorov-Smirnov}
+
+La statistique KS mesure la séparation maximale entre les distributions des bons et mauvais payeurs :
+
+\begin{equation}
+KS = \max_s |F_1(s) - F_0(s)|
+\end{equation}
+
+où $F_1$ et $F_0$ sont les fonctions de répartition empiriques des classes positive et négative.
+
+\section{Annexe D : Critères ESG détaillés}
+
+\subsection{Critères environnementaux (E)}
+
+Les indicateurs environnementaux comprennent :
+
+\textbf{Émissions de carbone :}
+\begin{itemize}
+\item Scope 1 : Émissions directes des activités de l'entreprise
+\item Scope 2 : Émissions indirectes liées à l'énergie consommée
+\item Scope 3 : Autres émissions indirectes de la chaîne de valeur
+\end{itemize}
+
+\textbf{Gestion des ressources :}
+\begin{itemize}
+\item Consommation d'eau et efficacité hydrique
+\item Gestion des déchets et taux de recyclage
+\item Utilisation d'énergies renouvelables
+\item Impact sur la biodiversité
+\end{itemize}
+
+\subsection{Critères sociaux (S)}
+
+\textbf{Capital humain :}
+\begin{itemize}
+\item Diversité et inclusion (ratio hommes/femmes, représentation ethnique)
+\item Formation et développement des employés
+\item Santé et sécurité au travail (taux d'accidents)
+\item Rémunération équitable et avantages sociaux
+\end{itemize}
+
+\textbf{Relations avec les parties prenantes :}
+\begin{itemize}
+\item Satisfaction client et qualité des produits
+\item Impact sur les communautés locales
+\item Chaîne d'approvisionnement responsable
+\item Respect des droits humains
+\end{itemize}
+
+\subsection{Critères de gouvernance (G)}
+
+\textbf{Structure de gouvernance :}
+\begin{itemize}
+\item Indépendance du conseil d'administration
+\item Diversité du conseil (âge, genre, compétences)
+\item Séparation des fonctions PDG/Président
+\item Comités spécialisés (audit, rémunération, nomination)
+\end{itemize}
+
+\textbf{Éthique et transparence :}
+\begin{itemize}
+\item Politiques anti-corruption
+\item Transparence fiscale
+\item Protection des actionnaires minoritaires
+\item Qualité du reporting financier
+\end{itemize}
+
+\section{Annexe E : Paramètres des modèles}
+
+\subsection{Hyperparamètres XGBoost optimisés}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Paramètre} & \textbf{Valeur optimale} & \textbf{Plage testée} \\
+\hline
+n\_estimators & 500 & [100, 1000] \\
+max\_depth & 6 & [3, 10] \\
+learning\_rate & 0.1 & [0.01, 0.3] \\
+subsample & 0.8 & [0.6, 1.0] \\
+colsample\_bytree & 0.8 & [0.6, 1.0] \\
+gamma & 0.1 & [0, 0.5] \\
+reg\_alpha & 0.01 & [0, 0.1] \\
+reg\_lambda & 1.0 & [0.1, 10] \\
+\hline
+\end{tabular}
+\caption{Hyperparamètres optimisés pour XGBoost}
+\end{table}
+
+\subsection{Architecture du réseau LSTM}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Couche} & \textbf{Configuration} \\
+\hline
+LSTM 1 & 128 unités, return\_sequences=True \\
+Dropout & Taux = 0.2 \\
+LSTM 2 & 64 unités, return\_sequences=False \\
+Dropout & Taux = 0.2 \\
+Dense 1 & 32 unités, activation=ReLU \\
+Dense 2 & 1 unité, activation=Sigmoid \\
+\hline
+\end{tabular}
+\caption{Architecture du réseau LSTM}
+\end{table}
+
+\section{Annexe F : Pseudo-code des algorithmes principaux}
+
+\subsection{Préprocessing des données ESG}
+
+\begin{verbatim}
+ALGORITHME PreprocessingESG
+ENTRÉE: données_esg, données_financières
+SORTIE: dataset_intégré
+
+1. POUR chaque variable ESG v FAIRE
+2.    Détecter les valeurs aberrantes (Q1 - 1.5*IQR, Q3 + 1.5*IQR)
+3.    Imputer les valeurs manquantes par la médiane sectorielle
+4.    Normaliser v selon Z-score : (v - μ) / σ
+5. FIN POUR
+
+6. Créer variables d'interaction ESG × Financières
+7. Sélectionner variables par importance (Random Forest)
+8. RETOURNER dataset_intégré
+\end{verbatim}
+
+\subsection{Validation croisée temporelle}
+
+\begin{verbatim}
+ALGORITHME ValidationCroiseeTemporelle
+ENTRÉE: données, modèle, n_splits
+SORTIE: scores_validation
+
+1. Trier données par date
+2. taille_split = len(données) / n_splits
+3. POUR i = 1 à n_splits FAIRE
+4.    début_train = 0
+5.    fin_train = i * taille_split
+6.    début_test = fin_train + 1
+7.    fin_test = (i + 1) * taille_split
+8.    
+9.    Entraîner modèle sur [début_train:fin_train]
+10.   Évaluer modèle sur [début_test:fin_test]
+11.   Stocker score dans scores_validation[i]
+12. FIN POUR
+13. RETOURNER scores_validation
+\end{verbatim}
+
+\section{Annexe G : Tests statistiques complémentaires}
+
+\subsection{Test de significativité des coefficients}
+
+Pour les modèles logistiques, la statistique de Wald teste $H_0: \beta_i = 0$ :
+
+\begin{equation}
+W_i = \frac{\hat{\beta}_i^2}{Var(\hat{\beta}_i)} \sim \chi^2(1)
+\end{equation}
+
+\subsection{Test de stabilité des modèles (PSI)}
+
+L'indice de stabilité de population (PSI) compare les distributions entre échantillons :
+
+\begin{equation}
+PSI = \sum_{i=1}^{10} (P_{dev,i} - P_{val,i}) \times \ln\left(\frac{P_{dev,i}}{P_{val,i}}\right)
+\end{equation}
+
+où $P_{dev,i}$ et $P_{val,i}$ sont les proportions dans le décile $i$ pour les échantillons de développement et validation.
+
+Interprétation : PSI < 0.1 (stable), 0.1 ≤ PSI < 0.25 (changement modéré), PSI ≥ 0.25 (changement significatif).
+
+\section{Annexe H : Glossaire des termes techniques}
+
+\textbf{AUC (Area Under Curve)} : Aire sous la courbe ROC, mesure de performance pour les modèles de classification binaire.
+
+\textbf{Backtesting} : Validation d'un modèle sur des données historiques pour évaluer sa performance prédictive.
+
+\textbf{Bootstrapping} : Méthode de rééchantillonnage avec remise pour estimer la distribution d'une statistique.
+
+\textbf{Credit Spread} : Différence entre le rendement d'une obligation corporate et d'une obligation sans risque de même maturité.
+
+\textbf{Default Rate} : Taux de défaut, proportion d'emprunteurs qui ne remboursent pas leurs obligations.
+
+\textbf{Expected Loss} : Perte attendue, calculée comme PD × LGD × EAD.
+
+\textbf{Feature Engineering} : Processus de création et sélection de variables pertinentes pour l'apprentissage automatique.
+
+\textbf{Gradient Boosting} : Méthode d'ensemble qui combine séquentiellement des modèles faibles pour corriger les erreurs.
+
+\textbf{Loss Given Default (LGD)} : Taux de perte en cas de défaut, proportion de l'exposition perdue lors d'un défaut.
+
+\textbf{Probability of Default (PD)} : Probabilité qu'un emprunteur ne puisse honorer ses obligations sur un horizon donné.
+
+\textbf{Recall} : Sensibilité, proportion de vrais positifs correctement identifiés par le modèle.
+
+\textbf{SHAP (SHapley Additive exPlanations)} : Méthode d'explication des prédictions basée sur la théorie des jeux coopératifs.
+
+\section{Annexe I : Sources de données ESG}
+
+\subsection{Principales agences de notation ESG}
+
+\textbf{MSCI ESG Research} : Couvre plus de 8 500 entreprises avec une méthodologie basée sur l'exposition aux risques ESG et la gestion de ces risques.
+
+\textbf{Sustainalytics} : Évalue les risques ESG non gérés à travers un score de 0 (risque négligeable) à 100+ (risque sévère).
+
+\textbf{Refinitiv (ex-Thomson Reuters)} : Fournit des scores ESG basés sur plus de 630 métriques individuelles.
+
+\textbf{S\&P Global ESG Scores} : Évalue la durabilité des entreprises selon une échelle de 0 à 100.
+
+\subsection{Divergences entre agences}
+
+Les corrélations entre scores ESG varient significativement :
+\begin{itemize}
+\item MSCI vs Sustainalytics : ρ ≈ 0.38
+\item MSCI vs Refinitiv : ρ ≈ 0.54
+\item Sustainalytics vs Refinitiv : ρ ≈ 0.42
+\end{itemize}
+
+Ces divergences s'expliquent par des différences de méthodologie, de pondération des critères, et de périmètre d'évaluation.
+
+\section{Annexe J : Réglementation et standards}
+
+\subsection{Taxonomie européenne}
+
+La taxonomie européenne définit six objectifs environnementaux :
+\begin{enumerate}
+\item Atténuation du changement climatique
+\item Adaptation au changement climatique
+\item Utilisation durable et protection des ressources aquatiques et marines
+\item Transition vers une économie circulaire
+\item Prévention et réduction de la pollution
+\item Protection et restauration de la biodiversité et des écosystèmes
+\end{enumerate}
+
+\subsection{Standards de reporting}
+
+\textbf{TCFD (Task Force on Climate-related Financial Disclosures)} : Recommandations structurées autour de quatre piliers :
+\begin{itemize}
+\item Gouvernance
+\item Stratégie
+\item Gestion des risques
+\item Métriques et objectifs
+\end{itemize}
+
+\textbf{SASB (Sustainability Accounting Standards Board)} : Standards sectoriels pour le reporting de durabilité financièrement matériel.
+
+\textbf{GRI (Global Reporting Initiative)} : Standards mondiaux pour le reporting de durabilité couvrant les impacts économiques, environnementaux et sociaux.
+
+\section{Annexe K : Limites et biais identifiés}
+
+\subsection{Biais dans les données ESG}
+
+\textbf{Biais de sélection} : Les entreprises qui reportent volontairement leurs données ESG peuvent être intrinsèquement différentes de celles qui ne le font pas.
+
+\textbf{Biais de mesure} : Les métriques ESG peuvent ne pas capturer fidèlement les performances réelles en matière de durabilité.
+
+\textbf{Biais temporel} : L'impact des initiatives ESG peut se manifester avec retard, créant un décalage entre les scores et les performances financières.
+
+\subsection{Limites méthodologiques}
+
+\textbf{Multicolinéarité} : Forte corrélation entre certaines variables ESG pouvant affecter la stabilité des modèles.
+
+\textbf{Non-linéarité} : Relations complexes entre facteurs ESG et risque de crédit non toujours capturées par les modèles linéaires.
+
+\textbf{Hétérogénéité sectorielle} : L'importance relative des facteurs ESG varie significativement entre secteurs d'activité.
+
+\section{Annexe L : Perspectives de recherche future}
+
+\subsection{Intégration de données alternatives}
+
+\textbf{Données satellitaires} : Mesure directe des émissions, déforestation, activité industrielle.
+
+\textbf{Analyse textuelle} : Traitement automatique des rapports annuels, communiqués de presse, médias sociaux.
+
+\textbf{Données comportementales} : Analyse des patterns de comportement des dirigeants et employés.
+
+\subsection{Modèles avancés}
+
+\textbf{Graph Neural Networks} : Modélisation des relations complexes entre entreprises, fournisseurs, et parties prenantes.
+
+\textbf{Transformer Models} : Application des architectures attention pour l'analyse de séries temporelles financières.
+
+\textbf{Causal Inference} : Identification des relations causales entre pratiques ESG et performance financière.
+
+\subsection{Défis émergents}
+
+\textbf{Greenwashing automatique} : Développement d'algorithmes pour détecter les pratiques de greenwashing.
+
+\textbf{Risques climatiques physiques} : Intégration des modèles climatiques dans l'évaluation du risque de crédit.
+
+\textbf{Transition énergétique} : Modélisation des risques associés à la transition vers une économie bas-carbone.
